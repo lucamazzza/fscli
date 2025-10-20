@@ -7,14 +7,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PreferencesDeserializerTest {
+
     @Test
-    void testDeserialize() throws Exception {
+    void testDeserializeWithClamp() throws Exception {
         String json = """
                 {
-                  "language": "en",
-                  "cmdColumns": 80,
-                  "outputLines": 10,
-                  "logLines": 5,
+                  "language": "it",
+                  "cmdColumns": 200,   // troppo alto
+                  "outputLines": 1,    // troppo basso
+                  "logLines": 200,     // troppo alto
                   "cmdFont": "Monospaced",
                   "outputFont": "Monospaced",
                   "logFont": "SansSerif"
@@ -24,10 +25,11 @@ public class PreferencesDeserializerTest {
         PreferencesDeserializer deserializer = new PreferencesDeserializer();
         UserPreferences prefs = deserializer.deserialize(json);
 
-        assertEquals("en", prefs.getLanguage());
-        assertEquals(80, prefs.getCmdColumns());
-        assertEquals(10, prefs.getOutputLines());
-        assertEquals(5, prefs.getLogLines());
+        assertEquals("it", prefs.getLanguage());
+        assertEquals(100, prefs.getCmdColumns());
+        assertEquals(3, prefs.getOutputLines());
+        assertEquals(100, prefs.getLogLines());
+
         assertEquals("Monospaced", prefs.getCmdFont());
         assertEquals("Monospaced", prefs.getOutputFont());
         assertEquals("SansSerif", prefs.getLogFont());
