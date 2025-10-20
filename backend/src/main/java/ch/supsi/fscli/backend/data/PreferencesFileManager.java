@@ -10,20 +10,22 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public class PreferencesFileManager {
-    private static final Path PREF_PATH = Paths.get(System.getProperty("user.home"), "fs_prefs.json");
-    private static final PreferencesSerializer serializer = new PreferencesSerializer();
-    private static final PreferencesDeserializer deserializer = new PreferencesDeserializer();
+    private static final Path PREF_PATH =
+            Paths.get(System.getProperty("user.home"), ".fs_prefs.json");
+
+    private final PreferencesSerializer serializer = new PreferencesSerializer();
+    private final PreferencesDeserializer deserializer = new PreferencesDeserializer();
 
     public void save(UserPreferences prefs) throws IOException {
         Files.writeString(PREF_PATH, serializer.serialize(prefs));
     }
 
-    public Optional<UserPreferences> load(){
-        if(Files.exists(PREF_PATH))return Optional.empty();
-        try{
+    public Optional<UserPreferences> load() {
+        if (!Files.exists(PREF_PATH)) return Optional.empty();
+        try {
             String json = Files.readString(PREF_PATH);
             return Optional.of(deserializer.deserialize(json));
-        }catch(IOException e){
+        } catch (IOException e) {
             PreferencesLogger.logError("Failed to load preferences", e);
             return Optional.empty();
         }
