@@ -9,6 +9,11 @@ public class UserPreferences {
     private String outputFont = "Monospaced";
     private String logFont = "SansSerif";
 
+    private static final int MIN_COLUMNS = 10;
+    private static final int MAX_COLUMNS = 100;
+    private static final int MIN_LINES = 3;
+    private static final int MAX_LINES = 100;
+
     public String getLanguage() {
         return language;
     }
@@ -22,7 +27,7 @@ public class UserPreferences {
     }
 
     public void setCmdColumns(int cmdColumns) {
-        this.cmdColumns = cmdColumns;
+        this.cmdColumns = clamp(cmdColumns, MIN_COLUMNS, MAX_COLUMNS);
     }
 
     public int getOutputLines() {
@@ -30,7 +35,7 @@ public class UserPreferences {
     }
 
     public void setOutputLines(int outputLines) {
-        this.outputLines = outputLines;
+        this.outputLines = clamp(outputLines, MIN_LINES, MAX_LINES);
     }
 
     public int getLogLines() {
@@ -38,7 +43,7 @@ public class UserPreferences {
     }
 
     public void setLogLines(int logLines) {
-        this.logLines = logLines;
+        this.logLines = clamp(logLines, MIN_LINES, MAX_LINES);
     }
 
     public String getCmdFont() {
@@ -63,5 +68,11 @@ public class UserPreferences {
 
     public void setLogFont(String logFont) {
         this.logFont = logFont;
+    }
+
+    private int clamp(int value, int min, int max) {
+        if (value < min) return min;
+        if (value > max) return max;
+        return value;
     }
 }
