@@ -1,7 +1,7 @@
-package ch.supsi.fscli.backend.service;
+package ch.supsi.fscli.backend.application;
 
 import ch.supsi.fscli.backend.data.PreferencesFileManager;
-import ch.supsi.fscli.backend.model.UserPreferences;
+import ch.supsi.fscli.backend.business.UserPreferences;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 
 import java.io.IOException;
@@ -9,10 +9,15 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 public class PreferencesService {
-    private final PreferencesFileManager fileManager = new PreferencesFileManager();
+    private final PreferencesFileManager fileManager;
     private UserPreferences currentPrefs;
 
     public PreferencesService() {
+        this(new PreferencesFileManager());
+    }
+
+    public PreferencesService(PreferencesFileManager fileManager) {
+        this.fileManager = fileManager;
         this.currentPrefs = fileManager.load().orElseGet(UserPreferences::new);
     }
 

@@ -1,6 +1,6 @@
 package ch.supsi.fscli.backend.data;
 
-import ch.supsi.fscli.backend.model.UserPreferences;
+import ch.supsi.fscli.backend.business.UserPreferences;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;

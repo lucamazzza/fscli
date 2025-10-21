@@ -1,6 +1,6 @@
-package backend.model;
+package backend.business;
 
-import ch.supsi.fscli.backend.model.UserPreferences;
+import ch.supsi.fscli.backend.business.UserPreferences;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
