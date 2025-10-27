@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend;
 
+import ch.supsi.fscli.frontend.view.MenuView;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -20,9 +21,6 @@ public class MainFx extends Application {
 
     private final String applicationTitle;
     private final MenuBar menuBar;
-    private final Menu fileMenu;
-    private final Menu editMenu;
-    private final Menu helpMenu;
     private final Label commandLineLabel;
     private final Button enter;
     private final TextField commandLine;
@@ -32,55 +30,11 @@ public class MainFx extends Application {
     public MainFx() {
         this.applicationTitle = "filesystem command interpreter simulator";
 
-        // FILE MENU
-        MenuItem newMenuItem = new MenuItem("New");
-        newMenuItem.setId("newMenuItem");
-
-        MenuItem openMenuItem = new MenuItem("Open...");
-        openMenuItem.setId("openMenuItem");
-
-        MenuItem saveMenuItem = new MenuItem("Save");
-        saveMenuItem.setId("saveMenuItem");
-
-        MenuItem saveAsMenuItem = new MenuItem("Save as...");
-        saveAsMenuItem.setId("saveAsMenuItem");
-
-        MenuItem exitMenuItem = new MenuItem("Exit...");
-        exitMenuItem.setId("exitMenuItem");
-
-        this.fileMenu = new Menu("File");
-        this.fileMenu.setId("fileMenu");
-        this.fileMenu.getItems().add(newMenuItem);
-        this.fileMenu.getItems().add(new SeparatorMenuItem());
-        this.fileMenu.getItems().add(openMenuItem);
-        this.fileMenu.getItems().add(saveMenuItem);
-        this.fileMenu.getItems().add(saveAsMenuItem);
-        this.fileMenu.getItems().add(new SeparatorMenuItem());
-        this.fileMenu.getItems().add(exitMenuItem);
-
-        // EDIT MENU
-        MenuItem preferencesMenuItem = new MenuItem("Preferences...");
-        preferencesMenuItem.setId("preferencesMenuItem");
-
-        this.editMenu = new Menu("Edit");
-        this.editMenu.setId("editMenu");
-        this.editMenu.getItems().add(preferencesMenuItem);
-
-        // HELP MENU
-        MenuItem helpMenuItem = new MenuItem("Help");
-        helpMenuItem.setId("helpMenuItem");
-
-        MenuItem aboutMenuItem = new MenuItem("About");
-        aboutMenuItem.setId("aboutMenuItem");
-
-        this.helpMenu = new Menu("Help");
-        this.helpMenu.setId("helpMenu");
-        this.helpMenu.getItems().add(helpMenuItem);
-        this.helpMenu.getItems().add(aboutMenuItem);
+        MenuView menuView = MenuView.getInstance();
 
         // MENU BAR
         this.menuBar = new MenuBar();
-        this.menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
+        this.menuBar.getMenus().addAll(menuView.getFileMenu(), menuView.getEditMenu(), menuView.getHelpMenu());
 
         // COMMAND LINE
         this.enter = new Button("enter");
