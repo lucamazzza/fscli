@@ -2,11 +2,6 @@ package ch.supsi.fscli.frontend.view;
 
 public class LogAreaView implements View {
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public void enable() {
 
     }
