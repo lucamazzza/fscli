@@ -122,8 +122,8 @@ public class MenuView implements View{
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Label buildDateLabel = new Label("Build date: " + buildDate);
-        Label versionLabel = new Label("Version" + version);
-        Label copyrightLabel = new Label("Developers" + developers);
+        Label versionLabel = new Label("Version: " + version);
+        Label copyrightLabel = new Label("Developers: " + developers);
 
         // --- Close Button ---
         Button closeButton = new Button("Close");
