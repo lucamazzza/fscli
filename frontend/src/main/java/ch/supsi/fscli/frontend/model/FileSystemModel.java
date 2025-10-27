@@ -3,7 +3,7 @@ package ch.supsi.fscli.frontend.model;
 import ch.supsi.fscli.frontend.controller.EventHandler;
 import ch.supsi.fscli.frontend.controller.FileSystemHandler;
 
-public class FileSystemModel implements AbstractModel, FileSystemHandler, EventHandler {
+public class FileSystemModel implements AbstractModel, FileSystemHandler {
     @Override
     public void parseCommand(String inputString) {
 
