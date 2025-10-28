@@ -1,8 +1,23 @@
 package ch.supsi.fscli.backend.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@JsonTypeInfo(
+        use = JsonTypeInfo.Id.NAME,
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "nodeType"
+)
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = FileNode.class, name = "file"),
+        @JsonSubTypes.Type(value = DirectoryNode.class, name = "directory"),
+        @JsonSubTypes.Type(value = SymlinkNode.class, name = "symlink")
+})
 public abstract class FSNode {
     private static final AtomicInteger ID_GEN = new AtomicInteger(1);
 
@@ -11,6 +26,7 @@ public abstract class FSNode {
     protected Instant ctime;
     protected Instant mtime;
     protected Instant atime;
+    @JsonIgnore
     protected DirectoryNode parent;
 
     protected FSNode() {
@@ -20,9 +36,11 @@ public abstract class FSNode {
         this.ctime = this.mtime = this.atime = now;
         this.parent = null;
     }
+    @JsonProperty("id")
     public int getId() {
         return this.id;
     }
+    @JsonProperty("linkCount")
     public int getLinkCount () {
         return this.linkCount;
     }
@@ -34,12 +52,15 @@ public abstract class FSNode {
         linkCount = Math.max(0, linkCount - 1);
         this.ctime = Instant.now();
     }
+    @JsonProperty("ctime")
     public Instant getCTime() {
         return this.ctime;
     }
+    @JsonProperty("mtime")
     public Instant getMTime() {
         return this.mtime;
     }
+    @JsonProperty("atime")
     public Instant getATime() {
         return this.atime;
     }
@@ -47,11 +68,27 @@ public abstract class FSNode {
         this.ctime = Instant.now();
         this.mtime = Instant.now();
     }
+    @JsonIgnore
     public DirectoryNode getParent() {
         return this.parent;
     }
+    @JsonIgnore
     public void setParent(DirectoryNode parent) {
         this.parent = parent;
+    }
+
+    // NOTE: Only to expose properties to JSON SerDe
+    @JsonProperty("isDirectory")
+    private boolean getIsDirectory() {
+        return isDirectory();
+    }
+    @JsonProperty("isSymlink")
+    private boolean getIsSymlink() {
+        return isSymlink();
+    }
+    @JsonProperty("typeName")
+    public String getTypeName() {
+        return typeName();
     }
 
     public abstract boolean isDirectory();

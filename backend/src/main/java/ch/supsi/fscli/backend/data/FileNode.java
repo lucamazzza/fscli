@@ -1,10 +1,13 @@
 package ch.supsi.fscli.backend.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Arrays;
 
 public class FileNode extends FSNode {
+    @JsonIgnore
     private byte[] data;
 
     public FileNode() {

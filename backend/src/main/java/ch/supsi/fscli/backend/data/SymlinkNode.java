@@ -1,5 +1,7 @@
 package ch.supsi.fscli.backend.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 
 public class SymlinkNode extends FSNode {
@@ -9,9 +11,11 @@ public class SymlinkNode extends FSNode {
         super();
         this.target = target;
     }
+    @JsonProperty("target")
     public String getTarget() {
         return this.target;
     }
+    @JsonProperty("target")
     public void setTarget(String target) {
         this.target = target;
         this.mtime = Instant.now();

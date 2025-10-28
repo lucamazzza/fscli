@@ -1,5 +1,8 @@
 package ch.supsi.fscli.backend.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -7,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DirectoryNode extends FSNode {
+    @JsonIgnore
     private final Map<String, FSNode> children = new LinkedHashMap<>();
 
     public DirectoryNode() {
@@ -36,12 +40,15 @@ public class DirectoryNode extends FSNode {
     public synchronized List<String> listNames() {
         return new ArrayList<>(children.keySet());
     }
+    @JsonProperty("children")
     public synchronized Map<String, FSNode> snapshot() {
         return new LinkedHashMap<>(children);
     }
+    @JsonIgnore
     public synchronized boolean isEmpty() {
         return children.isEmpty();
     }
+
     @Override
     public boolean isDirectory() {
         return true;
