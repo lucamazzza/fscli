@@ -67,16 +67,4 @@ public class DirectoryNodeTest {
         assertFalse(d.contains("x"));
         assertFalse(d.getMTime().isBefore(before));
     }
-
-    @Test
-    void nodeIdentity() {
-        assertTrue(d.isEmpty());
-        d.add("x", new FileNode());
-        assertFalse(d.isEmpty());
-        assertTrue(d.isDirectory());
-        FileNode f = new FileNode();
-        assertFalse(f.isDirectory());
-        assertFalse(d.isSymlink());
-        assertEquals("directory", d.typeName());
-    }
 }

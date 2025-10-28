@@ -2,6 +2,7 @@ package backend.data;
 
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileNode;
+import ch.supsi.fscli.backend.data.SymlinkNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -66,5 +67,21 @@ public class FSNodeTest {
         assertTrue(s.contains("file"));
         assertTrue(s.contains("id="));
         assertTrue(s.contains("links="));
+    }
+
+    @Test
+    void nodeIdentity() {
+        DirectoryNode d = new DirectoryNode();
+        assertTrue(d.isDirectory());
+        assertFalse(d.isSymlink());
+        FileNode f = new FileNode();
+        assertFalse(f.isDirectory());
+        assertFalse(d.isSymlink());
+        SymlinkNode s = new SymlinkNode("->target");
+        assertTrue(s.isSymlink());
+        assertFalse(s.isDirectory());
+        assertEquals("directory", d.typeName());
+        assertEquals("file", f.typeName());
+        assertEquals("symlink", s.typeName());
     }
 }
