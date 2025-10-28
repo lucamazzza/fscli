@@ -10,6 +10,16 @@ import java.util.LinkedList;
 public class PathResolver {
     private static final String SEP = "/";
 
+    private static PathResolver self;
+    public static PathResolver getInstance() {
+        if (self == null) {
+            self = new PathResolver();
+        }
+        return self;
+    }
+
+    private PathResolver() {}
+
     public FSNode resolve(DirectoryNode cwd, String path, boolean followSym) throws NotFoundException, InvalidPathException {
         return resolve(cwd, path, followSym, 0);
     }
