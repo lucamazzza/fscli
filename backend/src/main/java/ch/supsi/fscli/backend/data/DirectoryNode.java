@@ -17,6 +17,7 @@ public class DirectoryNode extends FSNode {
         children.put(name, node);
         node.setParent(this);
         this.mtime = Instant.now();
+        node.atime = Instant.now();
     }
     public synchronized FSNode remove(String name) {
         FSNode node = children.remove(name);

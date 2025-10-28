@@ -1,14 +1,28 @@
 package backend.data;
 
+import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileNode;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class FSNodeTest {
+    FileNode f;
+
+    @BeforeEach
+    void setUp() {
+        f = new FileNode();
+    }
+
+    @AfterEach
+    void tearDown() {
+        f = null;
+    }
+
     @Test
     void idGenerationIncrementsTest() {
         FileNode a = new FileNode();
@@ -18,7 +32,6 @@ public class FSNodeTest {
 
     @Test
     void linkCountInvariants() {
-        FileNode f = new FileNode();
         int initial = f.getLinkCount();
         f.incrementLinkCount();
         assertEquals(initial + 1, f.getLinkCount());
@@ -31,8 +44,15 @@ public class FSNodeTest {
     }
 
     @Test
+    void addedTimes() {
+        Instant before = f.getCTime();
+        DirectoryNode d = new DirectoryNode();
+        d.add("File", f);
+        assertTrue(f.getATime().isAfter(before));
+    }
+
+    @Test
     void touchUpdatesTimes() {
-        FileNode f = new FileNode();
         Instant prevC = f.getCTime();
         Instant prevM = f.getMTime();
         f.touch();
@@ -42,7 +62,6 @@ public class FSNodeTest {
 
     @Test
     void toStringIncludesTypeAndIdAndLinks() {
-        FileNode f = new FileNode();
         String s = f.toString();
         assertTrue(s.contains("file"));
         assertTrue(s.contains("id="));
