@@ -76,7 +76,7 @@ public class FSNodeTest {
         assertFalse(d.isSymlink());
         FileNode f = new FileNode();
         assertFalse(f.isDirectory());
-        assertFalse(d.isSymlink());
+        assertFalse(f.isSymlink());
         SymlinkNode s = new SymlinkNode("->target");
         assertTrue(s.isSymlink());
         assertFalse(s.isDirectory());

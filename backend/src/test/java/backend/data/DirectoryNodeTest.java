@@ -62,9 +62,18 @@ public class DirectoryNodeTest {
         d.add("x", f);
         Instant before = d.getMTime();
         FSNode removed = d.remove("x");
+        FSNode removedNull = d.remove("x");
+        assertNull(removedNull);
         assertSame(f, removed);
         assertNull(f.getParent());
         assertFalse(d.contains("x"));
         assertFalse(d.getMTime().isBefore(before));
+    }
+
+    @Test
+    void isEmpty() {
+        assertTrue(d.isEmpty());
+        d.add("x", new FileNode());
+        assertFalse(d.isEmpty());
     }
 }

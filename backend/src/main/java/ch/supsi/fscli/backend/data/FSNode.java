@@ -77,22 +77,11 @@ public abstract class FSNode {
         this.parent = parent;
     }
 
-    // NOTE: Only to expose properties to JSON SerDe
     @JsonProperty("isDirectory")
-    private boolean getIsDirectory() {
-        return isDirectory();
-    }
-    @JsonProperty("isSymlink")
-    private boolean getIsSymlink() {
-        return isSymlink();
-    }
-    @JsonProperty("typeName")
-    public String getTypeName() {
-        return typeName();
-    }
-
     public abstract boolean isDirectory();
+    @JsonProperty("isSymlink")
     public abstract boolean isSymlink();
+    @JsonProperty("typeName")
     public abstract String typeName();
 
     @Override
