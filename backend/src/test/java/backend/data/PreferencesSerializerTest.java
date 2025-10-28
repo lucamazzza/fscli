@@ -1,7 +1,7 @@
 package backend.data;
 
-import ch.supsi.fscli.backend.data.PreferencesSerializer;
 import ch.supsi.fscli.backend.business.UserPreferences;
+import ch.supsi.fscli.backend.data.Serializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ public class PreferencesSerializerTest {
         prefs.setOutputFont("Monospaced");
         prefs.setLogFont("SansSerif");
 
-        PreferencesSerializer serializer = new PreferencesSerializer();
+        Serializer<UserPreferences> serializer = new Serializer<>();
         String json = serializer.serialize(prefs);
 
         ObjectMapper mapper = new ObjectMapper();

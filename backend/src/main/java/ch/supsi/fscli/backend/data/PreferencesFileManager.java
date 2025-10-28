@@ -15,8 +15,8 @@ public class PreferencesFileManager {
             Paths.get(System.getProperty("user.home"), ".fs_prefs.json");
 
     private final Path prefPath;
-    private final PreferencesSerializer serializer = new PreferencesSerializer();
-    private final PreferencesDeserializer deserializer = new PreferencesDeserializer();
+    private final Serializer<UserPreferences> serializer = new Serializer<>();
+    private final Deserializer<UserPreferences> deserializer = new Deserializer<>();
 
     public PreferencesFileManager() {
         this.prefPath = DEFAULT_PREF_PATH;
@@ -31,10 +31,12 @@ public class PreferencesFileManager {
     }
 
     public Optional<UserPreferences> load() {
-        if (!Files.exists(prefPath)) return Optional.empty();
         try {
+            if (!Files.exists(prefPath) || Files.size(prefPath) == 0) {
+                return Optional.empty();
+            }
             String json = Files.readString(prefPath);
-            return Optional.of(deserializer.deserialize(json));
+            return Optional.of(deserializer.deserialize(json, UserPreferences.class));
         } catch (IOException e) {
             PreferencesLogger.logError("Failed to load preferences", e);
             return Optional.empty();

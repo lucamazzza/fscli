@@ -1,6 +1,6 @@
 package backend.data;
 
-import ch.supsi.fscli.backend.data.PreferencesDeserializer;
+import ch.supsi.fscli.backend.data.Deserializer;
 import ch.supsi.fscli.backend.business.UserPreferences;
 import org.junit.jupiter.api.Test;
 
@@ -13,17 +13,17 @@ public class PreferencesDeserializerTest {
         String json = """
                 {
                   "language": "it",
-                  "cmdColumns": 200,   // troppo alto
-                  "outputLines": 1,    // troppo basso
-                  "logLines": 200,     // troppo alto
+                  "cmdColumns": 200,
+                  "outputLines": 1,
+                  "logLines": 200,
                   "cmdFont": "Monospaced",
                   "outputFont": "Monospaced",
                   "logFont": "SansSerif"
                 }
                 """;
 
-        PreferencesDeserializer deserializer = new PreferencesDeserializer();
-        UserPreferences prefs = deserializer.deserialize(json);
+        Deserializer<UserPreferences> deserializer = new Deserializer<>();
+        UserPreferences prefs = deserializer.deserialize(json, UserPreferences.class);
 
         assertEquals("it", prefs.getLanguage());
         assertEquals(100, prefs.getCmdColumns());

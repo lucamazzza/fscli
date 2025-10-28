@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 
-public class PreferencesDeserializer {
+public class Serializer<T> {
     private final ObjectMapper mapper = new ObjectMapper();
 
-    public UserPreferences deserialize(String json) throws IOException {
-        return mapper.readValue(json, UserPreferences.class);
+    public String serialize(T data) throws IOException {
+        return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(data);
     }
 }
