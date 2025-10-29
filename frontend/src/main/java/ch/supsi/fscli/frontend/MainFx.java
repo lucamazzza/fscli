@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend;
 
+import ch.supsi.fscli.frontend.controller.PreferencesController;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -61,6 +62,11 @@ public class MainFx extends Application {
         // EDIT MENU
         MenuItem preferencesMenuItem = new MenuItem("Preferences...");
         preferencesMenuItem.setId("preferencesMenuItem");
+
+        preferencesMenuItem.setOnAction(e -> {
+            PreferencesController controller = new PreferencesController();
+            controller.openPreferencesWindow();
+        });
 
         this.editMenu = new Menu("Edit");
         this.editMenu.setId("editMenu");
