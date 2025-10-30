@@ -1,7 +1,6 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.controller.AboutController;
-import ch.supsi.fscli.frontend.model.ApplicationModel;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -13,32 +12,27 @@ import javafx.stage.Stage;
 import lombok.Getter;
 
 @Getter
-public class MenuView implements View{
+public class MenuBarView implements IView {
     private final Menu fileMenu;
     private final Menu editMenu;
     private final Menu helpMenu;
 
-    private static MenuView instance;
+    private final MenuBar menuBar;
 
-    public static MenuView getInstance() {
+    private static MenuBarView instance;
+
+    public static MenuBarView getInstance() {
         if (instance == null) {
-            instance = new MenuView();
+            instance = new MenuBarView();
         }
         return instance;
     }
 
-    private MenuView () {
-        // FILE MENU
+    private MenuBarView() {
         this.fileMenu = new Menu("File");
-        fileMenuInit();
-
-        // EDIT MENU
         this.editMenu = new Menu("Edit");
-        editMenuInit();
-
-        // HELP MENU
         this.helpMenu = new Menu("Help");
-        helpMenuInit();
+        this.menuBar = new MenuBar();
     }
 
     private void fileMenuInit() {
@@ -95,6 +89,10 @@ public class MenuView implements View{
         this.helpMenu.getItems().add(aboutMenuItem);
     }
 
+    private void menuBarInit() {
+        this.menuBar.getMenus().addAll(this.fileMenu, this.editMenu, this.helpMenu);
+    }
+
     private void showAboutWindow(Stage ownerStage) {
         AboutController controller = AboutController.getInstance();
         String applicationName = controller.getAppName();
@@ -144,13 +142,11 @@ public class MenuView implements View{
     }
 
     @Override
-    public void enable() {
-
-    }
-
-    @Override
-    public void disable() {
-
+    public void init() {
+        fileMenuInit();
+        editMenuInit();
+        helpMenuInit();
+        menuBarInit();
     }
 
     @Override

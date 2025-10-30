@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend;
 
-import ch.supsi.fscli.frontend.view.MenuView;
+import ch.supsi.fscli.frontend.view.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -15,49 +15,29 @@ import javafx.stage.Stage;
 public class MainFx extends Application {
     private static final int PREF_INSETS_SIZE = 7;
     private static final int PREF_COMMAND_SPACER_WIDTH = 11;
-    private static final int COMMAND_LINE_PREF_COLUMN_COUNT = 72;
-    private static final int PREF_OUTPUT_VIEW_ROW_COUNT = 25;
-    private static final int PREF_LOG_VIEW_ROW_COUNT = 5;
 
     private final String applicationTitle;
-    private final MenuBar menuBar;
-    private final Label commandLineLabel;
-    private final Button enter;
-    private final TextField commandLine;
-    private final TextArea outputView;
-    private final TextArea logView;
+
+    // VIEWS
+    private final MenuBarView menuBar;
+    private final CommandLineView commandLine;
+    private final CommandLogView commandOutputArea;
+    private final LogAreaView logArea;
 
     public MainFx() {
         this.applicationTitle = "filesystem command interpreter simulator";
-
-        MenuView menuView = MenuView.getInstance();
-
-        // MENU BAR
-        this.menuBar = new MenuBar();
-        this.menuBar.getMenus().addAll(menuView.getFileMenu(), menuView.getEditMenu(), menuView.getHelpMenu());
-
-        // COMMAND LINE
-        this.enter = new Button("enter");
-        this.enter.setId("enter");
-
-        this.commandLineLabel = new Label("command");
-        this.commandLine = new TextField();
-
-        // OUTPUT VIEW (to be encapsulated properly)
-        this.outputView = new TextArea();
-        this.outputView.setId("outputView");
-        this.outputView.appendText("This is an example output text...\n");
-
-        // LOG VIEW (to be encapsulated properly)
-        this.logView = new TextArea();
-        this.logView.setId("logView");
-        this.logView.appendText("This is an example log text...\n");
+        this.menuBar = MenuBarView.getInstance();
+        this.commandLine = CommandLineView.getInstance();
+        this.commandOutputArea = CommandLogView.getInstance();
+        this.logArea = LogAreaView.getInstance();
     }
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // command line
-        this.commandLine.setPrefColumnCount(COMMAND_LINE_PREF_COLUMN_COUNT);
+        this.menuBar.init();
+        this.commandLine.init();
+        this.commandOutputArea.init();
+        this.logArea.init();
 
         // horizontal box to hold the command line
         HBox commandLinePane = new HBox();
@@ -70,39 +50,31 @@ public class MainFx extends Application {
         Region spacer2 = new Region();
         spacer2.setPrefWidth(PREF_COMMAND_SPACER_WIDTH);
 
-        commandLinePane.getChildren().add(this.commandLineLabel);
+        commandLinePane.getChildren().add(this.commandLine.getCommandLineLabel());
         commandLinePane.getChildren().add(spacer1);
-        commandLinePane.getChildren().add(this.commandLine);
+        commandLinePane.getChildren().add(this.commandLine.getCommandLine());
         commandLinePane.getChildren().add(spacer2);
-        commandLinePane.getChildren().add(this.enter);
+        commandLinePane.getChildren().add(this.commandLine.getEnter());
 
         // vertical pane to hold the menu bar and the command line
         VBox top = new VBox(
-                this.menuBar,
+                this.menuBar.getMenuBar(),
                 commandLinePane
         );
-
-        // output view
-        this.outputView.setPrefRowCount(PREF_OUTPUT_VIEW_ROW_COUNT);
-        this.outputView.setEditable(false);
 
         // scroll pane to hold the output view
         ScrollPane centerPane = new ScrollPane();
         centerPane.setFitToHeight(true);
         centerPane.setFitToWidth(true);
         centerPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        centerPane.setContent(this.outputView);
-
-        // log view
-        this.logView.setPrefRowCount(PREF_LOG_VIEW_ROW_COUNT);
-        this.logView.setEditable(false);
+        centerPane.setContent(this.commandOutputArea.getOutputView());
 
         // scroll pane to hold log view
         ScrollPane bottomPane = new ScrollPane();
         bottomPane.setFitToHeight(true);
         bottomPane.setFitToWidth(true);
         bottomPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        bottomPane.setContent(this.logView);
+        bottomPane.setContent(this.logArea.getLogView());
 
         // root pane
         BorderPane rootPane = new BorderPane();
