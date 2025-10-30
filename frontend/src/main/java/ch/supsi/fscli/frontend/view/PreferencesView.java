@@ -3,6 +3,7 @@ package ch.supsi.fscli.frontend.view;
 import ch.supsi.fscli.frontend.controller.ValidatedField;
 import ch.supsi.fscli.frontend.util.FieldValidator;
 import ch.supsi.fscli.frontend.util.FrontendGlobalVariables;
+import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -98,7 +99,96 @@ public class PreferencesView {
         stage.setScene(scene);
     }
 
-    public void show() {
-        stage.showAndWait();
+    // --- LANGUAGE ---
+    public void setLanguage(String language) {
+        languageBox.setValue(language);
     }
+    public String getLanguage() {
+        return languageBox.getValue();
+    }
+
+    // --- CMD COLUMNS ---
+    public void setCmdColumns(String value) {
+        cmdColumnsField.field().setText(value);
+    }
+    public String getCmdColumns() {
+        return cmdColumnsField.field().getText();
+    }
+    public BooleanProperty cmdColumnsInvalidProperty() {
+        return cmdColumnsField.invalid();
+    }
+
+    // --- OUTPUT LINES ---
+    public void setOutputLines(String value) {
+        outputLinesField.field().setText(value);
+    }
+    public String getOutputLines() {
+        return outputLinesField.field().getText();
+    }
+    public BooleanProperty outputLinesInvalidProperty() {
+        return outputLinesField.invalid();
+    }
+
+    // --- LOG LINES ---
+    public void setLogLines(String value) {
+        logLinesField.field().setText(value);
+    }
+    public String getLogLines() {
+        return logLinesField.field().getText();
+    }
+    public BooleanProperty logLinesInvalidProperty() {
+        return logLinesField.invalid();
+    }
+
+    // --- CMD FONT ---
+    public void setCmdFont(String font) {
+        cmdFontBox.setValue(font);
+    }
+    public String getCmdFont() {
+        return cmdFontBox.getValue();
+    }
+
+    // --- OUTPUT FONT ---
+    public void setOutputFont(String font) {
+        outputFontBox.setValue(font);
+    }
+    public String getOutputFont() {
+        return outputFontBox.getValue();
+    }
+
+    // --- LOG FONT ---
+    public void setLogFont(String font) {
+        logFontBox.setValue(font);
+    }
+    public String getLogFont() {
+        return logFontBox.getValue();
+    }
+
+    // --- BUTTON EVENT HANDLERS ---
+    public void setOnSave(Runnable r) {
+        saveBtn.setOnAction(e -> r.run());
+    }
+    public void setOnCancel(Runnable r) {
+        cancelBtn.setOnAction(e -> r.run());
+    }
+    public void setOnReload(Runnable r) {
+        reloadBtn.setOnAction(e -> r.run());
+    }
+
+    // --- DISABLE SAVE BUTTON BIND ---
+    // Getter per il disableProperty del pulsante save
+    public BooleanProperty saveBtnDisableProperty() {
+        return saveBtn.disableProperty();
+    }
+
+
+    // --- SHOW / CLOSE ---
+    public void show() {
+        stage.show();
+    }
+
+    public void close() {
+        stage.close();
+    }
+
 }
