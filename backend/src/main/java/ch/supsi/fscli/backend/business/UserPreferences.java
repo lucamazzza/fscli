@@ -1,18 +1,17 @@
 package ch.supsi.fscli.backend.business;
 
-public class UserPreferences {
-    private String language = "en";
-    private int cmdColumns = 80;
-    private int outputLines = 10;
-    private int logLines = 5;
-    private String cmdFont = "Monospaced";
-    private String outputFont = "Monospaced";
-    private String logFont = "SansSerif";
+import ch.supsi.fscli.backend.util.BackendGlobalVariables;
 
-    public static final int MIN_COLUMNS = 10;
-    public static final int MAX_COLUMNS = 100;
-    public static final int MIN_LINES = 3;
-    public static final int MAX_LINES = 100;
+public class UserPreferences {
+    private String language = BackendGlobalVariables.DEFAULT_LANGUAGE;
+    private int cmdColumns = BackendGlobalVariables.DEFAULT_CMD_COLUMNS;
+    private int outputLines = BackendGlobalVariables.DEFAULT_OUTPUT_LINES;
+    private int logLines = BackendGlobalVariables.DEFAULT_LOG_LINES;
+    private String cmdFont = BackendGlobalVariables.DEFAULT_CMD_FONT;
+    private String outputFont = BackendGlobalVariables.DEFAULT_OUTPUT_FONT;
+    private String logFont = BackendGlobalVariables.DEFAULT_LOG_FONT;
+
+
 
     public String getLanguage() {
         return language;
@@ -27,7 +26,7 @@ public class UserPreferences {
     }
 
     public void setCmdColumns(int cmdColumns) {
-        this.cmdColumns = clamp(cmdColumns, MIN_COLUMNS, MAX_COLUMNS);
+        this.cmdColumns = clamp(cmdColumns, BackendGlobalVariables.MIN_COLUMNS, BackendGlobalVariables.MAX_COLUMNS);
     }
 
     public int getOutputLines() {
@@ -35,7 +34,7 @@ public class UserPreferences {
     }
 
     public void setOutputLines(int outputLines) {
-        this.outputLines = clamp(outputLines, MIN_LINES, MAX_LINES);
+        this.outputLines = clamp(outputLines, BackendGlobalVariables.MIN_LINES, BackendGlobalVariables.MAX_LINES);
     }
 
     public int getLogLines() {
@@ -43,7 +42,7 @@ public class UserPreferences {
     }
 
     public void setLogLines(int logLines) {
-        this.logLines = clamp(logLines, MIN_LINES, MAX_LINES);
+        this.logLines = clamp(logLines, BackendGlobalVariables.MIN_LINES, BackendGlobalVariables.MAX_LINES);
     }
 
     public String getCmdFont() {

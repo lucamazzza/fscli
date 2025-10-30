@@ -1,6 +1,7 @@
 package ch.supsi.fscli.backend.data;
 
 import ch.supsi.fscli.backend.business.UserPreferences;
+import ch.supsi.fscli.backend.util.BackendGlobalVariables;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 
 import java.io.IOException;
@@ -11,15 +12,12 @@ import java.util.Optional;
 
 public class PreferencesFileManager {
 
-    private static final Path DEFAULT_PREF_PATH =
-            Paths.get(System.getProperty("user.home"), ".fs_prefs.json");
-
     private final Path prefPath;
     private final Serializer<UserPreferences> serializer = new Serializer<>();
     private final Deserializer<UserPreferences> deserializer = new Deserializer<>();
 
     public PreferencesFileManager() {
-        this.prefPath = DEFAULT_PREF_PATH;
+        this.prefPath = BackendGlobalVariables.DEFAULT_PREF_PATH;
     }
 
     public PreferencesFileManager(Path path) {

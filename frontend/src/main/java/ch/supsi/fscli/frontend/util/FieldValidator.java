@@ -6,7 +6,7 @@ public class FieldValidator {
         try {
             int val = Integer.parseInt(input);
             if (val < min || val > max)
-                return "Consented value: " + min + " - " + max;
+                return "Allowed value: " + min + " - " + max;
             return null;
         } catch (NumberFormatException ex) {
             return "Insert a valid integer value";

@@ -65,7 +65,7 @@ public class MainFx extends Application {
 
         preferencesMenuItem.setOnAction(e -> {
             PreferencesController controller = new PreferencesController();
-            controller.openPreferencesWindow();
+            controller.show();
         });
 
         this.editMenu = new Menu("Edit");

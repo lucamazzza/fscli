@@ -1,17 +1,51 @@
 package ch.supsi.fscli.frontend.model;
 
+import ch.supsi.fscli.backend.application.PreferencesService;
+import ch.supsi.fscli.backend.business.UserPreferences;
 import ch.supsi.fscli.frontend.controller.PreferencesHandler;
 
 import java.util.Map;
 
-public class PreferencesModel implements AbstractModel, PreferencesHandler {
+public class PreferencesModel implements PreferencesHandler {
+
+    private final PreferencesService service;
+
+    public PreferencesModel(PreferencesService service) {
+        this.service = service;
+    }
+
     @Override
     public void edit(Map<String, String> settings) {
-
+        service.updatePreference(p -> {
+            if (settings.containsKey("language")) p.setLanguage(settings.get("language"));
+            if (settings.containsKey("cmdColumns")) p.setCmdColumns(Integer.parseInt(settings.get("cmdColumns")));
+            if (settings.containsKey("outputLines")) p.setOutputLines(Integer.parseInt(settings.get("outputLines")));
+            if (settings.containsKey("logLines")) p.setLogLines(Integer.parseInt(settings.get("logLines")));
+            if (settings.containsKey("cmdFont")) p.setCmdFont(settings.get("cmdFont"));
+            if (settings.containsKey("outputFont")) p.setOutputFont(settings.get("outputFont"));
+            if (settings.containsKey("logFont")) p.setLogFont(settings.get("logFont"));
+        });
     }
 
     @Override
     public Map<String, String> load() {
-        return Map.of();
+        UserPreferences p = service.getCurrentPrefs();
+        return Map.of(
+                "language", p.getLanguage(),
+                "cmdColumns", String.valueOf(p.getCmdColumns()),
+                "outputLines", String.valueOf(p.getOutputLines()),
+                "logLines", String.valueOf(p.getLogLines()),
+                "cmdFont", p.getCmdFont(),
+                "outputFont", p.getOutputFont(),
+                "logFont", p.getLogFont()
+        );
+    }
+
+    public UserPreferences getPrefs() {
+        return service.getCurrentPrefs();
+    }
+
+    public void reload() {
+        service.reload();
     }
 }
