@@ -9,10 +9,10 @@ public class UserPreferences {
     private String outputFont = "Monospaced";
     private String logFont = "SansSerif";
 
-    private static final int MIN_COLUMNS = 10;
-    private static final int MAX_COLUMNS = 100;
-    private static final int MIN_LINES = 3;
-    private static final int MAX_LINES = 100;
+    public static final int MIN_COLUMNS = 10;
+    public static final int MAX_COLUMNS = 100;
+    public static final int MIN_LINES = 3;
+    public static final int MAX_LINES = 100;
 
     public String getLanguage() {
         return language;
