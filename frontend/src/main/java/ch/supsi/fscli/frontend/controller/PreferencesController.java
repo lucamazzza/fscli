@@ -11,15 +11,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import javafx.scene.control.TextFormatter;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.UnaryOperator;
 
+
 public class PreferencesController implements PreferencesHandler {
+
+    private static final List<String> SYSTEM_FONTS = List.copyOf(Font.getFamilies());
 
     private final PreferencesService service;
 
@@ -58,7 +63,7 @@ public class PreferencesController implements PreferencesHandler {
 
         // --- ComboBox font
         ComboBox<String> fontBox = new ComboBox<>();
-        fontBox.getItems().addAll("Monospaced", "SansSerif", "Serif", "Consolas");
+        fontBox.getItems().addAll(SYSTEM_FONTS);
         fontBox.setValue(prefs.getCmdFont());
 
         ComboBox<String> outputFontBox = new ComboBox<>(fontBox.getItems());
