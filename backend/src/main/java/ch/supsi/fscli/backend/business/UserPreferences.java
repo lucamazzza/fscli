@@ -11,6 +11,26 @@ public class UserPreferences {
     private String outputFont = BackendGlobalVariables.DEFAULT_OUTPUT_FONT;
     private String logFont = BackendGlobalVariables.DEFAULT_LOG_FONT;
 
+    public UserPreferences() {
+        // Imposta valori di default o lascia vuoto se non servono
+        this.language = "en";
+        this.cmdColumns = 80;
+        this.outputLines = 20;
+        this.logLines = 20;
+        this.cmdFont = "Consolas";
+        this.outputFont = "Consolas";
+        this.logFont = "Consolas";
+    }
+
+    public UserPreferences(UserPreferences other) {
+        this.language = other.language;
+        this.cmdColumns = other.cmdColumns;
+        this.outputLines = other.outputLines;
+        this.logLines = other.logLines;
+        this.cmdFont = other.cmdFont;
+        this.outputFont = other.outputFont;
+        this.logFont = other.logFont;
+    }
 
 
     public String getLanguage() {
