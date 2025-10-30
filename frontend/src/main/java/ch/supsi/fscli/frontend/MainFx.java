@@ -33,7 +33,7 @@ public class MainFx extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage) {
         this.menuBar.init();
         this.commandLine.init();
         this.commandOutputArea.init();

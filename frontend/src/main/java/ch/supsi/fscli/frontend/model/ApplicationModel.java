@@ -36,7 +36,7 @@ public class ApplicationModel implements AbstractModel, AboutHandler {
             }
             properties.load(is);
         } catch (Exception e) {
-            System.err.println("Error: " + e.toString());
+            System.err.println("Error: " + e);
         }
 
         this.name = properties.getProperty("app.name");
