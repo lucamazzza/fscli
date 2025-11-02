@@ -45,6 +45,7 @@ public class DirectoryNode extends FSNode {
         return new LinkedHashMap<>(children);
     }
     @JsonProperty("children")
+    @SuppressWarnings("unused")
     public synchronized void setChildren(Map<String, FSNode> children) {
         this.children.clear();
         if (children != null) {
