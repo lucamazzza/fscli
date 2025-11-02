@@ -77,11 +77,11 @@ public abstract class FSNode {
         this.parent = parent;
     }
 
-    @JsonProperty("isDirectory")
+    @JsonProperty(value = "isDirectory", access = JsonProperty.Access.READ_ONLY)
     public abstract boolean isDirectory();
-    @JsonProperty("isSymlink")
+    @JsonProperty(value = "isSymlink", access = JsonProperty.Access.READ_ONLY)
     public abstract boolean isSymlink();
-    @JsonProperty("typeName")
+    @JsonProperty(value = "typeName", access = JsonProperty.Access.READ_ONLY)
     public abstract String typeName();
 
     @Override
