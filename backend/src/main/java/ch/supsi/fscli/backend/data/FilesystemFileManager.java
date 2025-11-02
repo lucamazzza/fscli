@@ -14,13 +14,15 @@ public class FilesystemFileManager {
 
     public FilesystemFileManager(Path path) {
         this.path = path;
+        this.serializer = new Serializer<>();
+        this.deserializer = new Deserializer<>();
     }
 
     public void save(FSNode root) throws IOException {
         Files.writeString(path, serializer.serialize(root));
     }
 
-    public Optional<FSNode> load() throws IOException {
+    public Optional<FSNode> load() {
         try {
             if (!Files.exists(path) || Files.size(path) == 0) {
                 return Optional.empty();
