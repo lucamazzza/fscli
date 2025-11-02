@@ -44,6 +44,16 @@ public class DirectoryNode extends FSNode {
     public synchronized Map<String, FSNode> snapshot() {
         return new LinkedHashMap<>(children);
     }
+    @JsonProperty("children")
+    public synchronized void setChildren(Map<String, FSNode> children) {
+        this.children.clear();
+        if (children != null) {
+            for (Map.Entry<String, FSNode> entry : children.entrySet()) {
+                this.children.put(entry.getKey(), entry.getValue());
+                entry.getValue().setParent(this);
+            }
+        }
+    }
     @JsonIgnore
     public synchronized boolean isEmpty() {
         return children.isEmpty();
