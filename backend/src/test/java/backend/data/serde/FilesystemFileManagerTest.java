@@ -1,9 +1,9 @@
-package backend.data;
+package backend.data.serde;
 
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FSNode;
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
-import ch.supsi.fscli.backend.data.FilesystemFileManager;
+import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -22,7 +22,7 @@ class FilesystemFileManagerTest {
         FileNode file = new FileNode();
         
         manager.save(file);
-        Optional<FSNode> loaded = manager.load();
+        Optional<FileSystemNode> loaded = manager.load();
 
         assertTrue(loaded.isPresent());
         assertInstanceOf(FileNode.class, loaded.get());
@@ -45,7 +45,7 @@ class FilesystemFileManagerTest {
         root.add("subdir", subdir);
 
         manager.save(root);
-        Optional<FSNode> loaded = manager.load();
+        Optional<FileSystemNode> loaded = manager.load();
 
         assertTrue(loaded.isPresent());
         assertInstanceOf(DirectoryNode.class, loaded.get());
@@ -55,7 +55,7 @@ class FilesystemFileManagerTest {
         assertTrue(loadedDir.contains("file2.txt"));
         assertTrue(loadedDir.contains("subdir"));
         
-        FSNode loadedSubdir = loadedDir.get("subdir");
+        FileSystemNode loadedSubdir = loadedDir.get("subdir");
         assertInstanceOf(DirectoryNode.class, loadedSubdir);
         assertTrue(((DirectoryNode) loadedSubdir).contains("file3.txt"));
 
@@ -67,7 +67,7 @@ class FilesystemFileManagerTest {
         Path tempFile = Paths.get("nonexistent-file-" + System.currentTimeMillis() + ".json");
         FilesystemFileManager manager = new FilesystemFileManager(tempFile);
 
-        Optional<FSNode> loaded = manager.load();
+        Optional<FileSystemNode> loaded = manager.load();
 
         assertFalse(loaded.isPresent());
     }
@@ -77,7 +77,7 @@ class FilesystemFileManagerTest {
         Path tempFile = Files.createTempFile("empty-filesystem", ".json");
         FilesystemFileManager manager = new FilesystemFileManager(tempFile);
 
-        Optional<FSNode> loaded = manager.load();
+        Optional<FileSystemNode> loaded = manager.load();
 
         assertFalse(loaded.isPresent());
 

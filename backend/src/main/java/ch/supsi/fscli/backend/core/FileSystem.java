@@ -1,5 +1,6 @@
-package ch.supsi.fscli.backend.service;
+package ch.supsi.fscli.backend.core;
 
+import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 
 import java.util.List;

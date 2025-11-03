@@ -1,9 +1,9 @@
-package backend.data;
+package backend.data.serde;
 
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FSNode;
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
-import ch.supsi.fscli.backend.data.Serializer;
+import ch.supsi.fscli.backend.data.serde.Serializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -16,7 +16,7 @@ public class FilesystemSerializerTest {
     void testSerializeFileNode() throws Exception {
         FileNode file = new FileNode();
         
-        Serializer<FSNode> serializer = new Serializer<>();
+        Serializer<FileSystemNode> serializer = new Serializer<>();
         String json = serializer.serialize(file);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -37,7 +37,7 @@ public class FilesystemSerializerTest {
         FileNode file = new FileNode();
         dir.add("test.txt", file);
         
-        Serializer<FSNode> serializer = new Serializer<>();
+        Serializer<FileSystemNode> serializer = new Serializer<>();
         String json = serializer.serialize(dir);
 
         ObjectMapper mapper = new ObjectMapper();
@@ -60,7 +60,7 @@ public class FilesystemSerializerTest {
         subdir.add("file3.txt", new FileNode());
         root.add("subdir", subdir);
         
-        Serializer<FSNode> serializer = new Serializer<>();
+        Serializer<FileSystemNode> serializer = new Serializer<>();
         String json = serializer.serialize(root);
 
         ObjectMapper mapper = new ObjectMapper();

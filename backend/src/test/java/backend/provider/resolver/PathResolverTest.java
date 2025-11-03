@@ -1,10 +1,10 @@
-package backend.business;
+package backend.provider.resolver;
 
-import ch.supsi.fscli.backend.service.InvalidPathException;
-import ch.supsi.fscli.backend.service.NotFoundException;
-import ch.supsi.fscli.backend.service.PathResolver;
+import ch.supsi.fscli.backend.core.exception.InvalidPathException;
+import ch.supsi.fscli.backend.core.exception.NotFoundException;
+import ch.supsi.fscli.backend.provider.resolver.PathResolver;
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FSNode;
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
 import ch.supsi.fscli.backend.data.SymlinkNode;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,28 +64,28 @@ class PathResolverTest {
 
     @Test
     void testResolveAbsolutePath() throws Exception {
-        FSNode result = resolver.resolve(user, "/home/user/file.txt", false);
+        FileSystemNode result = resolver.resolve(user, "/home/user/file.txt", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolveRelativePath() throws Exception {
-        FSNode result = resolver.resolve(user, "file.txt", false);
+        FileSystemNode result = resolver.resolve(user, "file.txt", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolveNestedPath() throws Exception {
-        FSNode result = resolver.resolve(user, "docs/readme.md", false);
+        FileSystemNode result = resolver.resolve(user, "docs/readme.md", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolveRootPath() throws Exception {
-        FSNode result = resolver.resolve(user, "/", false);
+        FileSystemNode result = resolver.resolve(user, "/", false);
         assertNotNull(result);
         assertSame(root, result);
         assertTrue(result.isDirectory());
@@ -93,21 +93,21 @@ class PathResolverTest {
 
     @Test
     void testResolveCurrentDirectory() throws Exception {
-        FSNode result = resolver.resolve(user, ".", false);
+        FileSystemNode result = resolver.resolve(user, ".", false);
         assertNotNull(result);
         assertSame(user, result);
     }
 
     @Test
     void testResolveParentDirectory() throws Exception {
-        FSNode result = resolver.resolve(user, "..", false);
+        FileSystemNode result = resolver.resolve(user, "..", false);
         assertNotNull(result);
         assertSame(home, result);
     }
 
     @Test
     void testResolveParentFromRoot() throws Exception {
-        FSNode result = resolver.resolve(root, "..", false);
+        FileSystemNode result = resolver.resolve(root, "..", false);
         assertNotNull(result);
         assertSame(root, result);
     }
@@ -115,21 +115,21 @@ class PathResolverTest {
     @Test
     void testResolveWithMultipleParents() throws Exception {
         DirectoryNode docs = (DirectoryNode) user.get("docs");
-        FSNode result = resolver.resolve(docs, "../../..", false);
+        FileSystemNode result = resolver.resolve(docs, "../../..", false);
         assertNotNull(result);
         assertSame(root, result);
     }
 
     @Test
     void testResolvePathWithDots() throws Exception {
-        FSNode result = resolver.resolve(user, "./docs/./readme.md", false);
+        FileSystemNode result = resolver.resolve(user, "./docs/./readme.md", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolveSymlinkWithFollowTrue() throws Exception {
-        FSNode result = resolver.resolve(user, "link", true);
+        FileSystemNode result = resolver.resolve(user, "link", true);
         assertNotNull(result);
         assertInstanceOf(DirectoryNode.class, result);
         DirectoryNode dir = (DirectoryNode) result;
@@ -138,28 +138,28 @@ class PathResolverTest {
 
     @Test
     void testResolveSymlinkWithFollowFalse() throws Exception {
-        FSNode result = resolver.resolve(user, "link", false);
+        FileSystemNode result = resolver.resolve(user, "link", false);
         assertNotNull(result);
         assertInstanceOf(SymlinkNode.class, result);
     }
 
     @Test
     void testResolveSymlinkInMiddleOfPath() throws Exception {
-        FSNode result = resolver.resolve(user, "link/readme.md", false);
+        FileSystemNode result = resolver.resolve(user, "link/readme.md", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolveAbsoluteSymlink() throws Exception {
-        FSNode result = resolver.resolve(root, "/tmp/symlink", true);
+        FileSystemNode result = resolver.resolve(root, "/tmp/symlink", true);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolvePathWithTrailingSlash() throws Exception {
-        FSNode result = resolver.resolve(user, "docs/", false);
+        FileSystemNode result = resolver.resolve(user, "docs/", false);
         assertNotNull(result);
         assertInstanceOf(DirectoryNode.class, result);
     }
@@ -231,7 +231,7 @@ class PathResolverTest {
     @Test
     void testResolveFromDifferentWorkingDirectory() throws Exception {
         DirectoryNode docs = (DirectoryNode) user.get("docs");
-        FSNode result = resolver.resolve(docs, "/home/user/file.txt", false);
+        FileSystemNode result = resolver.resolve(docs, "/home/user/file.txt", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
@@ -239,7 +239,7 @@ class PathResolverTest {
     @Test
     void testResolveComplexPath() throws Exception {
         DirectoryNode docs = (DirectoryNode) user.get("docs");
-        FSNode result = resolver.resolve(docs, "./../docs/../file.txt", false);
+        FileSystemNode result = resolver.resolve(docs, "./../docs/../file.txt", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
@@ -249,14 +249,14 @@ class PathResolverTest {
         SymlinkNode link1 = new SymlinkNode("/tmp/symlink");
         user.add("link_to_link", link1);
         
-        FSNode result = resolver.resolve(user, "link_to_link", true);
+        FileSystemNode result = resolver.resolve(user, "link_to_link", true);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }
 
     @Test
     void testResolveMultipleSlashes() throws Exception {
-        FSNode result = resolver.resolve(user, "//home//user//file.txt", false);
+        FileSystemNode result = resolver.resolve(user, "//home//user//file.txt", false);
         assertNotNull(result);
         assertInstanceOf(FileNode.class, result);
     }

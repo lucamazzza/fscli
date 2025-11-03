@@ -1,4 +1,4 @@
-package ch.supsi.fscli.backend.service;
+package ch.supsi.fscli.backend.core.exception;
 
 public class FSException extends Exception {
     public FSException(String message) {

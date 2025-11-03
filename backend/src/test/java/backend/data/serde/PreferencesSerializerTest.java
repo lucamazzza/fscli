@@ -1,7 +1,7 @@
-package backend.data;
+package backend.data.serde;
 
-import ch.supsi.fscli.backend.service.UserPreferences;
-import ch.supsi.fscli.backend.data.Serializer;
+import ch.supsi.fscli.backend.core.UserPreferences;
+import ch.supsi.fscli.backend.data.serde.Serializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;

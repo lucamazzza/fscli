@@ -1,8 +1,8 @@
-package backend.data;
+package backend.data.serde;
 
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.Deserializer;
-import ch.supsi.fscli.backend.data.FSNode;
+import ch.supsi.fscli.backend.data.serde.Deserializer;
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
 import org.junit.jupiter.api.Test;
 
@@ -23,8 +23,8 @@ public class FilesystemDeserializerTest {
                 }
                 """;
 
-        Deserializer<FSNode> deserializer = new Deserializer<>();
-        FSNode node = deserializer.deserialize(json, FSNode.class);
+        Deserializer<FileSystemNode> deserializer = new Deserializer<>();
+        FileSystemNode node = deserializer.deserialize(json, FileSystemNode.class);
 
         assertNotNull(node);
         assertInstanceOf(FileNode.class, node);
@@ -48,8 +48,8 @@ public class FilesystemDeserializerTest {
                 }
                 """;
 
-        Deserializer<FSNode> deserializer = new Deserializer<>();
-        FSNode node = deserializer.deserialize(json, FSNode.class);
+        Deserializer<FileSystemNode> deserializer = new Deserializer<>();
+        FileSystemNode node = deserializer.deserialize(json, FileSystemNode.class);
 
         assertNotNull(node);
         assertInstanceOf(DirectoryNode.class, node);
@@ -90,8 +90,8 @@ public class FilesystemDeserializerTest {
                 }
                 """;
 
-        Deserializer<FSNode> deserializer = new Deserializer<>();
-        FSNode node = deserializer.deserialize(json, FSNode.class);
+        Deserializer<FileSystemNode> deserializer = new Deserializer<>();
+        FileSystemNode node = deserializer.deserialize(json, FileSystemNode.class);
 
         assertNotNull(node);
         assertInstanceOf(DirectoryNode.class, node);
@@ -100,10 +100,10 @@ public class FilesystemDeserializerTest {
         assertTrue(dir.contains("file1.txt"));
         assertTrue(dir.contains("subdir"));
         
-        FSNode file = dir.get("file1.txt");
+        FileSystemNode file = dir.get("file1.txt");
         assertInstanceOf(FileNode.class, file);
         
-        FSNode subdir = dir.get("subdir");
+        FileSystemNode subdir = dir.get("subdir");
         assertInstanceOf(DirectoryNode.class, subdir);
     }
 }

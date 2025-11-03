@@ -1,5 +1,6 @@
-package ch.supsi.fscli.backend.data;
+package ch.supsi.fscli.backend.data.serde;
 
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.util.FilesystemLogger;
 
 import java.io.IOException;
@@ -9,8 +10,8 @@ import java.util.Optional;
 
 public class FilesystemFileManager {
     private Path path;
-    private Serializer<FSNode> serializer;
-    private Deserializer<FSNode> deserializer;
+    private Serializer<FileSystemNode> serializer;
+    private Deserializer<FileSystemNode> deserializer;
 
     public FilesystemFileManager(Path path) {
         this.path = path;
@@ -18,17 +19,17 @@ public class FilesystemFileManager {
         this.deserializer = new Deserializer<>();
     }
 
-    public void save(FSNode root) throws IOException {
+    public void save(FileSystemNode root) throws IOException {
         Files.writeString(path, serializer.serialize(root));
     }
 
-    public Optional<FSNode> load() {
+    public Optional<FileSystemNode> load() {
         try {
             if (!Files.exists(path) || Files.size(path) == 0) {
                 return Optional.empty();
             }
             String json = Files.readString(path);
-            return Optional.of(deserializer.deserialize(json, FSNode.class));
+            return Optional.of(deserializer.deserialize(json, FileSystemNode.class));
         } catch (IOException e) {
             FilesystemLogger.logError("Failed to load Filesystem");
             return Optional.empty();

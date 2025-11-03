@@ -1,7 +1,7 @@
 package backend.data;
 
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FSNode;
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,7 +50,7 @@ public class DirectoryNodeTest {
         d.add("c", new FileNode());
         List<String> names = d.listNames();
         assertEquals(List.of("a", "b", "c"), names);
-        Map<String, FSNode> snap = d.snapshot();
+        Map<String, FileSystemNode> snap = d.snapshot();
         assertEquals(3, snap.size());
         snap.remove("b");
         assertTrue(d.contains("b"));
@@ -61,8 +61,8 @@ public class DirectoryNodeTest {
         FileNode f = new FileNode();
         d.add("x", f);
         Instant before = d.getMTime();
-        FSNode removed = d.remove("x");
-        FSNode removedNull = d.remove("x");
+        FileSystemNode removed = d.remove("x");
+        FileSystemNode removedNull = d.remove("x");
         assertNull(removedNull);
         assertSame(f, removed);
         assertNull(f.getParent());

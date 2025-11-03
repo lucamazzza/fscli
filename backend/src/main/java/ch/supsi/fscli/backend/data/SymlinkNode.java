@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 
-public class SymlinkNode extends FSNode {
+public class SymlinkNode extends FileSystemNode {
     private String target;
 
     public SymlinkNode(String target) {

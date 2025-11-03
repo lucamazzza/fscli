@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
         @JsonSubTypes.Type(value = DirectoryNode.class, name = "directory"),
         @JsonSubTypes.Type(value = SymlinkNode.class, name = "symlink")
 })
-public abstract class FSNode {
+public abstract class FileSystemNode {
     private static final AtomicInteger ID_GEN = new AtomicInteger(1);
 
     protected final int id;
@@ -29,7 +29,7 @@ public abstract class FSNode {
     @JsonIgnore
     protected DirectoryNode parent;
 
-    protected FSNode() {
+    protected FileSystemNode() {
         this.id = ID_GEN.getAndIncrement();
         this.linkCount = 1;
         Instant now = Instant.now();

@@ -1,7 +1,9 @@
-package ch.supsi.fscli.backend.service;
+package ch.supsi.fscli.backend.provider.resolver;
 
+import ch.supsi.fscli.backend.core.exception.InvalidPathException;
+import ch.supsi.fscli.backend.core.exception.NotFoundException;
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FSNode;
+import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.SymlinkNode;
 
 import java.util.Arrays;
@@ -20,10 +22,10 @@ public class PathResolver {
 
     private PathResolver() {}
 
-    public FSNode resolve(DirectoryNode cwd, String path, boolean followSym) throws NotFoundException, InvalidPathException {
+    public FileSystemNode resolve(DirectoryNode cwd, String path, boolean followSym) throws NotFoundException, InvalidPathException {
         return resolve(cwd, path, followSym, 0);
     }
-    private FSNode resolve(DirectoryNode cwd, String path, boolean followSym, int depth) throws NotFoundException, InvalidPathException {
+    private FileSystemNode resolve(DirectoryNode cwd, String path, boolean followSym, int depth) throws NotFoundException, InvalidPathException {
         if (depth > 32) throw new InvalidPathException("too many symlink levels");
         if (path == null || path.isEmpty()) throw new NotFoundException("path is empty");
         if (cwd == null) throw new InvalidPathException("cwd is null");
@@ -38,7 +40,7 @@ public class PathResolver {
         }
         if (rel.isEmpty()) return base;
         String[] parts = Arrays.stream(rel.split("/")).filter(s -> !s.isEmpty()).toArray(String[]::new);
-        FSNode cur = base;
+        FileSystemNode cur = base;
         for (int i = 0; i < parts.length; i++) {
             String comp = parts[i];
             if (comp.equals(".")) continue;
@@ -54,7 +56,7 @@ public class PathResolver {
             }
             if (cur == null) throw new NotFoundException("not a directory: " + comp);
             DirectoryNode dir = (DirectoryNode) cur;
-            FSNode next = dir.get(comp);
+            FileSystemNode next = dir.get(comp);
             if (next == null) throw new NotFoundException("no such file or directory: " + comp);
             if (next.isSymlink() && (followSym || i < parts.length - 1)) {
                 SymlinkNode sl = (SymlinkNode) next;

@@ -1,4 +1,4 @@
-package ch.supsi.fscli.backend.service;
+package ch.supsi.fscli.backend.core;
 
 public class UserPreferences {
     private String language = "en";

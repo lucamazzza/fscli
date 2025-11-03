@@ -1,6 +1,6 @@
-package backend.business;
+package backend.provider.resolver;
 
-import ch.supsi.fscli.backend.service.UserPreferences;
+import ch.supsi.fscli.backend.core.UserPreferences;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
