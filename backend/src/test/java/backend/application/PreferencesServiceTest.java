@@ -1,8 +1,8 @@
 package backend.application;
 
 import ch.supsi.fscli.backend.data.PreferencesFileManager;
-import ch.supsi.fscli.backend.business.UserPreferences;
-import ch.supsi.fscli.backend.application.PreferencesService;
+import ch.supsi.fscli.backend.service.UserPreferences;
+import ch.supsi.fscli.backend.controller.PreferencesService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

@@ -1,7 +1,7 @@
-package ch.supsi.fscli.backend.application;
+package ch.supsi.fscli.backend.controller;
 
 import ch.supsi.fscli.backend.data.PreferencesFileManager;
-import ch.supsi.fscli.backend.business.UserPreferences;
+import ch.supsi.fscli.backend.service.UserPreferences;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 
 import java.io.IOException;

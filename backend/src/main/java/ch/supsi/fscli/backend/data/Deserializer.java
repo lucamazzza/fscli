@@ -1,7 +1,5 @@
 package ch.supsi.fscli.backend.data;
 
-import ch.supsi.fscli.backend.business.UserPreferences;
-import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;

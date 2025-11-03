@@ -1,8 +1,8 @@
 package backend.business;
 
-import ch.supsi.fscli.backend.business.InvalidPathException;
-import ch.supsi.fscli.backend.business.NotFoundException;
-import ch.supsi.fscli.backend.business.PathResolver;
+import ch.supsi.fscli.backend.service.InvalidPathException;
+import ch.supsi.fscli.backend.service.NotFoundException;
+import ch.supsi.fscli.backend.service.PathResolver;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FSNode;
 import ch.supsi.fscli.backend.data.FileNode;

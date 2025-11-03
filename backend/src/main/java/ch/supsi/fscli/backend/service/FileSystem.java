@@ -1,4 +1,4 @@
-package ch.supsi.fscli.backend.business;
+package ch.supsi.fscli.backend.service;
 
 import ch.supsi.fscli.backend.data.DirectoryNode;
 

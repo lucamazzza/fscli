@@ -1,6 +1,6 @@
 package backend.data;
 
-import ch.supsi.fscli.backend.business.UserPreferences;
+import ch.supsi.fscli.backend.service.UserPreferences;
 import ch.supsi.fscli.backend.data.Serializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

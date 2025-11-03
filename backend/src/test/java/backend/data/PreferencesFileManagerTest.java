@@ -1,7 +1,7 @@
 package backend.data;
 
 import ch.supsi.fscli.backend.data.PreferencesFileManager;
-import ch.supsi.fscli.backend.business.UserPreferences;
+import ch.supsi.fscli.backend.service.UserPreferences;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
