@@ -10,9 +10,7 @@ public class PreferencesModel implements PreferencesHandler {
 
     private final PreferencesService service;
 
-    public PreferencesModel(PreferencesService service) {
-        this.service = service;
-    }
+    public PreferencesModel(PreferencesService service) { this.service = service; }
 
     @Override
     public void edit(Map<String, String> settings) {
@@ -41,11 +39,5 @@ public class PreferencesModel implements PreferencesHandler {
         );
     }
 
-    public UserPreferences getPrefs() {
-        return service.getCurrentPrefs();
-    }
-
-    public void reload() {
-        service.reload();
-    }
+    public void reload() { service.reload(); }
 }

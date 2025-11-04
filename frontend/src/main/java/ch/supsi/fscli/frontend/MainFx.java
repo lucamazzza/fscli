@@ -1,7 +1,9 @@
 package ch.supsi.fscli.frontend;
 
+import ch.supsi.fscli.backend.application.PreferencesService;
+import ch.supsi.fscli.backend.business.UserPreferences;
 import ch.supsi.fscli.frontend.controller.PreferencesController;
-import ch.supsi.fscli.frontend.util.FxLogger;
+import ch.supsi.fscli.frontend.util.*;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -11,14 +13,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
-import java.util.logging.Level;
-
 public class MainFx extends Application {
-    private static final int PREF_INSETS_SIZE = 7;
-    private static final int PREF_COMMAND_SPACER_WIDTH = 11;
-    private static final int COMMAND_LINE_PREF_COLUMN_COUNT = 72;
-    private static final int PREF_OUTPUT_VIEW_ROW_COUNT = 25;
-    private static final int PREF_LOG_VIEW_ROW_COUNT = 5;
 
     private final String applicationTitle;
     private final MenuBar menuBar;
@@ -35,55 +30,22 @@ public class MainFx extends Application {
         this.applicationTitle = "filesystem command interpreter simulator";
 
         // FILE MENU
-        MenuItem newMenuItem = new MenuItem("New");
-        newMenuItem.setId("newMenuItem");
-
-        MenuItem openMenuItem = new MenuItem("Open...");
-        openMenuItem.setId("openMenuItem");
-
-        MenuItem saveMenuItem = new MenuItem("Save");
-        saveMenuItem.setId("saveMenuItem");
-
-        MenuItem saveAsMenuItem = new MenuItem("Save as...");
-        saveAsMenuItem.setId("saveAsMenuItem");
-
         MenuItem exitMenuItem = new MenuItem("Exit...");
         exitMenuItem.setId("exitMenuItem");
-
         this.fileMenu = new Menu("File");
-        this.fileMenu.setId("fileMenu");
-        this.fileMenu.getItems().addAll(
-                newMenuItem,
-                new SeparatorMenuItem(),
-                openMenuItem,
-                saveMenuItem,
-                saveAsMenuItem,
-                new SeparatorMenuItem(),
-                exitMenuItem
-        );
+        this.fileMenu.getItems().add(exitMenuItem);
 
         // EDIT MENU
         MenuItem preferencesMenuItem = new MenuItem("Preferences...");
-        preferencesMenuItem.setId("preferencesMenuItem");
         preferencesMenuItem.setOnAction(e -> {
             PreferencesController controller = new PreferencesController();
             controller.show();
         });
-
         this.editMenu = new Menu("Edit");
-        this.editMenu.setId("editMenu");
         this.editMenu.getItems().add(preferencesMenuItem);
 
         // HELP MENU
-        MenuItem helpMenuItem = new MenuItem("Help");
-        helpMenuItem.setId("helpMenuItem");
-
-        MenuItem aboutMenuItem = new MenuItem("About");
-        aboutMenuItem.setId("aboutMenuItem");
-
         this.helpMenu = new Menu("Help");
-        this.helpMenu.setId("helpMenu");
-        this.helpMenu.getItems().addAll(helpMenuItem, aboutMenuItem);
 
         // MENU BAR
         this.menuBar = new MenuBar();
@@ -91,96 +53,63 @@ public class MainFx extends Application {
 
         // COMMAND LINE
         this.enter = new Button("enter");
-        this.enter.setId("enter");
-
         this.commandLineLabel = new Label("command");
         this.commandLine = new TextField();
 
         // OUTPUT VIEW
         this.outputView = new TextArea();
-        this.outputView.setId("outputView");
         this.outputView.appendText("This is an example output text...\n");
 
         // LOG VIEW
         this.logView = new TextArea();
-        this.logView.setId("logView");
         this.logView.setEditable(false);
         this.logView.appendText("Application started.\n");
     }
 
     @Override
     public void start(Stage primaryStage) {
-        // command line
-        this.commandLine.setPrefColumnCount(COMMAND_LINE_PREF_COLUMN_COUNT);
 
-        // horizontal box to hold the command line
-        HBox commandLinePane = new HBox();
-        commandLinePane.setAlignment(Pos.BASELINE_LEFT);
-        commandLinePane.setPadding(new Insets(PREF_INSETS_SIZE));
+        // --- CARICA PREFERENZE SANITIZZATE ---
+        PreferencesService prefService = new PreferencesService();
+        UserPreferences prefs = prefService.getCurrentPrefs(); // già sanitizzate
 
-        Region spacer1 = new Region();
-        spacer1.setPrefWidth(PREF_COMMAND_SPACER_WIDTH);
-
-        Region spacer2 = new Region();
-        spacer2.setPrefWidth(PREF_COMMAND_SPACER_WIDTH);
-
-        commandLinePane.getChildren().addAll(
-                this.commandLineLabel, spacer1, this.commandLine, spacer2, this.enter
-        );
-
-        // vertical pane to hold the menu bar and the command line
-        VBox top = new VBox(this.menuBar, commandLinePane);
-
-        // output view
-        this.outputView.setPrefRowCount(PREF_OUTPUT_VIEW_ROW_COUNT);
-        this.outputView.setEditable(false);
-
-        // scroll pane to hold the output view
-        ScrollPane centerPane = new ScrollPane();
-        centerPane.setFitToHeight(true);
-        centerPane.setFitToWidth(true);
-        centerPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        centerPane.setContent(this.outputView);
-
-        // log view
-        this.logView.setPrefRowCount(PREF_LOG_VIEW_ROW_COUNT);
-        this.logView.setEditable(false);
-
-        // scroll pane to hold log view
-        ScrollPane bottomPane = new ScrollPane();
-        bottomPane.setFitToHeight(true);
-        bottomPane.setFitToWidth(true);
-        bottomPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        bottomPane.setContent(this.logView);
-
-        // root pane
-        BorderPane rootPane = new BorderPane();
-        rootPane.setTop(top);
-        rootPane.setCenter(centerPane);
-        rootPane.setBottom(bottomPane);
-
-        // scene
-        Scene mainScene = new Scene(rootPane);
-
-        // setup stage
-        primaryStage.setTitle(this.applicationTitle);
-        primaryStage.setResizable(true);
-        primaryStage.setScene(mainScene);
-        primaryStage.setOnCloseRequest(e -> primaryStage.close());
-
-        // === INITIALIZZA LOGGER FX ===
+        // --- LOGGER FX ---
         FxLogger fxLogger = FxLogger.getInstance();
         fxLogger.setLogArea(this.logView);
+        fxLogger.setLogAreaRowCount(prefs.getLogLines());
 
         PreferencesLogger.setExternalListener((level, message) -> {
             fxLogger.log("[" + level + "] " + message);
         });
 
-        // esempio di log iniziale
         fxLogger.log("Frontend logger initialized.");
         PreferencesLogger.logInfo("Backend logger bridge active.");
 
-        // show the stage
+
+        // --- GUI ---
+        this.commandLine.setPrefColumnCount(prefs.getCmdColumns());
+        this.commandLine.setStyle("-fx-font-family: '" + prefs.getCmdFont() + "';");
+
+        HBox commandLinePane = new HBox(10, this.commandLineLabel, this.commandLine, this.enter);
+        commandLinePane.setAlignment(Pos.BASELINE_LEFT);
+        commandLinePane.setPadding(new Insets(5));
+
+        VBox top = new VBox(this.menuBar, commandLinePane);
+
+        this.outputView.setPrefRowCount(prefs.getOutputLines());
+        this.outputView.setStyle("-fx-font-family: '" + prefs.getOutputFont() + "';");
+
+        this.logView.setPrefRowCount(prefs.getLogLines());
+        this.logView.setStyle("-fx-font-family: '" + prefs.getLogFont() + "';");
+
+        BorderPane rootPane = new BorderPane();
+        rootPane.setTop(top);
+        rootPane.setCenter(new ScrollPane(this.outputView));
+        rootPane.setBottom(new ScrollPane(this.logView));
+
+        Scene mainScene = new Scene(rootPane);
+        primaryStage.setTitle(this.applicationTitle);
+        primaryStage.setScene(mainScene);
         primaryStage.show();
     }
 

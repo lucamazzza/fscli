@@ -2,8 +2,15 @@ package ch.supsi.fscli.backend.util;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import javafx.scene.text.Font;
+
 
 public class BackendGlobalVariables {
+
+
+    //used to get all fonts from the system
+    public static final List<String> SYSTEM_FONTS = List.copyOf(Font.getFamilies());
 
     //limits
     public static final int MIN_COLUMNS = 10;

@@ -34,4 +34,10 @@ public class FxLogger {
 
         Platform.runLater(() -> logArea.appendText(formatted + "\n"));
     }
+
+    public void setLogAreaRowCount(int rows){
+        if(logArea == null){
+            Platform.runLater(() -> logArea.setPrefRowCount(rows));
+        }
+    }
 }

@@ -7,7 +7,6 @@ import ch.supsi.fscli.backend.util.PreferencesLogger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 public class PreferencesFileManager {
@@ -34,10 +33,43 @@ public class PreferencesFileManager {
                 return Optional.empty();
             }
             String json = Files.readString(prefPath);
-            return Optional.of(deserializer.deserialize(json, UserPreferences.class));
+            UserPreferences prefs = deserializer.deserialize(json, UserPreferences.class);
+
+            // Clamp numerico
+            prefs.setCmdColumns(prefs.getCmdColumns());
+            prefs.setOutputLines(prefs.getOutputLines());
+            prefs.setLogLines(prefs.getLogLines());
+
+            // Validazione font
+            if (!BackendGlobalVariables.SYSTEM_FONTS.contains(prefs.getCmdFont())) {
+                prefs.setCmdFont(BackendGlobalVariables.DEFAULT_CMD_FONT);
+            }
+            if (!BackendGlobalVariables.SYSTEM_FONTS.contains(prefs.getOutputFont())) {
+                prefs.setOutputFont(BackendGlobalVariables.DEFAULT_OUTPUT_FONT);
+            }
+            if (!BackendGlobalVariables.SYSTEM_FONTS.contains(prefs.getLogFont())) {
+                prefs.setLogFont(BackendGlobalVariables.DEFAULT_LOG_FONT);
+            }
+
+            return Optional.of(prefs);
         } catch (IOException e) {
             PreferencesLogger.logError("Failed to load preferences", e);
             return Optional.empty();
         }
     }
+
+    public Optional<UserPreferences> loadRaw() {
+        try {
+            if (!Files.exists(prefPath) || Files.size(prefPath) == 0) {
+                return Optional.empty();
+            }
+            String json = Files.readString(prefPath);
+            UserPreferences prefs = deserializer.deserialize(json, UserPreferences.class);
+            return Optional.of(prefs); // SENZA sanitizzare font o limiti
+        } catch (IOException e) {
+            PreferencesLogger.logError("Failed to load preferences", e);
+            return Optional.empty();
+        }
+    }
+
 }

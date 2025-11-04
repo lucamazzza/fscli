@@ -25,4 +25,6 @@ public class FrontendGlobalVariables {
     public static final String DEFAULT_CMD_FONT = "Monospaced";
     public static final String DEFAULT_OUTPUT_FONT = "Monospaced";
     public static final String DEFAULT_LOG_FONT = "SansSerif";
+    public static final int PREF_INSETS_SIZE = 7;
+    public static final int PREF_COMMAND_SPACER_WIDTH = 11;
 }
