@@ -21,14 +21,12 @@ public class MainFx extends Application {
     // VIEWS
     private final MenuBarView menuBar;
     private final CommandLineView commandLine;
-    private final CommandLogView commandOutputArea;
     private final LogAreaView logArea;
 
     public MainFx() {
         this.applicationTitle = "filesystem command interpreter simulator";
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
-        this.commandOutputArea = CommandLogView.getInstance();
         this.logArea = LogAreaView.getInstance();
     }
 
@@ -36,7 +34,6 @@ public class MainFx extends Application {
     public void start(Stage primaryStage) {
         this.menuBar.init();
         this.commandLine.init();
-        this.commandOutputArea.init();
         this.logArea.init();
 
         // horizontal box to hold the command line
@@ -67,7 +64,7 @@ public class MainFx extends Application {
         centerPane.setFitToHeight(true);
         centerPane.setFitToWidth(true);
         centerPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        centerPane.setContent(this.commandOutputArea.getOutputView());
+        centerPane.setContent(this.commandLine.getOutputView());
 
         // scroll pane to hold log view
         ScrollPane bottomPane = new ScrollPane();
