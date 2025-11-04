@@ -94,6 +94,9 @@ public class MainFx extends Application {
         commandLinePane.setAlignment(Pos.BASELINE_LEFT);
         commandLinePane.setPadding(new Insets(5));
 
+        HBox.setHgrow(this.commandLine, Priority.ALWAYS);
+
+
         VBox top = new VBox(this.menuBar, commandLinePane);
 
         this.outputView.setPrefRowCount(prefs.getOutputLines());
@@ -107,10 +110,34 @@ public class MainFx extends Application {
         rootPane.setCenter(new ScrollPane(this.outputView));
         rootPane.setBottom(new ScrollPane(this.logView));
 
+        // --- Calcolo larghezza fissa basata sulle colonne ---
+        double charWidth = 8.0;
+        double baseWidth = prefs.getCmdColumns() * charWidth + 120;
+
+// --- Blocca larghezze coerenti ---
+        this.commandLine.setPrefColumnCount(prefs.getCmdColumns());
+        this.commandLine.setMinWidth(Region.USE_PREF_SIZE);
+        this.commandLine.setMaxWidth(Region.USE_PREF_SIZE);
+
+        this.outputView.setPrefWidth(baseWidth);
+        this.outputView.setMinWidth(baseWidth);
+        this.outputView.setMaxWidth(baseWidth);
+
+        this.logView.setPrefWidth(baseWidth);
+        this.logView.setMinWidth(baseWidth);
+        this.logView.setMaxWidth(baseWidth);
+
+// --- GUI layout ---
+        primaryStage.setResizable(false);
         Scene mainScene = new Scene(rootPane);
         primaryStage.setTitle(this.applicationTitle);
         primaryStage.setScene(mainScene);
+        primaryStage.setHeight(
+                80 + prefs.getOutputLines() * 20 + prefs.getLogLines() * 15
+        );
         primaryStage.show();
+
+
     }
 
     public static void main(String[] args) {
