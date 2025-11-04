@@ -24,8 +24,53 @@ public class PreferencesService {
     }
 
     public void updatePreference(Consumer<UserPreferences> modifier) {
+        UserPreferences oldPrefs = new  UserPreferences(currentPrefs);
+
         modifier.accept(currentPrefs);
+
         save();
+
+        if (!oldPrefs.getLanguage().equals(currentPrefs.getLanguage())) {
+            PreferencesLogger.logInfo(
+                    "The language will be changed to " + currentPrefs.getLanguage() + " when the app is restarted."
+            );
+        }
+
+        if (oldPrefs.getCmdColumns() != currentPrefs.getCmdColumns()) {
+            PreferencesLogger.logInfo(
+                    "The command columns will be changed to " + currentPrefs.getCmdColumns() + " when the app is restarted."
+            );
+        }
+
+        if (oldPrefs.getOutputLines() != currentPrefs.getOutputLines()) {
+            PreferencesLogger.logInfo(
+                    "The output lines will be changed to " + currentPrefs.getOutputLines() + " when the app is restarted."
+            );
+        }
+
+        if (oldPrefs.getLogLines() != currentPrefs.getLogLines()) {
+            PreferencesLogger.logInfo(
+                    "The log lines will be changed to " + currentPrefs.getLogLines() + " when the app is restarted."
+            );
+        }
+
+        if (!oldPrefs.getCmdFont().equals(currentPrefs.getCmdFont())) {
+            PreferencesLogger.logInfo(
+                    "The command font will be changed to " + currentPrefs.getCmdFont() + " when the app is restarted."
+            );
+        }
+
+        if (!oldPrefs.getOutputFont().equals(currentPrefs.getOutputFont())) {
+            PreferencesLogger.logInfo(
+                    "The output font will be changed to " + currentPrefs.getOutputFont() + " when the app is restarted."
+            );
+        }
+
+        if (!oldPrefs.getLogFont().equals(currentPrefs.getLogFont())) {
+            PreferencesLogger.logInfo(
+                    "The log font will be changed to " + currentPrefs.getLogFont() + " when the app is restarted."
+            );
+        }
     }
 
     private UserPreferences lastSavedPrefs = null;
