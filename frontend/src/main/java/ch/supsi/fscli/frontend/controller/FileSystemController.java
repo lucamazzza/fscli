@@ -1,6 +1,21 @@
 package ch.supsi.fscli.frontend.controller;
 
-public class FileSystemController implements FileSystemHandler, EventHandler {
+import ch.supsi.fscli.frontend.event.FileSystemEventHandler;
+
+public class FileSystemController implements FileSystemEventHandler {
+    private static FileSystemController instance;
+
+    public static FileSystemController getInstance() {
+        if (instance == null) {
+            instance = new FileSystemController();
+        }
+        return instance;
+    }
+
+    private FileSystemController() {
+
+    }
+
     @Override
     public void newFileSystem() {
 
@@ -12,17 +27,12 @@ public class FileSystemController implements FileSystemHandler, EventHandler {
     }
 
     @Override
-    public void saveAs(String name) {
+    public void saveAs(String path) {
 
     }
 
     @Override
-    public void load() {
-
-    }
-
-    @Override
-    public void parseCommand(String inputString) {
+    public void load(String path) {
 
     }
 }

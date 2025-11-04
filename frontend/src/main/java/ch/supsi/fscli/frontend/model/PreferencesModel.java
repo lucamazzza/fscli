@@ -1,13 +1,12 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.frontend.controller.PreferencesHandler;
+import ch.supsi.fscli.frontend.event.PreferencesHandler;
 
 import java.util.Map;
 
-public class PreferencesModel implements AbstractModel, PreferencesHandler {
+public class PreferencesModel implements PreferencesHandler {
     @Override
     public void edit(Map<String, String> settings) {
-
     }
 
     @Override

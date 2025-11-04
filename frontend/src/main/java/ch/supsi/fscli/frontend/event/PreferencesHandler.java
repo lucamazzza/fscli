@@ -1,4 +1,4 @@
-package ch.supsi.fscli.frontend.controller;
+package ch.supsi.fscli.frontend.event;
 
 import java.util.Map;
 

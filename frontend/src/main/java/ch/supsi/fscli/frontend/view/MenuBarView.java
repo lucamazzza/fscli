@@ -1,6 +1,8 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.controller.AboutController;
+import ch.supsi.fscli.frontend.controller.FileSystemController;
+import ch.supsi.fscli.frontend.event.FileSystemEventHandler;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,8 +18,9 @@ public class MenuBarView implements IView {
     private final Menu fileMenu;
     private final Menu editMenu;
     private final Menu helpMenu;
-
     private final MenuBar menuBar;
+
+    private final FileSystemEventHandler controller;
 
     private static MenuBarView instance;
 
@@ -33,6 +36,7 @@ public class MenuBarView implements IView {
         this.editMenu = new Menu("Edit");
         this.helpMenu = new Menu("Help");
         this.menuBar = new MenuBar();
+        controller = FileSystemController.getInstance();
     }
 
     private void fileMenuInit() {
@@ -52,7 +56,6 @@ public class MenuBarView implements IView {
 
         MenuItem exitMenuItem = new MenuItem("Exit");
         exitMenuItem.setId("exitMenuItem");
-        exitMenuItem.setOnAction(e -> Platform.exit());
 
         this.fileMenu.setId("fileMenu");
         this.fileMenu.getItems().add(newMenuItem);
@@ -62,6 +65,13 @@ public class MenuBarView implements IView {
         this.fileMenu.getItems().add(saveAsMenuItem);
         this.fileMenu.getItems().add(new SeparatorMenuItem());
         this.fileMenu.getItems().add(exitMenuItem);
+
+        // MODIFY BEHAVIOUR HERE
+        newMenuItem.setOnAction(e -> controller.newFileSystem());
+        openMenuItem.setOnAction(e -> controller.load(""));
+        saveMenuItem.setOnAction(e -> controller.save());
+        saveAsMenuItem.setOnAction(e -> controller.saveAs(""));
+        exitMenuItem.setOnAction(e -> Platform.exit());
     }
 
     private void editMenuInit() {
@@ -79,18 +89,15 @@ public class MenuBarView implements IView {
         MenuItem aboutMenuItem = new MenuItem("About");
         aboutMenuItem.setId("aboutMenuItem");
 
+        this.helpMenu.setId("helpMenu");
+        this.helpMenu.getItems().add(helpMenuItem);
+        this.helpMenu.getItems().add(aboutMenuItem);
+
+        // MODIFY BEHAVIOUR HERE
         aboutMenuItem.setOnAction(e -> {
             Stage ownerStage = (Stage) aboutMenuItem.getParentPopup().getOwnerWindow();
             showAboutWindow(ownerStage);
         });
-
-        this.helpMenu.setId("helpMenu");
-        this.helpMenu.getItems().add(helpMenuItem);
-        this.helpMenu.getItems().add(aboutMenuItem);
-    }
-
-    private void menuBarInit() {
-        this.menuBar.getMenus().addAll(this.fileMenu, this.editMenu, this.helpMenu);
     }
 
     private void showAboutWindow(Stage ownerStage) {
@@ -100,22 +107,16 @@ public class MenuBarView implements IView {
         String version = controller.getVerion();
         String developers = controller.getDevelopers();
 
-        // 1. Create the new Stage (the window)
         Stage aboutStage = new Stage();
         aboutStage.setTitle("Application Information");
 
-        // 2. Set it as a modal window
-        // Modality.APPLICATION_MODAL blocks all other application windows
         aboutStage.initModality(Modality.APPLICATION_MODAL);
         aboutStage.initOwner(ownerStage); // Set the owner window
 
-        // 3. Create the layout for the content
         VBox contentBox = new VBox(15); // 15px spacing
         contentBox.setAlignment(Pos.CENTER);
         contentBox.setPadding(new Insets(20));
 
-        // 4. Add content (Icon, Labels, Button)
-        // --- App Info ---
         Label titleLabel = new Label(applicationName);
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
@@ -123,22 +124,21 @@ public class MenuBarView implements IView {
         Label versionLabel = new Label("Version: " + version);
         Label copyrightLabel = new Label("Developers: " + developers);
 
-        // --- Close Button ---
         Button closeButton = new Button("Close");
         closeButton.setOnAction(e -> aboutStage.close()); // Action to close this stage
 
-        // 5. Add all content to the layout
         contentBox.getChildren().addAll(titleLabel, buildDateLabel, versionLabel, copyrightLabel, closeButton);
 
-        // 6. Create the scene and set it on the stage
         Scene aboutScene = new Scene(contentBox, 350, 250);
         aboutStage.setScene(aboutScene);
 
-        // Optional: Prevent resizing
         aboutStage.setResizable(false);
 
-        // 7. Show the window and wait for it to be closed
         aboutStage.showAndWait();
+    }
+
+    private void menuBarInit() {
+        this.menuBar.getMenus().addAll(this.fileMenu, this.editMenu, this.helpMenu);
     }
 
     @Override

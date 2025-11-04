@@ -1,6 +1,7 @@
 package ch.supsi.fscli.frontend.controller;
 
-import ch.supsi.fscli.frontend.model.ApplicationModel;
+import ch.supsi.fscli.frontend.event.AboutHandler;
+import ch.supsi.fscli.frontend.model.Application;
 
 public class AboutController implements AboutHandler {
     private static AboutController instance;
@@ -17,21 +18,21 @@ public class AboutController implements AboutHandler {
 
     @Override
     public String getAppName() {
-        return ApplicationModel.getInstance().getAppName();
+        return Application.getInstance().getName();
     }
 
     @Override
     public String getBuildDate() {
-        return ApplicationModel.getInstance().getBuildDate();
+        return Application.getInstance().getBuildDate();
     }
 
     @Override
     public String getVerion() {
-        return ApplicationModel.getInstance().getVerion();
+        return Application.getInstance().getVersion();
     }
 
     @Override
     public String getDevelopers() {
-        return ApplicationModel.getInstance().getDevelopers();
+        return Application.getInstance().getDevelopers();
     }
 }

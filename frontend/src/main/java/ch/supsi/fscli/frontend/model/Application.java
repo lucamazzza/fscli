@@ -1,26 +1,27 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.frontend.controller.AboutHandler;
+import lombok.Getter;
 
 import java.io.InputStream;
 import java.util.Properties;
 
-public class ApplicationModel implements AbstractModel, AboutHandler {
+@Getter
+public class Application {
     private String name;
     private String buildDate;
     private String version;
     private String developers;
 
-    private static ApplicationModel instance;
+    private static Application instance;
 
-    public static ApplicationModel getInstance() {
+    public static Application getInstance() {
         if (instance == null) {
-            instance = new ApplicationModel();
+            instance = new Application();
         }
         return instance;
     }
 
-    private ApplicationModel () {
+    private Application() {
         Properties properties = new Properties();
         String resourceName = "application.properties";
 
@@ -43,25 +44,5 @@ public class ApplicationModel implements AbstractModel, AboutHandler {
         this.buildDate = properties.getProperty("app.buildDate");
         this.version = properties.getProperty("app.version");
         this.developers = properties.getProperty("app.developers");
-    }
-
-    @Override
-    public String getAppName() {
-        return name;
-    }
-
-    @Override
-    public String getBuildDate() {
-        return buildDate;
-    }
-
-    @Override
-    public String getVerion() {
-        return version;
-    }
-
-    @Override
-    public String getDevelopers() {
-        return developers;
     }
 }
