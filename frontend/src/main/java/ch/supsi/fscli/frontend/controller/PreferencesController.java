@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
+import ch.supsi.fscli.backend.application.PreferencesService;
 import ch.supsi.fscli.frontend.model.PreferencesModel;
 import ch.supsi.fscli.frontend.view.PreferencesView;
 
@@ -11,7 +12,7 @@ public class PreferencesController {
     private final PreferencesView view;
 
     public PreferencesController() {
-        this.model = new PreferencesModel(new ch.supsi.fscli.backend.application.PreferencesService());
+        this.model = new PreferencesModel(new PreferencesService());
         this.view = new PreferencesView(model.load());
         initializeView();
         bindSaveButton();
@@ -20,7 +21,6 @@ public class PreferencesController {
     private void initializeView() {
         Map<String, String> prefs = model.load();
 
-        // imposta valori GUI
         view.setLanguage(prefs.get("language"));
         view.setCmdColumns(prefs.get("cmdColumns"));
         view.setOutputLines(prefs.get("outputLines"));

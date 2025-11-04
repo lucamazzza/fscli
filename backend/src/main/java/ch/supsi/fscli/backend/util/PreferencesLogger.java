@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 public class PreferencesLogger {
     private static final Logger LOGGER = Logger.getLogger("Preferences");
 
-    // Listener esterno (es. frontend)
     private static BiConsumer<Level, String> externalListener;
 
     public static void setExternalListener(BiConsumer<Level, String> listener) {

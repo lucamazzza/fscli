@@ -25,7 +25,6 @@ public class UserPreferences {
         this.logFont = other.logFont;
     }
 
-    // --- SANITIZZAZIONE VALORI ---
     private int clamp(int value, int min, int max) {
         return Math.max(min, Math.min(max, value));
     }
@@ -45,7 +44,6 @@ public class UserPreferences {
         return input;
     }
 
-    // --- GETTER / SETTER ---
     public String getLanguage() { return language; }
     public void setLanguage(String language) {
         this.language = validateLanguage(language);

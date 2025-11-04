@@ -24,18 +24,15 @@ public class PreferencesService {
     }
 
     public void updatePreference(Consumer<UserPreferences> modifier) {
-        modifier.accept(currentPrefs); // il model aggiorna direttamente valori già sanitizzati
+        modifier.accept(currentPrefs);
         save();
-        // log rimosso
     }
 
     private void save() {
         try {
             File file = BackendGlobalVariables.DEFAULT_PREF_PATH.toFile();
             fileManager.save(currentPrefs);
-            // log rimosso
         } catch (IOException e) {
-            // mantiene il logging di errore, utile per debug reale
             currentPrefs = new UserPreferences();
         }
     }
@@ -47,24 +44,5 @@ public class PreferencesService {
     public void reload() {
         Optional<UserPreferences> loaded = fileManager.load();
         loaded.ifPresent(p -> currentPrefs = p);
-        // log rimosso
     }
-
-    public Map<String, String> loadRawPrefs() {
-        Optional<UserPreferences> loaded = fileManager.loadRaw(); // nuovo metodo
-        if (loaded.isPresent()) {
-            UserPreferences p = loaded.get();
-            return Map.of(
-                    "language", p.getLanguage(),
-                    "cmdColumns", String.valueOf(p.getCmdColumns()),
-                    "outputLines", String.valueOf(p.getOutputLines()),
-                    "logLines", String.valueOf(p.getLogLines()),
-                    "cmdFont", p.getCmdFont(),
-                    "outputFont", p.getOutputFont(),
-                    "logFont", p.getLogFont()
-            );
-        }
-        return Map.of();
-    }
-
 }
