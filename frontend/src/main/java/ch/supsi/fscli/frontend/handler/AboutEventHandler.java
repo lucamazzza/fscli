@@ -1,6 +1,6 @@
-package ch.supsi.fscli.frontend.event;
+package ch.supsi.fscli.frontend.handler;
 
-public interface AboutHandler extends EventHandler {
+public interface AboutEventHandler extends EventHandler {
     String getAppName();
     String getBuildDate();
     String getVerion();

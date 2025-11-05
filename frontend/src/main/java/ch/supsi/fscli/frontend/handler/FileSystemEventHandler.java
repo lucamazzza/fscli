@@ -1,4 +1,4 @@
-package ch.supsi.fscli.frontend.event;
+package ch.supsi.fscli.frontend.handler;
 
 public interface FileSystemEventHandler extends EventHandler {
     void newFileSystem();

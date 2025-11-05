@@ -1,8 +1,7 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.controller.AboutController;
-import ch.supsi.fscli.frontend.controller.FileSystemController;
-import ch.supsi.fscli.frontend.event.FileSystemEventHandler;
+import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -12,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class MenuBarView implements IView {
@@ -20,7 +20,8 @@ public class MenuBarView implements IView {
     private final Menu helpMenu;
     private final MenuBar menuBar;
 
-    private final FileSystemEventHandler controller;
+    @Setter
+    private FileSystemEventHandler controller;
 
     private static MenuBarView instance;
 
@@ -36,7 +37,6 @@ public class MenuBarView implements IView {
         this.editMenu = new Menu("Edit");
         this.helpMenu = new Menu("Help");
         this.menuBar = new MenuBar();
-        controller = FileSystemController.getInstance();
     }
 
     private void fileMenuInit() {

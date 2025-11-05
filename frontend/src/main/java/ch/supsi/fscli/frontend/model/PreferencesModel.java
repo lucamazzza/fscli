@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.frontend.event.PreferencesHandler;
+import ch.supsi.fscli.frontend.handler.PreferencesHandler;
 
 import java.util.Map;
 

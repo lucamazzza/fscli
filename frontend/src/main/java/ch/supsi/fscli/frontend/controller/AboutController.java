@@ -1,9 +1,9 @@
 package ch.supsi.fscli.frontend.controller;
 
-import ch.supsi.fscli.frontend.event.AboutHandler;
+import ch.supsi.fscli.frontend.handler.AboutEventHandler;
 import ch.supsi.fscli.frontend.model.Application;
 
-public class AboutController implements AboutHandler {
+public class AboutController implements AboutEventHandler {
     private static AboutController instance;
 
     public static AboutController getInstance() {

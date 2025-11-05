@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
-import ch.supsi.fscli.frontend.event.FileSystemEventHandler;
+import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 
 public class FileSystemController implements FileSystemEventHandler {
     private static FileSystemController instance;
