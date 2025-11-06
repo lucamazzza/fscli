@@ -8,10 +8,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.File;
 
 @Getter
 public class MenuBarView implements IView {
@@ -68,11 +71,31 @@ public class MenuBarView implements IView {
 
         // MODIFY BEHAVIOUR HERE
         newMenuItem.setOnAction(e -> controller.newFileSystem());
-        openMenuItem.setOnAction(e -> controller.load(""));
+        openMenuItem.setOnAction(e ->
+        {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open a filesystem...");
+            fileChooser.setInitialFileName("fscli_filesystem");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            File file = fileChooser.showOpenDialog(null);
+            controller.load(file);
+        });
         saveMenuItem.setOnAction(e -> controller.save());
-        saveAsMenuItem.setOnAction(e -> controller.saveAs(""));
+        saveAsMenuItem.setOnAction(e -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Open a filesystem...");
+            fileChooser.setInitialFileName("fscli_filesystem");
+            fileChooser.getExtensionFilters().addAll(
+                    new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+            File file = fileChooser.showSaveDialog(null);
+            controller.load(file);
+            controller.saveAs(file);
+        });
         exitMenuItem.setOnAction(e -> Platform.exit());
     }
+
+
 
     private void editMenuInit() {
         MenuItem preferencesMenuItem = new MenuItem("Preferences...");

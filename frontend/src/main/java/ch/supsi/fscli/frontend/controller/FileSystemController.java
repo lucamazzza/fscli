@@ -2,6 +2,8 @@ package ch.supsi.fscli.frontend.controller;
 
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 
+import java.io.File;
+
 public class FileSystemController implements FileSystemEventHandler {
     private static FileSystemController instance;
 
@@ -27,12 +29,12 @@ public class FileSystemController implements FileSystemEventHandler {
     }
 
     @Override
-    public void saveAs(String path) {
+    public void saveAs(File file) {
 
     }
 
     @Override
-    public void load(String path) {
+    public void load(File file) {
 
     }
 }
