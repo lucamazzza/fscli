@@ -1,7 +1,6 @@
-package ch.supsi.fscli.backend.data;
+package ch.supsi.fscli.backend.data.serde;
 
 import ch.supsi.fscli.backend.core.UserPreferences;
-import ch.supsi.fscli.backend.business.UserPreferences;
 import ch.supsi.fscli.backend.util.BackendGlobalVariables;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 

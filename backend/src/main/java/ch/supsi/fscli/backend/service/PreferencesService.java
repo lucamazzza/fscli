@@ -1,5 +1,3 @@
-package ch.supsi.fscli.backend.application;
-
 package ch.supsi.fscli.backend.service;
 
 import ch.supsi.fscli.backend.data.serde.PreferencesFileManager;
