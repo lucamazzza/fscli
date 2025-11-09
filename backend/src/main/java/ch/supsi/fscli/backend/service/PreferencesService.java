@@ -1,11 +1,15 @@
+package ch.supsi.fscli.backend.application;
 
 package ch.supsi.fscli.backend.service;
 
 import ch.supsi.fscli.backend.data.serde.PreferencesFileManager;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
+import ch.supsi.fscli.backend.util.BackendGlobalVariables;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -29,10 +33,9 @@ public class PreferencesService {
 
     private void save() {
         try {
+            File file = BackendGlobalVariables.DEFAULT_PREF_PATH.toFile();
             fileManager.save(currentPrefs);
-            PreferencesLogger.logInfo("Preferences saved successfully");
         } catch (IOException e) {
-            PreferencesLogger.logError("Could not save preferences", e);
             currentPrefs = new UserPreferences();
         }
     }
@@ -43,9 +46,6 @@ public class PreferencesService {
 
     public void reload() {
         Optional<UserPreferences> loaded = fileManager.load();
-        loaded.ifPresent(p -> {
-            this.currentPrefs = p;
-            PreferencesLogger.logInfo("Preferences reloaded successfully");
-        });
+        loaded.ifPresent(p -> currentPrefs = p);
     }
 }
