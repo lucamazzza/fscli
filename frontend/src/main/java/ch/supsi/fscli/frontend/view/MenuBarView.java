@@ -1,7 +1,11 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.controller.AboutController;
+import ch.supsi.fscli.frontend.event.Event;
+import ch.supsi.fscli.frontend.event.EventError;
+import ch.supsi.fscli.frontend.event.FileEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
+import ch.supsi.fscli.frontend.listener.Listener;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,11 +21,14 @@ import lombok.Setter;
 import java.io.File;
 
 @Getter
-public class MenuBarView implements IView {
+public class MenuBarView implements View, Listener {
     private final Menu fileMenu;
     private final Menu editMenu;
     private final Menu helpMenu;
     private final MenuBar menuBar;
+
+    private final MenuItem saveMenuItem;
+    private final MenuItem saveAsMenuItem;
 
     @Setter
     private FileSystemEventHandler controller;
@@ -40,6 +47,8 @@ public class MenuBarView implements IView {
         this.editMenu = new Menu("Edit");
         this.helpMenu = new Menu("Help");
         this.menuBar = new MenuBar();
+        this.saveMenuItem = new MenuItem("Save");
+        this.saveAsMenuItem = new MenuItem("Save as...");
     }
 
     private void fileMenuInit() {
@@ -49,13 +58,11 @@ public class MenuBarView implements IView {
         MenuItem openMenuItem = new MenuItem("Open...");
         openMenuItem.setId("openMenuItem");
 
-        MenuItem saveMenuItem = new MenuItem("Save");
-        saveMenuItem.setId("saveMenuItem");
-        saveMenuItem.setDisable(true);
+        this.saveMenuItem.setId("saveMenuItem");
+        this.saveMenuItem.setDisable(true);
 
-        MenuItem saveAsMenuItem = new MenuItem("Save as...");
-        saveAsMenuItem.setId("saveAsMenuItem");
-        saveAsMenuItem.setDisable(true);
+        this.saveAsMenuItem.setId("saveAsMenuItem");
+        this.saveAsMenuItem.setDisable(true);
 
         MenuItem exitMenuItem = new MenuItem("Exit");
         exitMenuItem.setId("exitMenuItem");
@@ -71,8 +78,7 @@ public class MenuBarView implements IView {
 
         // MODIFY BEHAVIOUR HERE
         newMenuItem.setOnAction(e -> controller.newFileSystem());
-        openMenuItem.setOnAction(e ->
-        {
+        openMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open a filesystem...");
             fileChooser.setInitialFileName("fscli_filesystem");
@@ -172,8 +178,28 @@ public class MenuBarView implements IView {
         menuBarInit();
     }
 
-    @Override
-    public void update() {
 
+    @Override
+    public void update(Event event) {
+        if (event == null) {
+            return;
+        }
+        if (!(event instanceof FileEvent fileEvent)) {
+            return;
+        }
+
+        System.out.println(event);
+
+        if (fileEvent.getError() == EventError.ERROR) {
+            return;
+        }
+
+        if (fileEvent.getIsSuccess()) {
+            saveMenuItem.setDisable(false);
+            saveAsMenuItem.setDisable(false);
+            return;
+        }
+        saveMenuItem.setDisable(true);
+        saveAsMenuItem.setDisable(true);
     }
 }

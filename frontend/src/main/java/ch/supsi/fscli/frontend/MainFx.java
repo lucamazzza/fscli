@@ -1,6 +1,8 @@
 package ch.supsi.fscli.frontend;
 
 import ch.supsi.fscli.frontend.controller.FileSystemController;
+import ch.supsi.fscli.frontend.event.FileEventManager;
+import ch.supsi.fscli.frontend.model.FileSystem;
 import ch.supsi.fscli.frontend.view.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -30,7 +32,16 @@ public class MainFx extends Application {
         this.commandLine = CommandLineView.getInstance();
         this.logArea = LogAreaView.getInstance();
 
-        menuBar.setController(FileSystemController.getInstance());
+        FileEventManager fileEventManager = new FileEventManager();
+        fileEventManager.addListener(this.menuBar);
+
+        FileSystem fileSystem = FileSystem.getInstance();
+        fileSystem.setEventManager(fileEventManager);
+
+        FileSystemController fileSystemController = FileSystemController.getInstance();
+        fileSystemController.setModel(fileSystem);
+
+        menuBar.setController(fileSystemController);
     }
 
     @Override

@@ -4,7 +4,7 @@ import javafx.scene.control.TextArea;
 import lombok.Getter;
 
 @Getter
-public class LogAreaView implements IView {
+public class LogAreaView implements View {
     private static final int PREF_LOG_VIEW_ROW_COUNT = 5;
 
     private final TextArea logView;
@@ -34,10 +34,5 @@ public class LogAreaView implements IView {
     @Override
     public void init() {
         logAreaInit();
-    }
-
-    @Override
-    public void update() {
-
     }
 }

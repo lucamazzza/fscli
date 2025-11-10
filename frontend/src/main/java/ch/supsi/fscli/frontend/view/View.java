@@ -1,6 +1,5 @@
 package ch.supsi.fscli.frontend.view;
 
-public interface IView {
+public interface View {
     void init();
-    void update();
 }

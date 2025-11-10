@@ -1,10 +1,15 @@
 package ch.supsi.fscli.frontend.controller;
 
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
+import ch.supsi.fscli.frontend.model.FileSystem;
+import lombok.Setter;
 
 import java.io.File;
 
 public class FileSystemController implements FileSystemEventHandler {
+    @Setter
+    private FileSystem model;
+
     private static FileSystemController instance;
 
     public static FileSystemController getInstance() {
@@ -20,7 +25,7 @@ public class FileSystemController implements FileSystemEventHandler {
 
     @Override
     public void newFileSystem() {
-
+        this.model.createFileSystem();
     }
 
     @Override

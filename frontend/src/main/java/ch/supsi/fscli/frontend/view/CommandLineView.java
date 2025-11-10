@@ -7,7 +7,7 @@ import javafx.scene.control.TextField;
 import lombok.Getter;
 
 @Getter
-public class CommandLineView implements IView {
+public class CommandLineView implements View {
     private static final int COMMAND_LINE_PREF_COLUMN_COUNT = 72;
     private static final int PREF_OUTPUT_VIEW_ROW_COUNT = 25;
 
@@ -53,10 +53,5 @@ public class CommandLineView implements IView {
         enterButtonInit();
         commandLineInit();
         logAreaInit();
-    }
-
-    @Override
-    public void update() {
-
     }
 }
