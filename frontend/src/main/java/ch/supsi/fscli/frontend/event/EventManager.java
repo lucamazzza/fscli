@@ -8,17 +8,17 @@ import java.util.List;
 
 public abstract class EventManager<T extends Event> implements EventNotifier<T>{
     @Getter
-    private final List<Listener> listeners;
+    private final List<Listener<T>> listeners;
 
     EventManager() {
         this.listeners = new ArrayList<>();
     }
 
-    public void addListener(Listener listener) {
+    public void addListener(Listener<T> listener) {
         this.listeners.add(listener);
     }
 
-    public void removeListener(Listener listener) {
+    public void removeListener(Listener<T> listener) {
         this.listeners.remove(listener);
     }
 }
