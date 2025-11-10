@@ -21,7 +21,7 @@ import lombok.Setter;
 import java.io.File;
 
 @Getter
-public class MenuBarView implements View, Listener {
+public class MenuBarView implements View, Listener<FileEvent> {
     private final Menu fileMenu;
     private final Menu editMenu;
     private final Menu helpMenu;
@@ -180,21 +180,17 @@ public class MenuBarView implements View, Listener {
 
 
     @Override
-    public void update(Event event) {
+    public void update(FileEvent event) {
         if (event == null) {
             return;
         }
-        if (!(event instanceof FileEvent fileEvent)) {
-            return;
-        }
-
         System.out.println(event);
 
-        if (fileEvent.getError() == EventError.ERROR) {
+        if (event.getError() == EventError.ERROR) {
             return;
         }
 
-        if (fileEvent.getIsSuccess()) {
+        if (event.getIsSuccess()) {
             saveMenuItem.setDisable(false);
             saveAsMenuItem.setDisable(false);
             return;
