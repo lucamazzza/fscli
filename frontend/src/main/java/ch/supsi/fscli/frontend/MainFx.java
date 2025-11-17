@@ -1,8 +1,7 @@
 package ch.supsi.fscli.frontend;
 
-import ch.supsi.fscli.backend.application.PreferencesService;
-import ch.supsi.fscli.backend.business.UserPreferences;
-import ch.supsi.fscli.frontend.controller.PreferencesController;
+import ch.supsi.fscli.backend.service.PreferencesService;
+import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.frontend.util.*;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import ch.supsi.fscli.frontend.controller.FileSystemController;
@@ -18,9 +17,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 public class MainFx extends Application {
-
     private final String applicationTitle;
-
     // VIEWS
     private final MenuBarView menuBar;
     private final CommandLineView commandLine;
@@ -34,15 +31,6 @@ public class MainFx extends Application {
 
         FileEventManager fileEventManager = new FileEventManager();
         fileEventManager.addListener(this.menuBar);
-
-        // EDIT MENU
-        MenuItem preferencesMenuItem = new MenuItem("Preferences...");
-        preferencesMenuItem.setOnAction(e -> {
-            PreferencesController controller = new PreferencesController();
-            controller.show();
-        });
-        this.editMenu = new Menu("Edit");
-        this.editMenu.getItems().add(preferencesMenuItem);
 
         FileSystem fileSystem = FileSystem.getInstance();
         fileSystem.setEventManager(fileEventManager);
@@ -65,7 +53,7 @@ public class MainFx extends Application {
 
         // --- LOGGER FX ---
         FxLogger fxLogger = FxLogger.getInstance();
-        fxLogger.setLogArea(this.logView);
+        fxLogger.setLogArea(this.logArea.getLogView());
         fxLogger.setLogAreaRowCount(prefs.getLogLines());
 
         PreferencesLogger.setExternalListener((level, message) -> {
@@ -77,20 +65,14 @@ public class MainFx extends Application {
 
 
         // --- GUI ---
-        this.commandLine.setPrefColumnCount(prefs.getCmdColumns());
-        this.commandLine.setStyle("-fx-font-family: '" + prefs.getCmdFont() + "';");
+        this.commandLine.getCommandLine().setPrefColumnCount(prefs.getCmdColumns());
+        this.commandLine.getCommandLine().setStyle("-fx-font-family: '" + prefs.getCmdFont() + "';");
 
-        HBox commandLinePane = new HBox(10, this.commandLineLabel, this.commandLine, this.enter);
+        HBox commandLinePane = new HBox(10, this.commandLine.getCommandLineLabel(), this.commandLine.getCommandLine(), this.commandLine.getEnter());
         commandLinePane.setAlignment(Pos.BASELINE_LEFT);
         commandLinePane.setPadding(new Insets(5));
 
-        HBox.setHgrow(this.commandLine, Priority.ALWAYS);
-
-        commandLinePane.getChildren().add(this.commandLine.getCommandLineLabel());
-        commandLinePane.getChildren().add(spacer1);
-        commandLinePane.getChildren().add(this.commandLine.getCommandLine());
-        commandLinePane.getChildren().add(spacer2);
-        commandLinePane.getChildren().add(this.commandLine.getEnter());
+        HBox.setHgrow(this.commandLine.getCommandLine(), Priority.ALWAYS);
 
         // vertical pane to hold the menu bar and the command line
         VBox top = new VBox(
@@ -98,48 +80,33 @@ public class MainFx extends Application {
                 commandLinePane
         );
 
-        this.outputView.setPrefRowCount(prefs.getOutputLines());
-        this.outputView.setStyle("-fx-font-family: '" + prefs.getOutputFont() + "';");
+        this.commandLine.getOutputView().setPrefRowCount(prefs.getOutputLines());
+        this.commandLine.getOutputView().setStyle("-fx-font-family: '" + prefs.getOutputFont() + "';");
 
-        this.logView.setPrefRowCount(prefs.getLogLines());
-        this.logView.setStyle("-fx-font-family: '" + prefs.getLogFont() + "';");
+        this.logArea.getLogView().setPrefRowCount(prefs.getLogLines());
+        this.logArea.getLogView().setStyle("-fx-font-family: '" + prefs.getLogFont() + "';");
 
-        // scroll pane to hold the output view
-        ScrollPane centerPane = new ScrollPane();
-        centerPane.setFitToHeight(true);
-        centerPane.setFitToWidth(true);
-        centerPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        centerPane.setContent(this.commandLine.getOutputView());
-
-        // scroll pane to hold log view
-        ScrollPane bottomPane = new ScrollPane();
-        bottomPane.setFitToHeight(true);
-        bottomPane.setFitToWidth(true);
-        bottomPane.setPadding(new Insets(PREF_INSETS_SIZE));
-        bottomPane.setContent(this.logArea.getLogView());
-
-        // root pane
         BorderPane rootPane = new BorderPane();
         rootPane.setTop(top);
-        rootPane.setCenter(new ScrollPane(this.outputView));
-        rootPane.setBottom(new ScrollPane(this.logView));
+        rootPane.setCenter(new ScrollPane(this.commandLine.getOutputView()));
+        rootPane.setBottom(new ScrollPane(this.logArea.getLogView()));
 
         // --- Calcolo larghezza fissa basata sulle colonne ---
         double charWidth = 8.0;
         double baseWidth = prefs.getCmdColumns() * charWidth + 120;
 
 // --- Blocca larghezze coerenti ---
-        this.commandLine.setPrefColumnCount(prefs.getCmdColumns());
-        this.commandLine.setMinWidth(Region.USE_PREF_SIZE);
-        this.commandLine.setMaxWidth(Region.USE_PREF_SIZE);
+        this.commandLine.getCommandLine().setPrefColumnCount(prefs.getCmdColumns());
+        this.commandLine.getCommandLine().setMinWidth(Region.USE_PREF_SIZE);
+        this.commandLine.getCommandLine().setMaxWidth(Region.USE_PREF_SIZE);
 
-        this.outputView.setPrefWidth(baseWidth);
-        this.outputView.setMinWidth(baseWidth);
-        this.outputView.setMaxWidth(baseWidth);
+        this.commandLine.getOutputView().setPrefWidth(baseWidth);
+        this.commandLine.getOutputView().setMinWidth(baseWidth);
+        this.commandLine.getOutputView().setMaxWidth(baseWidth);
 
-        this.logView.setPrefWidth(baseWidth);
-        this.logView.setMinWidth(baseWidth);
-        this.logView.setMaxWidth(baseWidth);
+        this.logArea.getLogView().setPrefWidth(baseWidth);
+        this.logArea.getLogView().setMinWidth(baseWidth);
+        this.logArea.getLogView().setMaxWidth(baseWidth);
 
 // --- GUI layout ---
         primaryStage.setResizable(false);
@@ -150,7 +117,6 @@ public class MainFx extends Application {
                 80 + prefs.getOutputLines() * 20 + prefs.getLogLines() * 15
         );
         primaryStage.show();
-
 
     }
 

@@ -1,7 +1,7 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.controller.AboutController;
-import ch.supsi.fscli.frontend.event.Event;
+import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.event.EventError;
 import ch.supsi.fscli.frontend.event.FileEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
@@ -101,14 +101,17 @@ public class MenuBarView implements View, Listener<FileEvent> {
         exitMenuItem.setOnAction(e -> Platform.exit());
     }
 
-
-
     private void editMenuInit() {
         MenuItem preferencesMenuItem = new MenuItem("Preferences...");
         preferencesMenuItem.setId("preferencesMenuItem");
 
         this.editMenu.setId("editMenu");
         this.editMenu.getItems().add(preferencesMenuItem);
+
+        preferencesMenuItem.setOnAction(e -> {
+            PreferencesController controller = new PreferencesController();
+            controller.show();
+        });
     }
 
     private void helpMenuInit() {

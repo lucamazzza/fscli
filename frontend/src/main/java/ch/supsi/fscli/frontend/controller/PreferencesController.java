@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
-import ch.supsi.fscli.backend.application.PreferencesService;
+import ch.supsi.fscli.backend.service.PreferencesService;
 import ch.supsi.fscli.frontend.model.PreferencesModel;
 import ch.supsi.fscli.frontend.view.PreferencesView;
 
