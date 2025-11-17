@@ -14,11 +14,11 @@ public class UserPreferencesTest {
 
         assertEquals("en", prefs.getLanguage());
         assertEquals(80, prefs.getCmdColumns());
-        assertEquals(20, prefs.getOutputLines());
-        assertEquals(20, prefs.getLogLines());
-        assertEquals("Consolas", prefs.getCmdFont());
-        assertEquals("Consolas", prefs.getOutputFont());
-        assertEquals("Consolas", prefs.getLogFont());
+        assertEquals(10, prefs.getOutputLines());
+        assertEquals(5, prefs.getLogLines());
+        assertEquals("Monospaced", prefs.getCmdFont());
+        assertEquals("Monospaced", prefs.getOutputFont());
+        assertEquals("SansSerif", prefs.getLogFont());
     }
 
     @Test
