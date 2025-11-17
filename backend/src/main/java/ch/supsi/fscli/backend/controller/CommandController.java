@@ -23,6 +23,7 @@ public class CommandController {
         executor.registerCommand(new MkdirCommand());
         executor.registerCommand(new RmdirCommand());
         executor.registerCommand(new PwdCommand());
+        executor.registerCommand(new LnCommand());
     }
     
     public CommandResponse executeCommand(String commandString) {
