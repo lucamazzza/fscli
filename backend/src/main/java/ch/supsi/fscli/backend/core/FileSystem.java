@@ -52,6 +52,11 @@ public interface FileSystem {
      * Print working directory.
      */
     String pwd();
+
+    /**
+     * Copy a file or directory.
+     */
+    void cp(String src, String dest) throws FSException;
     
     /**
      * Expand wildcards in path.
@@ -87,6 +92,17 @@ public interface FileSystem {
      * @throws FSException if path doesn't exist or other error
      */
     void deleteNode(String path) throws FSException;
+    
+    /**
+     * Copy a node (file, directory, symlink).
+     * Used internally by cp command, can be used by external commands.
+     * 
+     * @param fs The filesystem
+     * @param node The node to copy
+     * @param recursive Whether to copy directories recursively
+     * @return The copied node
+     */
+    FileSystemNode copyNode(FileSystem fs, FileSystemNode node, boolean recursive);
     
     /**
      * Get the parent directory of a path.

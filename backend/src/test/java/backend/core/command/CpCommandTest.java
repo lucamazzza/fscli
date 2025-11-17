@@ -4,10 +4,6 @@ import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.command.CpCommand;
 import ch.supsi.fscli.backend.core.exception.FSException;
-import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FileNode;
-import ch.supsi.fscli.backend.data.FileSystemNode;
-import ch.supsi.fscli.backend.data.SymlinkNode;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,45 +48,32 @@ class CpCommandTest {
     @Test
     void testExecuteCopyFile() throws FSException {
         CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("source.txt", "dest.txt"));
-        FileNode fileNode = new FileNode();
-        
-        when(fileSystem.resolveNode("source.txt", true)).thenReturn(fileNode);
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem).resolveNode("source.txt", true);
-        verify(fileSystem).createNode(eq("dest.txt"), any(FileSystemNode.class));
+        verify(fileSystem).cp("source.txt", "dest.txt");
         assertTrue(result.isSuccess());
+        assertTrue(result.getOutput().isEmpty());
     }
 
     @Test
-    void testExecuteCopyDirectory() throws FSException {
+    void testExecuteCopyWithRecursiveFlag() throws FSException {
         CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("-r", "sourcedir", "destdir"));
-        DirectoryNode dirNode = new DirectoryNode();
-        
-        when(fileSystem.resolveNode("sourcedir", true)).thenReturn(dirNode);
-        when(fileSystem.listNodes(any(DirectoryNode.class))).thenReturn(Collections.emptyList());
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem).resolveNode("sourcedir", true);
-        verify(fileSystem).createNode(eq("destdir"), any(FileSystemNode.class));
+        verify(fileSystem).cp("sourcedir", "destdir");
         assertTrue(result.isSuccess());
     }
 
     @Test
-    void testExecuteCopyDirectoryWithoutRecursiveFlag() throws FSException {
-        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("sourcedir", "destdir"));
-        DirectoryNode dirNode = new DirectoryNode();
-        
-        when(fileSystem.resolveNode("sourcedir", true)).thenReturn(dirNode);
+    void testExecuteCopyWithAbsolutePaths() throws FSException {
+        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("/home/user/file.txt", "/tmp/file.txt"));
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem).resolveNode("sourcedir", true);
-        verify(fileSystem, never()).createNode(anyString(), any(FileSystemNode.class));
-        assertFalse(result.isSuccess());
-        assertTrue(result.getErrorMessage().contains("-r not specified"));
+        verify(fileSystem).cp("/home/user/file.txt", "/tmp/file.txt");
+        assertTrue(result.isSuccess());
     }
 
     @Test
@@ -99,7 +82,7 @@ class CpCommandTest {
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem, never()).resolveNode(anyString(), anyBoolean());
+        verify(fileSystem, never()).cp(anyString(), anyString());
         assertFalse(result.isSuccess());
         assertEquals("cp: missing operand", result.getErrorMessage());
     }
@@ -110,7 +93,7 @@ class CpCommandTest {
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem, never()).resolveNode(anyString(), anyBoolean());
+        verify(fileSystem, never()).cp(anyString(), anyString());
         assertFalse(result.isSuccess());
         assertEquals("cp: missing operand", result.getErrorMessage());
     }
@@ -121,7 +104,18 @@ class CpCommandTest {
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem, never()).resolveNode(anyString(), anyBoolean());
+        verify(fileSystem, never()).cp(anyString(), anyString());
+        assertFalse(result.isSuccess());
+        assertEquals("cp: too many arguments", result.getErrorMessage());
+    }
+
+    @Test
+    void testExecuteWithTooManyArgumentsWithRecursiveFlag() throws FSException {
+        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("-r", "file1.txt", "file2.txt", "file3.txt"));
+        
+        CommandResult result = cpCommand.execute(fileSystem, syntax);
+        
+        verify(fileSystem, never()).cp(anyString(), anyString());
         assertFalse(result.isSuccess());
         assertEquals("cp: too many arguments", result.getErrorMessage());
     }
@@ -129,55 +123,40 @@ class CpCommandTest {
     @Test
     void testExecuteWithNonexistentSource() throws FSException {
         CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("nonexistent.txt", "dest.txt"));
+        doThrow(new FSException("File not found")).when(fileSystem).cp("nonexistent.txt", "dest.txt");
         
-        when(fileSystem.resolveNode("nonexistent.txt", true)).thenThrow(new FSException("File not found"));
+        assertThrows(FSException.class, () -> cpCommand.execute(fileSystem, syntax));
+        verify(fileSystem).cp("nonexistent.txt", "dest.txt");
+    }
+
+    @Test
+    void testExecuteWithRelativePaths() throws FSException {
+        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("./file.txt", "../backup/file.txt"));
         
         CommandResult result = cpCommand.execute(fileSystem, syntax);
         
-        verify(fileSystem).resolveNode("nonexistent.txt", true);
+        verify(fileSystem).cp("./file.txt", "../backup/file.txt");
+        assertTrue(result.isSuccess());
+    }
+
+    @Test
+    void testExecuteRecursiveFlagWithSingleFile() throws FSException {
+        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("-r", "file.txt", "copy.txt"));
+        
+        CommandResult result = cpCommand.execute(fileSystem, syntax);
+        
+        verify(fileSystem).cp("file.txt", "copy.txt");
+        assertTrue(result.isSuccess());
+    }
+
+    @Test
+    void testExecuteWithMissingOperandAfterRecursiveFlag() throws FSException {
+        CommandSyntax syntax = new CommandSyntax("cp", Collections.singletonList("-r"));
+        
+        CommandResult result = cpCommand.execute(fileSystem, syntax);
+        
+        verify(fileSystem, never()).cp(anyString(), anyString());
         assertFalse(result.isSuccess());
-        assertTrue(result.getErrorMessage().contains("File not found"));
-    }
-
-    @Test
-    void testExecuteRecursiveFlagWithFile() throws FSException {
-        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("-r", "file.txt", "dest.txt"));
-        FileNode fileNode = new FileNode();
-        
-        when(fileSystem.resolveNode("file.txt", true)).thenReturn(fileNode);
-        
-        CommandResult result = cpCommand.execute(fileSystem, syntax);
-        
-        verify(fileSystem).resolveNode("file.txt", true);
-        verify(fileSystem).createNode(eq("dest.txt"), any(FileSystemNode.class));
-        assertTrue(result.isSuccess());
-    }
-
-    @Test
-    void testExecuteCopySymlink() throws FSException {
-        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("symlink", "dest"));
-        SymlinkNode symlinkNode = new SymlinkNode("target");
-        
-        when(fileSystem.resolveNode("symlink", true)).thenReturn(symlinkNode);
-        
-        CommandResult result = cpCommand.execute(fileSystem, syntax);
-        
-        verify(fileSystem).resolveNode("symlink", true);
-        verify(fileSystem).createNode(eq("dest"), any(FileSystemNode.class));
-        assertTrue(result.isSuccess());
-    }
-
-    @Test
-    void testExecuteWithAbsolutePaths() throws FSException {
-        CommandSyntax syntax = new CommandSyntax("cp", Arrays.asList("/home/user/file.txt", "/tmp/file.txt"));
-        FileNode fileNode = new FileNode();
-        
-        when(fileSystem.resolveNode("/home/user/file.txt", true)).thenReturn(fileNode);
-        
-        CommandResult result = cpCommand.execute(fileSystem, syntax);
-        
-        verify(fileSystem).resolveNode("/home/user/file.txt", true);
-        verify(fileSystem).createNode(eq("/tmp/file.txt"), any(FileSystemNode.class));
-        assertTrue(result.isSuccess());
+        assertEquals("cp: missing operand", result.getErrorMessage());
     }
 }

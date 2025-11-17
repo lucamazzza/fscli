@@ -238,6 +238,31 @@ public class InMemoryFileSystem implements FileSystem {
     public String pwd() {
         return getAbsolutePath(cwd);
     }
+
+    @Override
+    public void cp(String src, String dest) throws FSException {
+        FileSystemNode srcNode = pathResolver.resolve(cwd, src, true);
+        try {
+            pathResolver.resolve(cwd, dest, false);
+            throw new AlreadyExistsException("Destination already exists: " + dest);
+        } catch (NotFoundException e) {
+            // Good - destination doesn't exist
+        }
+        String destParentPath = getParentPath(dest);
+        String destName = getFileName(dest);
+        DirectoryNode destParent;
+        if (destParentPath.isEmpty()) {
+            destParent = cwd;
+        } else {
+            FileSystemNode destParentNode = pathResolver.resolve(cwd, destParentPath, true);
+            if (!destParentNode.isDirectory()) {
+                throw new NotADirectoryException("Destination parent is not a directory: " + destParentPath);
+            }
+            destParent = (DirectoryNode) destParentNode;
+        }
+        FileSystemNode copy = copyNode(this, srcNode, srcNode.isDirectory());
+        destParent.add(destName, copy);
+    }
     
     @Override
     public List<String> expWildcard(String path, DirectoryNode curDir) throws FSException {
@@ -261,7 +286,7 @@ public class InMemoryFileSystem implements FileSystem {
     public DirectoryNode getCwd() {
         return cwd;
     }
-    
+
     private String getParentPath(String path) {
         if (path.equals("/")) {
             return "";
@@ -363,6 +388,32 @@ public class InMemoryFileSystem implements FileSystem {
             parent.remove(name);
         }
     }
+
+    @Override
+    public FileSystemNode copyNode(FileSystem fs, FileSystemNode node, boolean recursive) {
+        if (!node.isDirectory() && !node.isSymlink()) {
+            return new FileNode();
+
+        } else if (node.isSymlink()) {
+            SymlinkNode symlink = (SymlinkNode) node;
+            return new SymlinkNode(symlink.getTarget());
+
+        } else if (node.isDirectory() && recursive) {
+            DirectoryNode srcDir = (DirectoryNode) node;
+            DirectoryNode destDir = new DirectoryNode();
+
+            for (FileSystemNode child : fs.listNodes(srcDir)) {
+                FileSystemNode childCopy = copyNode(fs, child, true);
+                String childName = findChildName(srcDir, child);
+                destDir.add(childName, childCopy);
+            }
+
+            return destDir;
+
+        } else {
+            return new DirectoryNode();
+        }
+    }
     
     @Override
     public DirectoryNode getParentDirectory(String path) throws FSException {
@@ -397,5 +448,14 @@ public class InMemoryFileSystem implements FileSystem {
     @Override
     public String extractParentPath(String path) {
         return getParentPath(path);
+    }
+
+    private String findChildName(DirectoryNode parent, FileSystemNode child) {
+        for (String name : parent.listNames()) {
+            if (parent.get(name) == child) {
+                return name;
+            }
+        }
+        return null;
     }
 }
