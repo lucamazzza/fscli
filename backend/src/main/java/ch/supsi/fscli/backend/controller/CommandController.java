@@ -14,7 +14,7 @@ public class CommandController {
     }
     
     private void registerCommands() {
-        // add references to concrete commands when those are written
+        executor.registerCommand(new LnCommand());
     }
     
     public CommandResponse executeCommand(String commandString) {
