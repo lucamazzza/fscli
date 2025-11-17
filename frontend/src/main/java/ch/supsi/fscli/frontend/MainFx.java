@@ -5,6 +5,10 @@ import ch.supsi.fscli.backend.business.UserPreferences;
 import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.util.*;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
+import ch.supsi.fscli.frontend.controller.FileSystemController;
+import ch.supsi.fscli.frontend.event.FileEventManager;
+import ch.supsi.fscli.frontend.model.FileSystem;
+import ch.supsi.fscli.frontend.view.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -16,24 +20,20 @@ import javafx.stage.Stage;
 public class MainFx extends Application {
 
     private final String applicationTitle;
-    private final MenuBar menuBar;
-    private final Menu fileMenu;
-    private final Menu editMenu;
-    private final Menu helpMenu;
-    private final Label commandLineLabel;
-    private final Button enter;
-    private final TextField commandLine;
-    private final TextArea outputView;
-    private final TextArea logView;
+
+    // VIEWS
+    private final MenuBarView menuBar;
+    private final CommandLineView commandLine;
+    private final LogAreaView logArea;
 
     public MainFx() {
         this.applicationTitle = "filesystem command interpreter simulator";
+        this.menuBar = MenuBarView.getInstance();
+        this.commandLine = CommandLineView.getInstance();
+        this.logArea = LogAreaView.getInstance();
 
-        // FILE MENU
-        MenuItem exitMenuItem = new MenuItem("Exit...");
-        exitMenuItem.setId("exitMenuItem");
-        this.fileMenu = new Menu("File");
-        this.fileMenu.getItems().add(exitMenuItem);
+        FileEventManager fileEventManager = new FileEventManager();
+        fileEventManager.addListener(this.menuBar);
 
         // EDIT MENU
         MenuItem preferencesMenuItem = new MenuItem("Preferences...");
@@ -44,30 +44,20 @@ public class MainFx extends Application {
         this.editMenu = new Menu("Edit");
         this.editMenu.getItems().add(preferencesMenuItem);
 
-        // HELP MENU
-        this.helpMenu = new Menu("Help");
+        FileSystem fileSystem = FileSystem.getInstance();
+        fileSystem.setEventManager(fileEventManager);
 
-        // MENU BAR
-        this.menuBar = new MenuBar();
-        this.menuBar.getMenus().addAll(fileMenu, editMenu, helpMenu);
+        FileSystemController fileSystemController = FileSystemController.getInstance();
+        fileSystemController.setModel(fileSystem);
 
-        // COMMAND LINE
-        this.enter = new Button("enter");
-        this.commandLineLabel = new Label("command");
-        this.commandLine = new TextField();
-
-        // OUTPUT VIEW
-        this.outputView = new TextArea();
-        this.outputView.appendText("This is an example output text...\n");
-
-        // LOG VIEW
-        this.logView = new TextArea();
-        this.logView.setEditable(false);
-        this.logView.appendText("Application started.\n");
+        menuBar.setController(fileSystemController);
     }
 
     @Override
     public void start(Stage primaryStage) {
+        this.menuBar.init();
+        this.commandLine.init();
+        this.logArea.init();
 
         // --- CARICA PREFERENZE SANITIZZATE ---
         PreferencesService prefService = new PreferencesService();
@@ -96,8 +86,17 @@ public class MainFx extends Application {
 
         HBox.setHgrow(this.commandLine, Priority.ALWAYS);
 
+        commandLinePane.getChildren().add(this.commandLine.getCommandLineLabel());
+        commandLinePane.getChildren().add(spacer1);
+        commandLinePane.getChildren().add(this.commandLine.getCommandLine());
+        commandLinePane.getChildren().add(spacer2);
+        commandLinePane.getChildren().add(this.commandLine.getEnter());
 
-        VBox top = new VBox(this.menuBar, commandLinePane);
+        // vertical pane to hold the menu bar and the command line
+        VBox top = new VBox(
+                this.menuBar.getMenuBar(),
+                commandLinePane
+        );
 
         this.outputView.setPrefRowCount(prefs.getOutputLines());
         this.outputView.setStyle("-fx-font-family: '" + prefs.getOutputFont() + "';");
@@ -105,6 +104,21 @@ public class MainFx extends Application {
         this.logView.setPrefRowCount(prefs.getLogLines());
         this.logView.setStyle("-fx-font-family: '" + prefs.getLogFont() + "';");
 
+        // scroll pane to hold the output view
+        ScrollPane centerPane = new ScrollPane();
+        centerPane.setFitToHeight(true);
+        centerPane.setFitToWidth(true);
+        centerPane.setPadding(new Insets(PREF_INSETS_SIZE));
+        centerPane.setContent(this.commandLine.getOutputView());
+
+        // scroll pane to hold log view
+        ScrollPane bottomPane = new ScrollPane();
+        bottomPane.setFitToHeight(true);
+        bottomPane.setFitToWidth(true);
+        bottomPane.setPadding(new Insets(PREF_INSETS_SIZE));
+        bottomPane.setContent(this.logArea.getLogView());
+
+        // root pane
         BorderPane rootPane = new BorderPane();
         rootPane.setTop(top);
         rootPane.setCenter(new ScrollPane(this.outputView));

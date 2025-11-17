@@ -7,8 +7,37 @@
     <groupId>ch.supsi.fscli</groupId>
     <artifactId>frontend</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <name>fscli</name>
+
+    <developers>
+        <developer>
+            <id>vasco.silvapereira</id>
+            <name>Vasco Silva Pereira</name>
+            <email>vasco.silvapereira@supsi.ch</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>roeld.hoxha</id>
+            <name>Roeld Hoxha</name>
+            <email>roeld.hoxha@supsi.ch</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>luca.mazza</id>
+            <name>Luca Mazza</name>
+            <email>luca.mazza@supsi.ch</email>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
 
     <properties>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -42,10 +71,29 @@
             <version>5.14.2</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.42</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
+            <version>3.0.10</version>
+        </dependency>
     </dependencies>
 
     <build>
         <finalName>fscli</finalName>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
 
         <plugins>
             <plugin>
@@ -78,7 +126,34 @@
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
-    </build>
 
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>create-developer-list</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <scripts>
+                                <script>
+                                    <![CDATA[
+                                        def developerNames = project.developers.collect { it.name }
+                                        def nameString = developerNames.join(', ')
+                                        project.properties.setProperty('app.developers', nameString)
+                                    ]]>
+                                </script>
+                            </scripts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+    </build>
 </project>

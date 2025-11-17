@@ -3,6 +3,7 @@ package ch.supsi.fscli.frontend.model;
 import ch.supsi.fscli.backend.application.PreferencesService;
 import ch.supsi.fscli.backend.business.UserPreferences;
 import ch.supsi.fscli.frontend.controller.PreferencesHandler;
+import ch.supsi.fscli.frontend.handler.PreferencesHandler;
 
 import java.util.Map;
 
