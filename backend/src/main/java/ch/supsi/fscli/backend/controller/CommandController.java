@@ -14,7 +14,11 @@ public class CommandController {
     }
     
     private void registerCommands() {
-        // add references to concrete commands when those are written
+        executor.registerCommand(new LsCommand());
+        executor.registerCommand(new CdCommand());
+        executor.registerCommand(new MkdirCommand());
+        executor.registerCommand(new RmdirCommand());
+        executor.registerCommand(new PwdCommand());
     }
     
     public CommandResponse executeCommand(String commandString) {
