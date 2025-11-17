@@ -18,6 +18,11 @@ public class CommandController {
         executor.registerCommand(new MvCommand());
         executor.registerCommand(new RmCommand());
         executor.registerCommand(new TouchCommand());
+        executor.registerCommand(new LsCommand());
+        executor.registerCommand(new CdCommand());
+        executor.registerCommand(new MkdirCommand());
+        executor.registerCommand(new RmdirCommand());
+        executor.registerCommand(new PwdCommand());
     }
     
     public CommandResponse executeCommand(String commandString) {
