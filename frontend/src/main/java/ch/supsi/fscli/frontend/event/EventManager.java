@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class EventManager<T extends Event> implements EventNotifier<T>{
-    @Getter
     private final List<Listener<T>> listeners;
 
     EventManager() {
@@ -20,5 +19,9 @@ public abstract class EventManager<T extends Event> implements EventNotifier<T>{
 
     public void removeListener(Listener<T> listener) {
         this.listeners.remove(listener);
+    }
+    
+    protected List<Listener<T>> getListeners() {
+        return listeners;
     }
 }
