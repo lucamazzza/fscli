@@ -1,18 +1,19 @@
 package ch.supsi.fscli.backend.controller;
 
-import ch.supsi.fscli.backend.service.CommandHistoryEntry;
-import ch.supsi.fscli.backend.service.FileSystemService;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * API Facade for frontend-backend communication.
- * This class provides a clean, stateless interface that can be used by:
+ * Facade Pattern - Unified API for frontend-backend communication.
+ * This facade delegates to specialized controllers for different subsystems:
+ * - CommandExecutionController: handles command execution
+ * - HistoryController: manages command history
+ * 
+ * This class provides a clean, unified interface that can be used by:
  * - REST controllers (Spring, JAX-RS, etc.)
  * - WebSocket handlers
  * - JavaFX controllers
@@ -21,10 +22,12 @@ import java.util.stream.Collectors;
  * All methods use DTOs (Data Transfer Objects) for easy serialization.
  */
 public class FileSystemController {
-    private final FileSystemService service;
+    private final CommandExecutionController commandExecutionController;
+    private final HistoryController historyController;
     
     public FileSystemController(FileSystem fileSystem) {
-        this.service = new FileSystemService(fileSystem);
+        this.commandExecutionController = new CommandExecutionController(fileSystem);
+        this.historyController = new HistoryController();
     }
     
     /**
@@ -37,10 +40,13 @@ public class FileSystemController {
         if (request == null || request.getCommand() == null)
             return CommandResponseDTO.error("Invalid request");
 
-        CommandResponse response;
-        if (request.isAddToHistory()) response = service.executeCommand(request.getCommand());
-        else response = service.executeCommandSilent(request.getCommand());
-        return convertToDTO(response);
+        CommandResponseDTO response = commandExecutionController.executeCommand(request);
+        
+        if (request.isAddToHistory()) {
+            historyController.addToHistory(request.getCommand(), response.isSuccess());
+        }
+        
+        return response;
     }
     
     /**
@@ -60,7 +66,7 @@ public class FileSystemController {
      * @return Array of command names
      */
     public String[] getAvailableCommands() {
-        return service.getAvailableCommands();
+        return commandExecutionController.getAvailableCommands();
     }
     
     /**
@@ -70,7 +76,7 @@ public class FileSystemController {
      * @return Help text
      */
     public String getCommandHelp(String commandName) {
-        return service.getCommandHelp(commandName);
+        return commandExecutionController.getCommandHelp(commandName);
     }
     
     /**
@@ -79,7 +85,7 @@ public class FileSystemController {
      * @return List of help texts
      */
     public List<String> getAllCommandsHelp() {
-        return service.getAllCommandsHelp();
+        return commandExecutionController.getAllCommandsHelp();
     }
     
     /**
@@ -88,9 +94,7 @@ public class FileSystemController {
      * @return List of command history DTOs
      */
     public List<CommandHistoryDTO> getHistory() {
-        return service.getHistory().stream()
-                .map(this::convertHistoryToDTO)
-                .collect(Collectors.toList());
+        return historyController.getHistory();
     }
     
     /**
@@ -100,9 +104,7 @@ public class FileSystemController {
      * @return List of command history DTOs
      */
     public List<CommandHistoryDTO> getLastCommands(int count) {
-        return service.getLastCommands(count).stream()
-                .map(this::convertHistoryToDTO)
-                .collect(Collectors.toList());
+        return historyController.getLastCommands(count);
     }
     
     /**
@@ -112,16 +114,14 @@ public class FileSystemController {
      * @return List of matching command history DTOs
      */
     public List<CommandHistoryDTO> searchHistory(String pattern) {
-        return service.searchHistory(pattern).stream()
-                .map(this::convertHistoryToDTO)
-                .collect(Collectors.toList());
+        return historyController.searchHistory(pattern);
     }
     
     /**
      * Clear command history.
      */
     public void clearHistory() {
-        service.clearHistory();
+        historyController.clearHistory();
     }
     
     /**
@@ -130,22 +130,6 @@ public class FileSystemController {
      * @return List of command strings
      */
     public List<String> getHistoryCommands() {
-        return service.getHistoryCommands();
-    }
-    
-    private CommandResponseDTO convertToDTO(CommandResponse response) {
-        return new CommandResponseDTO(
-                response.isSuccess(),
-                response.getOutput(),
-                response.getErrorMessage()
-        );
-    }
-    
-    private CommandHistoryDTO convertHistoryToDTO(CommandHistoryEntry entry) {
-        return new CommandHistoryDTO(
-                entry.getCommand(),
-                entry.isSuccessful(),
-                entry.getTimestamp()
-        );
+        return historyController.getHistoryCommands();
     }
 }

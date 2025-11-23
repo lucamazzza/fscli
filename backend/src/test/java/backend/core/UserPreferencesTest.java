@@ -1,4 +1,4 @@
-package backend.business;
+package backend.core;
 
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.util.BackendGlobalVariables;
