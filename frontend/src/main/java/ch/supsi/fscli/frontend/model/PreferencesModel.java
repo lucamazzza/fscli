@@ -1,33 +1,26 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.backend.service.PreferencesService;
+import ch.supsi.fscli.backend.controller.BackendPreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.frontend.handler.PreferencesHandler;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class PreferencesModel implements PreferencesHandler {
 
-    private final PreferencesService service;
+    private final BackendPreferencesController controller;
 
-    public PreferencesModel(PreferencesService service) { this.service = service; }
+    public PreferencesModel(BackendPreferencesController controller) { this.controller = controller; }
 
     @Override
     public void edit(Map<String, String> settings) {
-        service.updatePreference(p -> {
-            if (settings.containsKey("language")) p.setLanguage(settings.get("language"));
-            if (settings.containsKey("cmdColumns")) p.setCmdColumns(Integer.parseInt(settings.get("cmdColumns")));
-            if (settings.containsKey("outputLines")) p.setOutputLines(Integer.parseInt(settings.get("outputLines")));
-            if (settings.containsKey("logLines")) p.setLogLines(Integer.parseInt(settings.get("logLines")));
-            if (settings.containsKey("cmdFont")) p.setCmdFont(settings.get("cmdFont"));
-            if (settings.containsKey("outputFont")) p.setOutputFont(settings.get("outputFont"));
-            if (settings.containsKey("logFont")) p.setLogFont(settings.get("logFont"));
-        });
+        settings.forEach((key, value) -> controller.updateOptionalPreference(key, Optional.of(value)));
     }
 
     @Override
     public Map<String, String> load() {
-        UserPreferences p = service.getCurrentPrefs();
+        UserPreferences p = controller.getPreferences();
         return Map.of(
                 "language", p.getLanguage(),
                 "cmdColumns", String.valueOf(p.getCmdColumns()),
@@ -39,5 +32,4 @@ public class PreferencesModel implements PreferencesHandler {
         );
     }
 
-    public void reload() { service.reload(); }
-}
+    public void reload() { controller.reloadPreferences(); }}

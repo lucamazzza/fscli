@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
-import ch.supsi.fscli.backend.service.PreferencesService;
+import ch.supsi.fscli.backend.controller.BackendPreferencesController;
 import ch.supsi.fscli.frontend.model.PreferencesModel;
 import ch.supsi.fscli.frontend.view.PreferencesView;
 
@@ -8,11 +8,13 @@ import java.util.Map;
 
 public class PreferencesController {
 
+    private final BackendPreferencesController backendController;
     private final PreferencesModel model;
     private final PreferencesView view;
 
     public PreferencesController() {
-        this.model = new PreferencesModel(new PreferencesService());
+        this.backendController = new BackendPreferencesController();
+        this.model = new PreferencesModel(backendController);
         this.view = new PreferencesView(model.load());
         initializeView();
         bindSaveButton();
