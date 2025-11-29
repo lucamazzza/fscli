@@ -1,8 +1,12 @@
 package ch.supsi.fscli.backend.service;
 
+import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.controller.CommandController;
 import ch.supsi.fscli.backend.controller.CommandResponse;
+import ch.supsi.fscli.backend.core.InMemoryFileSystem;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +21,24 @@ import java.util.List;
  * 3. Handle CommandResponse to display output or errors
  */
 public class FileSystemService {
-    private final CommandController controller;
-    private final List<CommandHistoryEntry> history;
+    private CommandController controller;
+    private List<CommandHistoryEntry> history = new ArrayList<>();
     private static final int MAX_HISTORY_SIZE = 1000;
-    
-    public FileSystemService(FileSystem fileSystem) {
+
+    @Getter
+    @Setter
+    private FileSystem fileSystem;
+    private FileSystemController backendController;
+
+
+    public FileSystemService() {
+    }
+
+    public void createNewFileSystem() {
+        this.fileSystem = new InMemoryFileSystem();
+        this.backendController = new FileSystemController(fileSystem);
         this.controller = new CommandController(fileSystem);
-        this.history = new ArrayList<>();
+        history.clear();
     }
     
     /**
@@ -141,5 +156,16 @@ public class FileSystemService {
         if (history.size() > MAX_HISTORY_SIZE) {
             history.remove(0);
         }
+    }
+
+    public boolean isFileSystemLoaded() {
+        return fileSystem != null && backendController != null;
+    }
+
+    public String getCurrentDirectory() {
+        if (!isFileSystemLoaded()) {
+            return "/";
+        }
+        return fileSystem.pwd();
     }
 }

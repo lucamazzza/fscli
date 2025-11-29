@@ -22,8 +22,8 @@ import java.util.List;
  * All methods use DTOs (Data Transfer Objects) for easy serialization.
  */
 public class FileSystemController {
-    private final CommandExecutionController commandExecutionController;
-    private final HistoryController historyController;
+    private CommandExecutionController commandExecutionController;
+    private HistoryController historyController;
     
     public FileSystemController(FileSystem fileSystem) {
         this.commandExecutionController = new CommandExecutionController(fileSystem);
@@ -132,4 +132,9 @@ public class FileSystemController {
     public List<String> getHistoryCommands() {
         return historyController.getHistoryCommands();
     }
+
+    public void setFileSystem(FileSystem fs) {
+        this.commandExecutionController = new CommandExecutionController(fs);
+    }
+
 }

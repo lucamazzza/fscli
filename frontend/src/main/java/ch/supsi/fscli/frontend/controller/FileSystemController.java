@@ -101,7 +101,7 @@ public class FileSystemController implements FileSystemEventHandler {
             // to properly reconstruct the filesystem from the serialized root node.
             // For now, we'll set it and let the backend handle the structure
             
-            model.getBackendService().setFileSystem(loadedFS);
+            model.getBackendPersistenceController().setFileSystem(loadedFS);
             this.currentFile = file;
             
             CommandLineView commandLine = CommandLineView.getInstance();
@@ -123,7 +123,7 @@ public class FileSystemController implements FileSystemEventHandler {
         }
         
         try {
-            ch.supsi.fscli.backend.core.FileSystem backendFS = model.getBackendService().getFileSystem();
+            ch.supsi.fscli.backend.core.FileSystem backendFS = model.getBackendPersistenceController().getFileSystem();
             DirectoryNode root = backendFS.getRoot();
             
             FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
