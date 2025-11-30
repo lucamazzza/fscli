@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.backend.controller.BackendPreferencesController;
+import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.frontend.handler.PreferencesHandler;
 
@@ -9,9 +9,9 @@ import java.util.Optional;
 
 public class PreferencesModel implements PreferencesHandler {
 
-    private final BackendPreferencesController controller;
+    private final PreferencesController controller;
 
-    public PreferencesModel(BackendPreferencesController controller) { this.controller = controller; }
+    public PreferencesModel(PreferencesController controller) { this.controller = controller; }
 
     @Override
     public void edit(Map<String, String> settings) {

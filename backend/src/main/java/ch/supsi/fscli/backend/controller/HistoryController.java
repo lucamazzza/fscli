@@ -2,98 +2,102 @@ package ch.supsi.fscli.backend.controller;
 
 import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
 import ch.supsi.fscli.backend.service.CommandHistoryEntry;
+import ch.supsi.fscli.backend.service.FileSystemService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Controller specifically for history management operations.
+ * Controller specialized in command history management.
  * Part of the Facade pattern implementation.
+ * 
+ * <p>This controller is responsible for:</p>
+ * <ul>
+ *   <li>Retrieving command history</li>
+ *   <li>Searching through history</li>
+ *   <li>Clearing history</li>
+ *   <li>Converting history entries to DTO format</li>
+ * </ul>
+ * 
+ * <p>Delegates all business logic to {@link FileSystemService}.</p>
+ * 
+ * @see FileSystemController
+ * @see FileSystemService
+ * @see CommandHistoryDTO
  */
 public class HistoryController {
-    private final List<CommandHistoryEntry> history;
-    private static final int MAX_HISTORY_SIZE = 1000;
-    
-    public HistoryController() {
-        this.history = new ArrayList<>();
-    }
+    /** The service layer that manages command history */
+    private final FileSystemService service;
     
     /**
-     * Add a command to history.
+     * Constructs a new HistoryController.
      * 
-     * @param command Command string
-     * @param success Whether the command was successful
+     * @param service The service layer to delegate operations to
      */
-    public void addToHistory(String command, boolean success) {
-        CommandHistoryEntry entry = new CommandHistoryEntry(
-                command,
-                success,
-                System.currentTimeMillis()
-        );
-        history.add(entry);
-        if (history.size() > MAX_HISTORY_SIZE) {
-            history.remove(0);
-        }
+    public HistoryController(FileSystemService service) {
+        this.service = service;
     }
     
     /**
-     * Get command history.
+     * Retrieves the complete command history.
      * 
-     * @return List of command history DTOs
+     * @return List of command history DTOs, ordered by execution time
      */
     public List<CommandHistoryDTO> getHistory() {
-        return history.stream()
+        return service.getHistory().stream()
                 .map(this::convertHistoryToDTO)
                 .collect(Collectors.toList());
     }
     
     /**
-     * Get last N commands from history.
+     * Retrieves the last N commands from history.
      * 
-     * @param count Number of commands to retrieve
-     * @return List of command history DTOs
+     * @param count Number of commands to retrieve (most recent)
+     * @return List of last N command history DTOs
      */
     public List<CommandHistoryDTO> getLastCommands(int count) {
-        int size = history.size();
-        int start = Math.max(0, size - count);
-        return history.subList(start, size).stream()
+        return service.getLastCommands(count).stream()
                 .map(this::convertHistoryToDTO)
                 .collect(Collectors.toList());
     }
     
     /**
-     * Search command history.
+     * Searches command history for entries matching a pattern.
+     * Search is case-insensitive and matches command strings.
      * 
-     * @param pattern Search pattern
+     * @param pattern Search pattern (e.g., "ls" will find all ls commands)
      * @return List of matching command history DTOs
      */
     public List<CommandHistoryDTO> searchHistory(String pattern) {
-        String lowerPattern = pattern.toLowerCase();
-        return history.stream()
-                .filter(entry -> entry.getCommand().toLowerCase().contains(lowerPattern))
+        return service.searchHistory(pattern).stream()
                 .map(this::convertHistoryToDTO)
                 .collect(Collectors.toList());
     }
     
     /**
-     * Clear command history.
+     * Clears the entire command history.
+     * This operation cannot be undone.
      */
     public void clearHistory() {
-        history.clear();
+        service.clearHistory();
     }
     
     /**
-     * Get command history as simple string list.
+     * Retrieves command history as simple string list.
+     * Returns only the command strings without metadata.
      * 
-     * @return List of command strings
+     * @return List of command strings in execution order
      */
     public List<String> getHistoryCommands() {
-        return history.stream()
-                .map(CommandHistoryEntry::getCommand)
-                .collect(Collectors.toList());
+        return service.getHistoryCommands();
     }
     
+    /**
+     * Converts internal history entry to DTO format for API consumption.
+     * 
+     * @param entry Internal command history entry
+     * @return DTO formatted history entry with all metadata
+     */
     private CommandHistoryDTO convertHistoryToDTO(CommandHistoryEntry entry) {
         return new CommandHistoryDTO(
                 entry.getCommand(),

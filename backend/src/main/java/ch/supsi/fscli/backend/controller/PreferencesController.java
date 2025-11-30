@@ -7,12 +7,11 @@ import ch.supsi.fscli.backend.util.PreferencesLogger;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-
-public class BackendPreferencesController {
+public class PreferencesController {
 
     private final PreferencesService service;
 
-    public BackendPreferencesController() {
+    public PreferencesController() {
         this.service = new PreferencesService();
     }
 

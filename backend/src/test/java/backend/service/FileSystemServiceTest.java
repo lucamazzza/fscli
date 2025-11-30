@@ -20,7 +20,8 @@ class FileSystemServiceTest {
     @BeforeEach
     void setUp() {
         fileSystem = new InMemoryFileSystem();
-        service = new FileSystemService(fileSystem);
+        service = new FileSystemService();
+        service.setFileSystem(fileSystem);
     }
 
     @Test

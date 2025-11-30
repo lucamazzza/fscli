@@ -4,6 +4,7 @@ import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
+import ch.supsi.fscli.backend.service.FileSystemService;
 
 import java.util.List;
 
@@ -13,21 +14,45 @@ import java.util.List;
  * - CommandExecutionController: handles command execution
  * - HistoryController: manages command history
  * 
- * This class provides a clean, unified interface that can be used by:
- * - REST controllers (Spring, JAX-RS, etc.)
- * - WebSocket handlers
- * - JavaFX controllers
- * - Direct method invocation
- * <p>
- * All methods use DTOs (Data Transfer Objects) for easy serialization.
+ * <p>All controllers use the same Service layer instance.</p>
+ * 
+ * <p>This class provides a clean, unified interface that can be used by:</p>
+ * <ul>
+ *   <li>REST controllers (Spring, JAX-RS, etc.)</li>
+ *   <li>WebSocket handlers</li>
+ *   <li>JavaFX controllers</li>
+ *   <li>Direct method invocation</li>
+ * </ul>
+ * 
+ * <p>All methods use DTOs (Data Transfer Objects) for easy serialization.</p>
+ * 
+ * @see CommandExecutionController
+ * @see HistoryController
+ * @see FileSystemService
  */
 public class FileSystemController {
-    private CommandExecutionController commandExecutionController;
-    private HistoryController historyController;
+    /** The service layer that contains business logic and command history */
+    private final FileSystemService service;
     
+    /** Controller specialized in command execution operations */
+    private final CommandExecutionController commandExecutionController;
+    
+    /** Controller specialized in history management operations */
+    private final HistoryController historyController;
+    
+    /**
+     * Constructs a new FileSystemController facade.
+     * Initializes the service layer and creates specialized sub-controllers.
+     * 
+     * @param fileSystem The filesystem implementation to use
+     */
     public FileSystemController(FileSystem fileSystem) {
-        this.commandExecutionController = new CommandExecutionController(fileSystem);
-        this.historyController = new HistoryController();
+        this.service = new FileSystemService();
+        this.service.setFileSystem(fileSystem);
+        
+        // Create specialized controllers that all share the same service
+        this.commandExecutionController = new CommandExecutionController(service);
+        this.historyController = new HistoryController(service);
     }
     
     /**
@@ -37,16 +62,7 @@ public class FileSystemController {
      * @return Command response DTO
      */
     public CommandResponseDTO executeCommand(CommandRequest request) {
-        if (request == null || request.getCommand() == null)
-            return CommandResponseDTO.error("Invalid request");
-
-        CommandResponseDTO response = commandExecutionController.executeCommand(request);
-        
-        if (request.isAddToHistory()) {
-            historyController.addToHistory(request.getCommand(), response.isSuccess());
-        }
-        
-        return response;
+        return commandExecutionController.executeCommand(request);
     }
     
     /**
@@ -56,8 +72,7 @@ public class FileSystemController {
      * @return Command response DTO
      */
     public CommandResponseDTO executeCommand(String commandString) {
-        CommandRequest request = new CommandRequest(commandString);
-        return executeCommand(request);
+        return commandExecutionController.executeCommand(commandString);
     }
     
     /**
@@ -133,8 +148,13 @@ public class FileSystemController {
         return historyController.getHistoryCommands();
     }
 
+    /**
+     * Updates the filesystem instance used by this controller.
+     * This will propagate the change to the underlying service layer.
+     * 
+     * @param fs The new filesystem instance to use
+     */
     public void setFileSystem(FileSystem fs) {
-        this.commandExecutionController = new CommandExecutionController(fs);
+        this.service.setFileSystem(fs);
     }
-
 }

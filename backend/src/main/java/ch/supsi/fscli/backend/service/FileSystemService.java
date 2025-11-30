@@ -1,12 +1,11 @@
 package ch.supsi.fscli.backend.service;
 
-import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.core.FileSystem;
-import ch.supsi.fscli.backend.controller.CommandController;
+import ch.supsi.fscli.backend.core.CommandResult;
+import ch.supsi.fscli.backend.core.command.*;
+import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.controller.CommandResponse;
-import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,30 +14,52 @@ import java.util.List;
  * Service layer for filesystem command execution.
  * This is the main interface between the frontend and backend.
  * <p>
+ * Architecture: Frontend → Controller → Service → Provider → Core → Data
+ * <p>
  * The frontend should:
- * 1. Create a FileSystemService instance with a FileSystem implementation
+ * 1. Create a FileSystemService instance
  * 2. Call executeCommand() with command strings from user input
  * 3. Handle CommandResponse to display output or errors
  */
 public class FileSystemService {
-    private CommandController controller;
+    private CommandExecutor executor;
     private List<CommandHistoryEntry> history = new ArrayList<>();
     private static final int MAX_HISTORY_SIZE = 1000;
 
     @Getter
-    @Setter
     private FileSystem fileSystem;
-    private FileSystemController backendController;
-
 
     public FileSystemService() {
     }
 
+    public FileSystem getFileSystem() {
+        return fileSystem;
+    }
+
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
+        this.executor = new CommandExecutor(fileSystem);
+        registerCommands();
+    }
+
     public void createNewFileSystem() {
-        this.fileSystem = new InMemoryFileSystem();
-        this.backendController = new FileSystemController(fileSystem);
-        this.controller = new CommandController(fileSystem);
+        this.fileSystem = new ch.supsi.fscli.backend.core.InMemoryFileSystem();
+        this.executor = new CommandExecutor(fileSystem);
+        registerCommands();
         history.clear();
+    }
+
+    private void registerCommands() {
+        executor.registerCommand(new CpCommand());
+        executor.registerCommand(new MvCommand());
+        executor.registerCommand(new RmCommand());
+        executor.registerCommand(new TouchCommand());
+        executor.registerCommand(new LsCommand());
+        executor.registerCommand(new CdCommand());
+        executor.registerCommand(new MkdirCommand());
+        executor.registerCommand(new RmdirCommand());
+        executor.registerCommand(new PwdCommand());
+        executor.registerCommand(new LnCommand());
     }
     
     /**
@@ -49,7 +70,7 @@ public class FileSystemService {
      * @return CommandResponse containing success status, output, or error message
      */
     public CommandResponse executeCommand(String commandString) {
-        CommandResponse response = controller.executeCommand(commandString);
+        CommandResponse response = executeInternal(commandString);
         addToHistory(commandString, response);
         return response;
     }
@@ -59,7 +80,19 @@ public class FileSystemService {
      * Useful for automated/background commands.
      */
     public CommandResponse executeCommandSilent(String commandString) {
-        return controller.executeCommand(commandString);
+        return executeInternal(commandString);
+    }
+
+    private CommandResponse executeInternal(String commandString) {
+        if (commandString == null || commandString.trim().isEmpty()) {
+            return new CommandResponse(false, null, "Empty command");
+        }
+        CommandResult result = executor.execute(commandString);
+        return new CommandResponse(
+            result.isSuccess(),
+            result.getOutput(),
+            result.getErrorMessage()
+        );
     }
     
     /**
@@ -68,7 +101,7 @@ public class FileSystemService {
      * @return Array of command names
      */
     public String[] getAvailableCommands() {
-        return controller.getAvailableCommands();
+        return executor.getAvailableCommands().keySet().toArray(new String[0]);
     }
     
     /**
@@ -78,7 +111,9 @@ public class FileSystemService {
      * @return Help text with description and usage
      */
     public String getCommandHelp(String commandName) {
-        return controller.getCommandHelp(commandName);
+        Command command = executor.getCommand(commandName);
+        if (command == null) return commandName + ": command not found";
+        return String.format("Usage: %s", command.getUsage());
     }
     
     /**
@@ -159,7 +194,7 @@ public class FileSystemService {
     }
 
     public boolean isFileSystemLoaded() {
-        return fileSystem != null && backendController != null;
+        return fileSystem != null && executor != null;
     }
 
     public String getCurrentDirectory() {

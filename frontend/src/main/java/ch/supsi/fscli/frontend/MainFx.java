@@ -1,8 +1,7 @@
 package ch.supsi.fscli.frontend;
 
-import ch.supsi.fscli.backend.controller.BackendPreferencesController;
+import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
-import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.util.*;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import ch.supsi.fscli.frontend.controller.FileSystemController;
@@ -49,7 +48,7 @@ public class MainFx extends Application {
         this.logArea.init();
 
         // --- CARICA PREFERENZE SANITIZZATE ---
-        BackendPreferencesController bacendController = new BackendPreferencesController();
+        PreferencesController bacendController = new PreferencesController();
         UserPreferences prefs = bacendController.getPreferences(); // già sanitizzate
 
         // --- LOGGER FX ---

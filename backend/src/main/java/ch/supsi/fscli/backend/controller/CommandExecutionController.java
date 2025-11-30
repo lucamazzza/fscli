@@ -1,80 +1,112 @@
 package ch.supsi.fscli.backend.controller;
 
-import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
+import ch.supsi.fscli.backend.service.FileSystemService;
 
 import java.util.List;
 
 /**
- * Controller specifically for command execution operations.
+ * Controller specialized in command execution operations.
  * Part of the Facade pattern implementation.
+ * 
+ * <p>This controller is responsible for:</p>
+ * <ul>
+ *   <li>Executing filesystem commands</li>
+ *   <li>Retrieving available commands</li>
+ *   <li>Providing command help text</li>
+ *   <li>Converting between internal and DTO response formats</li>
+ * </ul>
+ * 
+ * <p>Delegates all business logic to {@link FileSystemService}.</p>
+ * 
+ * @see FileSystemController
+ * @see FileSystemService
  */
 public class CommandExecutionController {
-    private final CommandController commandController;
+    /** The service layer that handles business logic and command execution */
+    private final FileSystemService service;
     
-    public CommandExecutionController(FileSystem fileSystem) {
-        this.commandController = new CommandController(fileSystem);
+    /**
+     * Constructs a new CommandExecutionController.
+     * 
+     * @param service The service layer to delegate operations to
+     */
+    public CommandExecutionController(FileSystemService service) {
+        this.service = service;
     }
     
     /**
-     * Execute a command and return the response.
+     * Executes a command with advanced options.
      * 
-     * @param request Command request with command string
-     * @return Command response DTO
+     * <p>This method supports:</p>
+     * <ul>
+     *   <li>Command execution with history tracking</li>
+     *   <li>Silent execution (no history)</li>
+     *   <li>Custom command options via {@link CommandRequest}</li>
+     * </ul>
+     * 
+     * @param request Command request containing command string and options
+     * @return Command response DTO with execution results
      */
     public CommandResponseDTO executeCommand(CommandRequest request) {
         if (request == null || request.getCommand() == null) {
             return CommandResponseDTO.error("Invalid request");
         }
         
-        CommandResponse response = commandController.executeCommand(request.getCommand());
+        CommandResponse response = request.isAddToHistory()
+            ? service.executeCommand(request.getCommand())
+            : service.executeCommandSilent(request.getCommand());
+        
         return convertToDTO(response);
     }
     
     /**
-     * Execute a command string directly.
+     * Executes a command string directly (with history tracking).
+     * This is a convenience method for simple command execution.
      * 
-     * @param commandString The command to execute
-     * @return Command response DTO
+     * @param commandString The command to execute (e.g., "ls -l /home")
+     * @return Command response DTO with execution results
      */
     public CommandResponseDTO executeCommand(String commandString) {
-        CommandRequest request = new CommandRequest(commandString);
-        return executeCommand(request);
+        CommandResponse response = service.executeCommand(commandString);
+        return convertToDTO(response);
     }
     
     /**
-     * Get list of all available commands.
+     * Retrieves all available commands in the system.
      * 
-     * @return Array of command names
+     * @return Array of command names (e.g., ["ls", "cd", "mkdir"])
      */
     public String[] getAvailableCommands() {
-        return commandController.getAvailableCommands();
+        return service.getAvailableCommands();
     }
     
     /**
-     * Get help text for a specific command.
+     * Retrieves help text for a specific command.
      * 
-     * @param commandName Name of the command
-     * @return Help text
+     * @param commandName Name of the command (e.g., "ls")
+     * @return Help text including usage and description, or error message if command not found
      */
     public String getCommandHelp(String commandName) {
-        return commandController.getCommandHelp(commandName);
+        return service.getCommandHelp(commandName);
     }
     
     /**
-     * Get help for all commands.
+     * Retrieves help text for all available commands.
      * 
-     * @return List of help texts
+     * @return List of help texts, one for each command
      */
     public List<String> getAllCommandsHelp() {
-        List<String> helpTexts = new java.util.ArrayList<>();
-        for (String cmd : getAvailableCommands()) {
-            helpTexts.add(getCommandHelp(cmd));
-        }
-        return helpTexts;
+        return service.getAllCommandsHelp();
     }
     
+    /**
+     * Converts internal CommandResponse to DTO format for API consumption.
+     * 
+     * @param response Internal command response
+     * @return DTO formatted response with timestamp
+     */
     private CommandResponseDTO convertToDTO(CommandResponse response) {
         return new CommandResponseDTO(
                 response.isSuccess(),

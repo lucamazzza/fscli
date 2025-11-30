@@ -11,6 +11,11 @@ import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * Frontend model for FileSystem.
+ * Delegates to backend controller (API boundary).
+ * Flow: View → Frontend Controller → Frontend Model → Backend Controller → Service
+ */
 public class FileSystem {
 
     private boolean isFilePresent;
@@ -36,20 +41,17 @@ public class FileSystem {
     private FileSystem() {
         this.isFilePresent = false;
         this.backendPersistenceController = new FileSystemPersistenceController();
-        // NON inizializzare qui
         this.backendController = null;
     }
 
 
 
     public void createFileSystem() {
-        // crea il filesystem vero e proprio (backend)
+        // Create filesystem through persistence controller
         backendPersistenceController.createNewFileSystem();
 
-        // recupera il FileSystem backend appena creato
+        // Get the created filesystem and pass to main controller
         ch.supsi.fscli.backend.core.FileSystem fsBackend = backendPersistenceController.getFileSystem();
-
-        // passa al controller backend
         this.backendController = new FileSystemController(fsBackend);
 
         this.isFilePresent = true;
