@@ -66,10 +66,20 @@ public class CommandLineView implements View {
     
     private void executeCommand() {
         String command = commandLine.getText();
+        if (command != null && command.trim().equals("clear")) {
+            outputView.clear();
+            commandLine.clear();
+            return;
+        }
         if (command == null || command.trim().isEmpty()) return;
         FileSystem fileSystem = FileSystem.getInstance();
         String currentDir = fileSystem.getCurrentDirectory();
         outputView.appendText(currentDir + " $ " + command + "\n");
+        if (fileSystem.isFileSystemReady() && command.trim().equals("help")) {
+            for (String s : fileSystem.getAllCommandsHelp()) outputView.appendText(s + "\n");
+            commandLine.clear();
+            return;
+        }
         CommandResponseDTO response = fileSystem.executeCommand(command);
         if (response.isSuccess()) {
             if (response.getOutput() != null && !response.getOutput().isEmpty()) {

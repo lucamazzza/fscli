@@ -87,6 +87,8 @@ public class FileSystem {
         return backendController.getCommandHelp(commandName);
     }
 
+    public List<String> getAllCommandsHelp() { return backendController.getAllCommandsHelp(); }
+
     public List<String> getCommandHistory() {
         return backendController.getHistoryCommands();
     }
