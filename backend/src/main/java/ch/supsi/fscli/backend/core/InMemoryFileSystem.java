@@ -1,11 +1,11 @@
 package ch.supsi.fscli.backend.core;
 
+import ch.supsi.fscli.backend.data.LinkNode;
 import ch.supsi.fscli.backend.provider.resolver.PathResolver;
 import ch.supsi.fscli.backend.core.exception.*;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
-import ch.supsi.fscli.backend.data.SymlinkNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +17,13 @@ public class InMemoryFileSystem implements FileSystem {
     
     public InMemoryFileSystem() {
         this.root = new DirectoryNode();
+        this.root.setParent(root);
+        this.cwd = root;
+        this.pathResolver = PathResolver.getInstance();
+    }
+    
+    public InMemoryFileSystem(DirectoryNode root) {
+        this.root = root;
         this.root.setParent(root);
         this.cwd = root;
         this.pathResolver = PathResolver.getInstance();
@@ -166,7 +173,7 @@ public class InMemoryFileSystem implements FileSystem {
                 linkParent = (DirectoryNode) linkParentNode;
             }
             
-            SymlinkNode symlink = new SymlinkNode(target);
+            LinkNode symlink = new LinkNode(target);
             linkParent.add(linkName, symlink);
         } else {
             FileSystemNode targetNode = pathResolver.resolve(cwd, target, true);
@@ -205,8 +212,8 @@ public class InMemoryFileSystem implements FileSystem {
                 String prefix = child.getId() + " ";
                 if (child.isDirectory()) {
                     result.add(prefix + name + "/");
-                } else if (child.isSymlink()) {
-                    SymlinkNode sym = (SymlinkNode) child;
+                } else if (child.isLink()) {
+                    LinkNode sym = (LinkNode) child;
                     result.add(prefix + name + " -> " + sym.getTarget());
                 } else {
                     result.add(prefix + name);
@@ -214,8 +221,8 @@ public class InMemoryFileSystem implements FileSystem {
             } else {
                 if (child.isDirectory()) {
                     result.add(name + "/");
-                } else if (child.isSymlink()) {
-                    SymlinkNode sym = (SymlinkNode) child;
+                } else if (child.isLink()) {
+                    LinkNode sym = (LinkNode) child;
                     result.add(name + " -> " + sym.getTarget());
                 } else {
                     result.add(name);
@@ -391,12 +398,12 @@ public class InMemoryFileSystem implements FileSystem {
 
     @Override
     public FileSystemNode copyNode(FileSystem fs, FileSystemNode node, boolean recursive) {
-        if (!node.isDirectory() && !node.isSymlink()) {
+        if (!node.isDirectory() && !node.isLink()) {
             return new FileNode();
 
-        } else if (node.isSymlink()) {
-            SymlinkNode symlink = (SymlinkNode) node;
-            return new SymlinkNode(symlink.getTarget());
+        } else if (node.isLink()) {
+            LinkNode symlink = (LinkNode) node;
+            return new LinkNode(symlink.getTarget());
 
         } else if (node.isDirectory() && recursive) {
             DirectoryNode srcDir = (DirectoryNode) node;

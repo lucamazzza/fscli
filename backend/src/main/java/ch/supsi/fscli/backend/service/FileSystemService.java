@@ -5,7 +5,6 @@ import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.command.*;
 import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.controller.CommandResponse;
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,10 +22,9 @@ import java.util.List;
  */
 public class FileSystemService {
     private CommandExecutor executor;
-    private List<CommandHistoryEntry> history = new ArrayList<>();
+    private final List<CommandHistoryEntry> history = new ArrayList<>();
     private static final int MAX_HISTORY_SIZE = 1000;
 
-    @Getter
     private FileSystem fileSystem;
 
     public FileSystemService() {
