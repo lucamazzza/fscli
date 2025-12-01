@@ -2,8 +2,7 @@ package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.controller.AboutController;
 import ch.supsi.fscli.frontend.controller.PreferencesController;
-import ch.supsi.fscli.frontend.event.EventError;
-import ch.supsi.fscli.frontend.event.FileEvent;
+import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.listener.Listener;
 import javafx.application.Platform;
@@ -21,7 +20,7 @@ import lombok.Setter;
 import java.io.File;
 
 @Getter
-public class MenuBarView implements View, Listener<FileEvent> {
+public class MenuBarView implements View {
     private final Menu fileMenu;
     private final Menu editMenu;
     private final Menu helpMenu;
@@ -31,7 +30,10 @@ public class MenuBarView implements View, Listener<FileEvent> {
     private final MenuItem saveAsMenuItem;
 
     @Setter
-    private FileSystemEventHandler controller;
+    private FileSystemEventHandler fileSystemEventHandler;
+
+    // LISTENERS
+    private final Listener<FileSystemEvent> fileSystemListener;
 
     private static MenuBarView instance;
 
@@ -49,6 +51,16 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.menuBar = new MenuBar();
         this.saveMenuItem = new MenuItem("Save");
         this.saveAsMenuItem = new MenuItem("Save as...");
+        fileSystemListener = event -> {
+            if (event == null) return;
+            if (event.successful()) {
+                saveMenuItem.setDisable(false);
+                saveAsMenuItem.setDisable(false);
+                return;
+            }
+            saveMenuItem.setDisable(true);
+            saveAsMenuItem.setDisable(true);
+        };
     }
 
     private void fileMenuInit() {
@@ -77,7 +89,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.fileMenu.getItems().add(exitMenuItem);
 
         // MODIFY BEHAVIOUR HERE
-        newMenuItem.setOnAction(e -> controller.newFileSystem());
+        newMenuItem.setOnAction(e -> fileSystemEventHandler.newFileSystem());
         openMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open a filesystem...");
@@ -85,9 +97,9 @@ public class MenuBarView implements View, Listener<FileEvent> {
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
             File file = fileChooser.showOpenDialog(null);
-            controller.load(file);
+            fileSystemEventHandler.load(file);
         });
-        saveMenuItem.setOnAction(e -> controller.save());
+        saveMenuItem.setOnAction(e -> fileSystemEventHandler.save());
         saveAsMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open a filesystem...");
@@ -95,8 +107,8 @@ public class MenuBarView implements View, Listener<FileEvent> {
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
             File file = fileChooser.showSaveDialog(null);
-            controller.load(file);
-            controller.saveAs(file);
+            fileSystemEventHandler.load(file);
+            fileSystemEventHandler.saveAs(file);
         });
         exitMenuItem.setOnAction(e -> Platform.exit());
     }
@@ -179,26 +191,5 @@ public class MenuBarView implements View, Listener<FileEvent> {
         editMenuInit();
         helpMenuInit();
         menuBarInit();
-    }
-
-
-    @Override
-    public void update(FileEvent event) {
-        if (event == null) {
-            return;
-        }
-        System.out.println(event);
-
-        if (event.getError() == EventError.ERROR) {
-            return;
-        }
-
-        if (event.getIsSuccess()) {
-            saveMenuItem.setDisable(false);
-            saveAsMenuItem.setDisable(false);
-            return;
-        }
-        saveMenuItem.setDisable(true);
-        saveAsMenuItem.setDisable(true);
     }
 }

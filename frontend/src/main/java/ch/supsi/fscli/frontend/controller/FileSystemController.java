@@ -5,7 +5,7 @@ import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
-import ch.supsi.fscli.frontend.model.FileSystem;
+import ch.supsi.fscli.frontend.model.FileSystemModel;
 import ch.supsi.fscli.frontend.view.CommandLineView;
 import ch.supsi.fscli.frontend.util.FxLogger;
 import lombok.Setter;
@@ -16,9 +16,7 @@ import java.util.Optional;
 
 public class FileSystemController implements FileSystemEventHandler {
     @Setter
-    private FileSystem model;
-    
-    private File currentFile;
+    private FileSystemModel fileSystemModel;
 
     private static FileSystemController instance;
 
@@ -30,30 +28,15 @@ public class FileSystemController implements FileSystemEventHandler {
     }
 
     private FileSystemController() {
-        this.currentFile = null;
     }
 
     @Override
     public void newFileSystem() {
-        this.model.createFileSystem();
-        this.currentFile = null;
-        
-        CommandLineView commandLine = CommandLineView.getInstance();
-        commandLine.clearOutput();
-        commandLine.appendOutput("New filesystem created successfully!\n");
-        commandLine.appendOutput("Current directory: " + model.getCurrentDirectory() + "\n\n");
-        
-        FxLogger.getInstance().log("New filesystem created");
+        this.fileSystemModel.createFileSystem();
     }
 
     @Override
     public void save() {
-        if (currentFile == null) {
-            FxLogger.getInstance().log("Error: No file selected for save. Use 'Save As' first.");
-            return;
-        }
-        
-        saveToFile(currentFile);
     }
 
     @Override
@@ -63,7 +46,6 @@ public class FileSystemController implements FileSystemEventHandler {
             return;
         }
         
-        this.currentFile = file;
         saveToFile(file);
     }
 
@@ -101,13 +83,12 @@ public class FileSystemController implements FileSystemEventHandler {
             // to properly reconstruct the filesystem from the serialized root node.
             // For now, we'll set it and let the backend handle the structure
             
-            model.getBackendPersistenceController().setFileSystem(loadedFS);
-            this.currentFile = file;
-            
+            fileSystemModel.getBackendPersistenceController().setFileSystem(loadedFS);
+
             CommandLineView commandLine = CommandLineView.getInstance();
             commandLine.clearOutput();
             commandLine.appendOutput("Filesystem loaded successfully from: " + file.getName() + "\n");
-            commandLine.appendOutput("Current directory: " + model.getCurrentDirectory() + "\n\n");
+            // commandLine.appendOutput("Current directory: " + model.getCurrentDirectory() + "\n\n");
             
             FxLogger.getInstance().log("Filesystem loaded from: " + file.getAbsolutePath());
             
@@ -117,19 +98,18 @@ public class FileSystemController implements FileSystemEventHandler {
     }
     
     private void saveToFile(File file) {
-        if (!model.isFileSystemReady()) {
+        if (!fileSystemModel.isFileSystemReady()) {
             FxLogger.getInstance().log("Error: No filesystem to save");
             return;
         }
         
         try {
-            ch.supsi.fscli.backend.core.FileSystem backendFS = model.getBackendPersistenceController().getFileSystem();
+            ch.supsi.fscli.backend.core.FileSystem backendFS = fileSystemModel.getBackendPersistenceController().getFileSystem();
             DirectoryNode root = backendFS.getRoot();
             
             FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
             fileManager.save(root);
             
-            this.currentFile = file;
             FxLogger.getInstance().log("Filesystem saved to: " + file.getAbsolutePath());
             
         } catch (IOException e) {

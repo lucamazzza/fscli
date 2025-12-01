@@ -1,12 +1,14 @@
 package ch.supsi.fscli.frontend;
 
+import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
+import ch.supsi.fscli.frontend.controller.FileSystemController;
+import ch.supsi.fscli.frontend.event.EventManager;
+import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.util.*;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
-import ch.supsi.fscli.frontend.controller.FileSystemController;
-import ch.supsi.fscli.frontend.event.FileEventManager;
-import ch.supsi.fscli.frontend.model.FileSystem;
+import ch.supsi.fscli.frontend.model.FileSystemModel;
 import ch.supsi.fscli.frontend.view.*;
 import javafx.application.Application;
 import javafx.geometry.Insets;
@@ -24,21 +26,38 @@ public class MainFx extends Application {
     private final LogAreaView logArea;
 
     public MainFx() {
+        // VIEWS
         this.applicationTitle = "filesystem command interpreter simulator";
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
         this.logArea = LogAreaView.getInstance();
 
-        FileEventManager fileEventManager = new FileEventManager();
-        fileEventManager.addListener(this.menuBar);
 
-        FileSystem fileSystem = FileSystem.getInstance();
-        fileSystem.setEventManager(fileEventManager);
+        // BACKEND STUFF
+        FileSystemPersistenceController backendPersistenceController = new FileSystemPersistenceController();
 
-        FileSystemController fileSystemController = FileSystemController.getInstance();
-        fileSystemController.setModel(fileSystem);
+        // EVENT MANAGERS
+        EventManager<FileSystemEvent> fileSystemEventManager = new EventManager<>();
 
-        menuBar.setController(fileSystemController);
+        // EVENT MANAGERS INIT
+        fileSystemEventManager.addListener(this.menuBar.getFileSystemListener());
+        fileSystemEventManager.addListener(this.logArea.getFileSystemListener());
+
+        // MODELS
+        FileSystemModel fileSystemModel = FileSystemModel.getInstance();
+
+        // MODELS INIT
+        fileSystemModel.setFileSystemEventManager(fileSystemEventManager);
+        fileSystemModel.setBackendPersistenceController(backendPersistenceController);
+
+        // CONTROLLERS
+        FileSystemController fileSystemEventHandler = FileSystemController.getInstance();
+
+        // CONTROLLERS INIT
+        fileSystemEventHandler.setFileSystemModel(fileSystemModel);
+
+        // VIEWS INIT
+        menuBar.setFileSystemEventHandler(fileSystemEventHandler);
     }
 
     @Override
