@@ -76,7 +76,7 @@ public class FileSystemPersistenceController {
      * 
      * @param fs The filesystem instance to use
      */
-    public void setFileSystem(InMemoryFileSystem fs) {
+    public void setFileSystem(FileSystem fs) {
         service.setFileSystem(fs);
     }
 
