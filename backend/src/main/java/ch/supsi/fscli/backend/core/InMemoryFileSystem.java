@@ -177,6 +177,9 @@ public class InMemoryFileSystem implements FileSystem {
             linkParent.add(linkName, symlink);
         } else {
             FileSystemNode targetNode = pathResolver.resolve(cwd, target, true);
+            if (targetNode.isDirectory()) {
+                throw new InvalidPathException("Target must not be a directory, for hard links: " + target);
+            }
             String linkParentPath = getParentPath(link);
             String linkName = getFileName(link);
             DirectoryNode linkParent;
