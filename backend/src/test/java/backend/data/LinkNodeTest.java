@@ -1,18 +1,18 @@
 package backend.data;
 
-import ch.supsi.fscli.backend.data.SymlinkNode;
+import ch.supsi.fscli.backend.data.LinkNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class SymlinkNodeTest {
-    SymlinkNode s;
+public class LinkNodeTest {
+    LinkNode s;
 
     @BeforeEach
     void setUp() {
-        s = new SymlinkNode("Target");
+        s = new LinkNode("Target");
     }
 
     @AfterEach

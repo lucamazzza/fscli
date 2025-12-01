@@ -1,9 +1,5 @@
 package ch.supsi.fscli.frontend.controller;
 
-import ch.supsi.fscli.backend.core.InMemoryFileSystem;
-import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FileSystemNode;
-import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.model.FileSystem;
 import ch.supsi.fscli.frontend.view.CommandLineView;
@@ -12,7 +8,6 @@ import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 public class FileSystemController implements FileSystemEventHandler {
     @Setter
@@ -80,28 +75,13 @@ public class FileSystemController implements FileSystemEventHandler {
         }
         
         try {
-            FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
-            Optional<FileSystemNode> rootOpt = fileManager.load();
+            boolean success = model.getBackendPersistenceController().loadFileSystem(file.toPath());
             
-            if (rootOpt.isEmpty()) {
+            if (!success) {
                 FxLogger.getInstance().log("Error: Failed to load filesystem from file");
                 return;
             }
             
-            FileSystemNode rootNode = rootOpt.get();
-            
-            if (!(rootNode instanceof DirectoryNode)) {
-                FxLogger.getInstance().log("Error: Invalid filesystem format - root is not a directory");
-                return;
-            }
-            
-            // Create new InMemoryFileSystem and restore the loaded structure
-            InMemoryFileSystem loadedFS = new InMemoryFileSystem();
-            // Note: This is a simplified load. A complete implementation would need
-            // to properly reconstruct the filesystem from the serialized root node.
-            // For now, we'll set it and let the backend handle the structure
-            
-            model.getBackendPersistenceController().setFileSystem(loadedFS);
             this.currentFile = file;
             
             CommandLineView commandLine = CommandLineView.getInstance();
@@ -123,17 +103,15 @@ public class FileSystemController implements FileSystemEventHandler {
         }
         
         try {
-            ch.supsi.fscli.backend.core.FileSystem backendFS = model.getBackendPersistenceController().getFileSystem();
-            DirectoryNode root = backendFS.getRoot();
-            
-            FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
-            fileManager.save(root);
+            model.getBackendPersistenceController().saveFileSystem(file.toPath());
             
             this.currentFile = file;
             FxLogger.getInstance().log("Filesystem saved to: " + file.getAbsolutePath());
             
         } catch (IOException e) {
             FxLogger.getInstance().log("Error saving filesystem: " + e.getMessage());
+        } catch (IllegalStateException e) {
+            FxLogger.getInstance().log("Error: " + e.getMessage());
         }
     }
 }

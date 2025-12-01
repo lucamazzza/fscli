@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 
-public class SymlinkNode extends FileSystemNode {
+public class LinkNode extends FileSystemNode {
     private String target;
 
-    public SymlinkNode(String target) {
+    public LinkNode(String target) {
         super();
         this.target = target;
     }
@@ -26,7 +26,7 @@ public class SymlinkNode extends FileSystemNode {
         return false;
     }
     @Override
-    public boolean isSymlink() {
+    public boolean isLink() {
         return true;
     }
     @Override

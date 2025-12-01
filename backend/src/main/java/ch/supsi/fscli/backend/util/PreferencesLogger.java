@@ -20,7 +20,11 @@ public class PreferencesLogger {
 
     public static void logError(String msg, Exception e) {
         LOGGER.log(Level.SEVERE, msg, e);
-        notifyExternal(Level.SEVERE, msg + " (" + e.getMessage() + ")");
+        if (e != null) {
+            notifyExternal(Level.SEVERE, msg + " (" + e.getMessage() + ")");
+        } else {
+            notifyExternal(Level.SEVERE, msg);
+        }
     }
 
     private static void notifyExternal(Level level, String msg) {

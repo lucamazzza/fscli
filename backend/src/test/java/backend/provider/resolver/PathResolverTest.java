@@ -2,11 +2,11 @@ package backend.provider.resolver;
 
 import ch.supsi.fscli.backend.core.exception.InvalidPathException;
 import ch.supsi.fscli.backend.core.exception.NotFoundException;
+import ch.supsi.fscli.backend.data.LinkNode;
 import ch.supsi.fscli.backend.provider.resolver.PathResolver;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
-import ch.supsi.fscli.backend.data.SymlinkNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,13 +52,13 @@ class PathResolverTest {
         FileNode readme = new FileNode();
         docs.add("readme.md", readme);
         
-        SymlinkNode link = new SymlinkNode("/home/user/docs");
+        LinkNode link = new LinkNode("/home/user/docs");
         user.add("link", link);
         
         DirectoryNode tmp = new DirectoryNode();
         root.add("tmp", tmp);
         
-        SymlinkNode symlink = new SymlinkNode("/home/user/file.txt");
+        LinkNode symlink = new LinkNode("/home/user/file.txt");
         tmp.add("symlink", symlink);
     }
 
@@ -140,7 +140,7 @@ class PathResolverTest {
     void testResolveSymlinkWithFollowFalse() throws Exception {
         FileSystemNode result = resolver.resolve(user, "link", false);
         assertNotNull(result);
-        assertInstanceOf(SymlinkNode.class, result);
+        assertInstanceOf(LinkNode.class, result);
     }
 
     @Test
@@ -201,10 +201,10 @@ class PathResolverTest {
 
     @Test
     void testResolveCircularSymlinkThrowsException() {
-        SymlinkNode link1 = new SymlinkNode("/home/user/link2");
+        LinkNode link1 = new LinkNode("/home/user/link2");
         user.add("link1", link1);
         
-        SymlinkNode link2 = new SymlinkNode("/home/user/link1");
+        LinkNode link2 = new LinkNode("/home/user/link1");
         user.add("link2", link2);
         
         assertThrows(InvalidPathException.class, () -> {
@@ -218,7 +218,7 @@ class PathResolverTest {
         String previousLink = "/home/user/file.txt";
         
         for (int i = 0; i < 35; i++) {
-            SymlinkNode link = new SymlinkNode(previousLink);
+            LinkNode link = new LinkNode(previousLink);
             current.add("link" + i, link);
             previousLink = "/home/user/link" + i;
         }
@@ -246,7 +246,7 @@ class PathResolverTest {
 
     @Test
     void testResolveSymlinkToSymlink() throws Exception {
-        SymlinkNode link1 = new SymlinkNode("/tmp/symlink");
+        LinkNode link1 = new LinkNode("/tmp/symlink");
         user.add("link_to_link", link1);
         
         FileSystemNode result = resolver.resolve(user, "link_to_link", true);

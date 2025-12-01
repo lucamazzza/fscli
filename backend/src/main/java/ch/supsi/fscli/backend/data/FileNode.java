@@ -11,7 +11,7 @@ public class FileNode extends FileSystemNode {
         return false;
     }
     @Override
-    public boolean isSymlink() {
+    public boolean isLink() {
         return false;
     }
     @Override
