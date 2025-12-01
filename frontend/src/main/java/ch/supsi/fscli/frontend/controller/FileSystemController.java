@@ -4,6 +4,7 @@ import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
+import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.model.FileSystemModel;
 import ch.supsi.fscli.frontend.view.CommandLineView;
@@ -14,7 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
-public class FileSystemController implements FileSystemEventHandler {
+public class FileSystemController implements FileSystemEventHandler, CommandLineEventHandler {
     @Setter
     private FileSystemModel fileSystemModel;
 
@@ -98,11 +99,6 @@ public class FileSystemController implements FileSystemEventHandler {
     }
     
     private void saveToFile(File file) {
-        if (!fileSystemModel.isFileSystemReady()) {
-            FxLogger.getInstance().log("Error: No filesystem to save");
-            return;
-        }
-        
         try {
             ch.supsi.fscli.backend.core.FileSystem backendFS = fileSystemModel.getBackendPersistenceController().getFileSystem();
             DirectoryNode root = backendFS.getRoot();
@@ -115,5 +111,12 @@ public class FileSystemController implements FileSystemEventHandler {
         } catch (IOException e) {
             FxLogger.getInstance().log("Error saving filesystem: " + e.getMessage());
         }
+    }
+
+    @Override
+    public void executeCommand(String command) {
+        if (fileSystemModel == null) return;
+        if (command == null || command.isBlank()) return;
+        fileSystemModel.executeCommand(command.trim());
     }
 }

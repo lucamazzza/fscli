@@ -1,11 +1,11 @@
 package ch.supsi.fscli.frontend.view;
 
+import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.listener.Listener;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -16,8 +16,8 @@ public class LogAreaView implements View {
 
     private final TextArea logView;
 
-    @Setter
-    private final Listener<FileSystemEvent> FileSystemListener;
+    private final Listener<FileSystemEvent> fileSystemListener;
+    private final Listener<CommandLineEvent> commandLineListener;
 
     private static LogAreaView instance;
 
@@ -30,13 +30,18 @@ public class LogAreaView implements View {
 
     private LogAreaView() {
         this.logView = new TextArea();
-        this.FileSystemListener = event -> {
+        this.fileSystemListener = event -> {
             if (event == null) return;
             if (event.successful()) {
                 log("Filesystem initialized correctly.");
                 return;
             }
             log("Filesystem failed to initialize.");
+        };
+        this.commandLineListener = event -> {
+            if (event == null) return;
+            if (!event.successful())
+                log("Filesystem is not ready. Make sure you loaded a filesystem");
         };
     }
 

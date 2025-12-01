@@ -1,17 +1,16 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
-import ch.supsi.fscli.frontend.model.FileSystem;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
+import ch.supsi.fscli.frontend.event.CommandLineEvent;
+import ch.supsi.fscli.frontend.event.FileSystemEvent;
+import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
+import ch.supsi.fscli.frontend.listener.Listener;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public class CommandLineView implements View {
@@ -22,6 +21,14 @@ public class CommandLineView implements View {
     private final Button enter;
     private final TextField commandLine;
     private final TextArea outputView;
+
+    private final Listener<CommandLineEvent> commandLineListener;
+    private final Listener<FileSystemEvent> fileSystemListener;
+
+    private String lastCommandExecuted;
+
+    @Setter
+    CommandLineEventHandler commandLineEventHandler;
 
     private static CommandLineView instance;
 
@@ -37,6 +44,21 @@ public class CommandLineView implements View {
         this.commandLineLabel = new Label("command");
         this.commandLine = new TextField();
         this.outputView = new TextArea();
+        this.commandLineListener = event -> {
+            if (event == null) return;
+            if (!event.successful()) return;
+            String output = event.currentDir() + "$ " + lastCommandExecuted;
+            if (event.output() != null && !event.output().isBlank()) {
+                output += "\n" + event.output();
+            }
+            if (event.outputError() != null && !event.outputError().isBlank()) {
+                output += "\n" + event.outputError();
+            }
+            outputView.appendText(output + "\n");
+        };
+        this.fileSystemListener = event -> {
+
+        };
     }
 
     private void enterButtonInit() {
@@ -72,28 +94,8 @@ public class CommandLineView implements View {
             return;
         }
         if (command == null || command.trim().isEmpty()) return;
-        FileSystem fileSystem = FileSystem.getInstance();
-        String currentDir = fileSystem.getCurrentDirectory();
-        outputView.appendText(currentDir + " $ " + command + "\n");
-        if (fileSystem.isFileSystemReady() && command.trim().equals("help")) {
-            for (String s : fileSystem.getAllCommandsHelp()) outputView.appendText(s + "\n");
-            commandLine.clear();
-            return;
-        }
-        CommandResponseDTO response = fileSystem.executeCommand(command);
-        if (response.isSuccess()) {
-            if (response.getOutput() != null && !response.getOutput().isEmpty()) {
-                for (String line : response.getOutput()) {
-                    outputView.appendText(line + "\n");
-                }
-            }
-        } else {
-            String errorMessage = response.getErrorMessage();
-            if (errorMessage != null && !errorMessage.isEmpty()) {
-                outputView.appendText("Error: " + errorMessage + "\n");
-            }
-        }
-        outputView.appendText("\n");
+        lastCommandExecuted = command;
+        commandLineEventHandler.executeCommand(command);
         commandLine.clear();
         outputView.setScrollTop(Double.MAX_VALUE);
     }

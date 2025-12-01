@@ -4,6 +4,7 @@ import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.frontend.controller.FileSystemController;
+import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.EventManager;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.util.*;
@@ -32,32 +33,37 @@ public class MainFx extends Application {
         this.commandLine = CommandLineView.getInstance();
         this.logArea = LogAreaView.getInstance();
 
-
         // BACKEND STUFF
         FileSystemPersistenceController backendPersistenceController = new FileSystemPersistenceController();
 
         // EVENT MANAGERS
         EventManager<FileSystemEvent> fileSystemEventManager = new EventManager<>();
+        EventManager<CommandLineEvent> commandLineEventManager = new EventManager<>();
 
         // EVENT MANAGERS INIT
         fileSystemEventManager.addListener(this.menuBar.getFileSystemListener());
         fileSystemEventManager.addListener(this.logArea.getFileSystemListener());
+        fileSystemEventManager.addListener(this.commandLine.getFileSystemListener());
+        commandLineEventManager.addListener(this.commandLine.getCommandLineListener());
+        commandLineEventManager.addListener(this.logArea.getCommandLineListener());
 
         // MODELS
         FileSystemModel fileSystemModel = FileSystemModel.getInstance();
 
         // MODELS INIT
         fileSystemModel.setFileSystemEventManager(fileSystemEventManager);
+        fileSystemModel.setCommandLineEventManager(commandLineEventManager);
         fileSystemModel.setBackendPersistenceController(backendPersistenceController);
 
         // CONTROLLERS
-        FileSystemController fileSystemEventHandler = FileSystemController.getInstance();
+        FileSystemController fileSystemController = FileSystemController.getInstance();
 
         // CONTROLLERS INIT
-        fileSystemEventHandler.setFileSystemModel(fileSystemModel);
+        fileSystemController.setFileSystemModel(fileSystemModel);
 
         // VIEWS INIT
-        menuBar.setFileSystemEventHandler(fileSystemEventHandler);
+        this.menuBar.setFileSystemEventHandler(fileSystemController);
+        this.commandLine.setCommandLineEventHandler(fileSystemController);
     }
 
     @Override

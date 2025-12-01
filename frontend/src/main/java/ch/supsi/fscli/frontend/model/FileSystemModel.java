@@ -54,20 +54,25 @@ public final class FileSystemModel {
 
     public void executeCommand(String command) {
         if (fileSystemEventManager == null) return;
-        if (!isFileSystemReady()) return;
+        if (!isFileSystemReady()) {
+            // Make this event better for logging in the future
+            commandLineEventManager.notify(new CommandLineEvent(false, null, null, null));
+            return;
+        }
+        String currentDir = getCurrentDirectory();
         CommandResponseDTO response = backendController.executeCommand(command);
         if (response == null) {
             commandLineEventManager.notify(new CommandLineEvent(false, null, null, null));
             return;
         }
-        commandLineEventManager.notify(new CommandLineEvent(true, getCurrentDirectory(), response.getOutputAsString(), response.getErrorMessage()));
+        commandLineEventManager.notify(new CommandLineEvent(true, currentDir, response.getOutputAsString(), response.getErrorMessage()));
     }
 
     private String getCurrentDirectory() {
         return backendPersistenceController.getCurrentDirectory();
     }
 
-    public boolean isFileSystemReady() {
+    private boolean isFileSystemReady() {
         return backendController != null && backendPersistenceController.isFileSystemLoaded();
     }
 

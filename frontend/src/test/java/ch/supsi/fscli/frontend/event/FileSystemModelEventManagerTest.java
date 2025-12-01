@@ -10,9 +10,9 @@ import org.mockito.ArgumentCaptor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class FileEventManagerTest {
+class FileSystemModelEventManagerTest {
     private FileEventManager eventManager;
-    private Listener<FileEvent> mockListener;
+    private Listener<FileSystemEvent> mockListener;
 
     @BeforeEach
     void setUp() {
@@ -25,7 +25,7 @@ class FileEventManagerTest {
 
     @Test
     void notify_sendsEventToRegisteredListener() {
-        FileEvent testEvent = new FileEvent(EventError.SUCCESS,"test-file.txt",true);
+        FileSystemEvent testEvent = new FileSystemEvent(EventError.SUCCESS,"test-file.txt",true);
 
         eventManager.notify(testEvent);
 
@@ -36,21 +36,21 @@ class FileEventManagerTest {
 
     @Test
     void notify_doesNotSendEventToRemovedListener() {
-        FileEvent testEvent = new FileEvent(EventError.SUCCESS,"test-file.txt",true);
+        FileSystemEvent testEvent = new FileSystemEvent(EventError.SUCCESS,"test-file.txt",true);
 
         eventManager.removeListener(mockListener);
 
         eventManager.notify(testEvent);
 
-        verify(mockListener, never()).update(any(FileEvent.class));
+        verify(mockListener, never()).update(any(FileSystemEvent.class));
     }
 
     @Test
     void notify_sendsEventToMultipleListeners() {
-        Listener<FileEvent> mockListener2 = mock(Listener.class);
+        Listener<FileSystemEvent> mockListener2 = mock(Listener.class);
         eventManager.addListener(mockListener2);
 
-        FileEvent testEvent = new FileEvent(EventError.SUCCESS, "multi-listener-test.txt", true);
+        FileSystemEvent testEvent = new FileSystemEvent(EventError.SUCCESS, "multi-listener-test.txt", true);
 
         eventManager.notify(testEvent);
 
@@ -60,13 +60,13 @@ class FileEventManagerTest {
 
     @Test
     void notify_sendsCorrectEventData() {
-        FileEvent testEvent = new FileEvent(EventError.SUCCESS, "check-me.txt", true);
-        ArgumentCaptor<FileEvent> eventCaptor = ArgumentCaptor.forClass(FileEvent.class);
+        FileSystemEvent testEvent = new FileSystemEvent(EventError.SUCCESS, "check-me.txt", true);
+        ArgumentCaptor<FileSystemEvent> eventCaptor = ArgumentCaptor.forClass(FileSystemEvent.class);
 
         eventManager.notify(testEvent);
         verify(mockListener).update(eventCaptor.capture());
 
-        FileEvent capturedEvent = eventCaptor.getValue();
+        FileSystemEvent capturedEvent = eventCaptor.getValue();
         assertEquals("check-me.txt", capturedEvent.getMessage());
         assertEquals(testEvent, capturedEvent);
     }
