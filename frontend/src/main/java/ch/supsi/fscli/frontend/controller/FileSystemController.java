@@ -75,15 +75,15 @@ public class FileSystemController implements FileSystemEventHandler {
         }
         
         try {
-            boolean success = model.getBackendPersistenceController().loadFileSystem(file.toPath());
-            
+            boolean success = model.loadFileSystem(file);
+
             if (!success) {
                 FxLogger.getInstance().log("Error: Failed to load filesystem from file");
                 return;
             }
             
             this.currentFile = file;
-            
+
             CommandLineView commandLine = CommandLineView.getInstance();
             commandLine.clearOutput();
             commandLine.appendOutput("Filesystem loaded successfully from: " + file.getName() + "\n");
@@ -103,7 +103,7 @@ public class FileSystemController implements FileSystemEventHandler {
         }
         
         try {
-            model.getBackendPersistenceController().saveFileSystem(file.toPath());
+            model.saveFileSystem(file);
             
             this.currentFile = file;
             FxLogger.getInstance().log("Filesystem saved to: " + file.getAbsolutePath());

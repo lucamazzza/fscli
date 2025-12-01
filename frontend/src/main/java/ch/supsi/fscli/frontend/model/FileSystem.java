@@ -9,6 +9,8 @@ import ch.supsi.fscli.frontend.event.FileEvent;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -44,8 +46,6 @@ public class FileSystem {
         this.backendController = null;
     }
 
-
-
     public void createFileSystem() {
         // Create filesystem through persistence controller
         backendPersistenceController.createNewFileSystem();
@@ -58,6 +58,18 @@ public class FileSystem {
         eventManager.notify(new FileEvent(EventError.SUCCESS, "FileSystem was created successfully", true));
     }
 
+    public boolean loadFileSystem(File file) {
+        boolean success = backendPersistenceController.loadFileSystem(file.toPath());
+        ch.supsi.fscli.backend.core.FileSystem fsBackend = backendPersistenceController.getFileSystem();
+        this.backendController = new FileSystemController(fsBackend);
+        this.isFilePresent = true;
+        eventManager.notify(new FileEvent(EventError.SUCCESS, "FileSystem was loaded successfully", true));
+        return success;
+    }
+
+    public void saveFileSystem(File file) throws IOException {
+        backendPersistenceController.saveFileSystem(file.toPath());
+    }
 
     public CommandResponseDTO executeCommand(String commandString) {
         if (!isFileSystemReady()) {
@@ -69,7 +81,6 @@ public class FileSystem {
         }
         return backendController.executeCommand(commandString);
     }
-
 
     public String getCurrentDirectory() {
         return backendPersistenceController.getCurrentDirectory();
