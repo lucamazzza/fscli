@@ -7,6 +7,7 @@ import ch.supsi.fscli.backend.core.command.Command;
 import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+import ch.supsi.fscli.backend.provider.parser.CommandParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +51,7 @@ class CommandExecutorTest {
     @BeforeEach
     void setUp() {
         fileSystem = new InMemoryFileSystem();
-        executor = new CommandExecutor(fileSystem);
+        executor = new CommandExecutor(fileSystem, new CommandParser());
     }
 
     @Test

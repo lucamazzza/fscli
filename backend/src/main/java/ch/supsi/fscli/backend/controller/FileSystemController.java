@@ -5,6 +5,7 @@ import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.backend.service.FileSystemService;
+import com.google.inject.Inject;
 
 import java.util.List;
 
@@ -41,18 +42,23 @@ public class FileSystemController {
     private final HistoryController historyController;
     
     /**
-     * Constructs a new FileSystemController facade.
-     * Initializes the service layer and creates specialized sub-controllers.
+     * Constructs a new FileSystemController facade with injected dependencies.
      * 
+     * @param service The file system service
+     * @param commandExecutionController Controller for command execution
+     * @param historyController Controller for history management
      * @param fileSystem The filesystem implementation to use
      */
-    public FileSystemController(FileSystem fileSystem) {
-        this.service = new FileSystemService();
+    @Inject
+    public FileSystemController(
+            FileSystemService service,
+            CommandExecutionController commandExecutionController,
+            HistoryController historyController,
+            FileSystem fileSystem) {
+        this.service = service;
         this.service.setFileSystem(fileSystem);
-        
-        // Create specialized controllers that all share the same service
-        this.commandExecutionController = new CommandExecutionController(service);
-        this.historyController = new HistoryController(service);
+        this.commandExecutionController = commandExecutionController;
+        this.historyController = historyController;
     }
     
     /**

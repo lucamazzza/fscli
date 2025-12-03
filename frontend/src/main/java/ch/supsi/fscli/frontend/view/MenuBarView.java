@@ -109,6 +109,8 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.editMenu.getItems().add(preferencesMenuItem);
 
         preferencesMenuItem.setOnAction(e -> {
+            ch.supsi.fscli.backend.controller.PreferencesController backendController = 
+                ch.supsi.fscli.backend.di.BackendInjector.getInstance(ch.supsi.fscli.backend.controller.PreferencesController.class);
             PreferencesController controller = new PreferencesController();
             controller.show();
         });

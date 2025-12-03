@@ -2,6 +2,7 @@ package ch.supsi.fscli.frontend;
 
 import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
+import ch.supsi.fscli.backend.di.BackendInjector;
 import ch.supsi.fscli.frontend.util.*;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import ch.supsi.fscli.frontend.controller.FileSystemController;
@@ -24,6 +25,9 @@ public class MainFx extends Application {
     private final LogAreaView logArea;
 
     public MainFx() {
+        // Initialize Guice DI
+        BackendInjector.initialize();
+        
         this.applicationTitle = "filesystem command interpreter simulator";
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
@@ -48,8 +52,8 @@ public class MainFx extends Application {
         this.logArea.init();
 
         // --- CARICA PREFERENZE SANITIZZATE ---
-        PreferencesController bacendController = new PreferencesController();
-        UserPreferences prefs = bacendController.getPreferences(); // già sanitizzate
+        PreferencesController backendController = BackendInjector.getInstance(PreferencesController.class);
+        UserPreferences prefs = backendController.getPreferences(); // già sanitizzate
 
         // --- LOGGER FX ---
         FxLogger fxLogger = FxLogger.getInstance();

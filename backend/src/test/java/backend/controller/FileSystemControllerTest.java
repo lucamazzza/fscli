@@ -1,11 +1,12 @@
 package backend.controller;
 
+import backend.util.TestInjectorFactory;
 import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.backend.core.FileSystem;
-import ch.supsi.fscli.backend.core.InMemoryFileSystem;
+import com.google.inject.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +21,9 @@ class FileSystemControllerTest {
 
     @BeforeEach
     void setUp() {
-        fileSystem = new InMemoryFileSystem();
-        controller = new FileSystemController(fileSystem);
+        Injector injector = TestInjectorFactory.createTestInjector();
+        fileSystem = injector.getInstance(FileSystem.class);
+        controller = injector.getInstance(FileSystemController.class);
     }
 
     @Test

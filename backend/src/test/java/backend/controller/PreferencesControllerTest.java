@@ -1,8 +1,10 @@
 package backend.controller;
 
+import backend.util.TestInjectorFactory;
 import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.util.BackendGlobalVariables;
+import com.google.inject.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,7 +18,8 @@ class PreferencesControllerTest {
     
     @BeforeEach
     void setUp() {
-        controller = new PreferencesController();
+        Injector injector = TestInjectorFactory.createTestInjector();
+        controller = injector.getInstance(PreferencesController.class);
     }
     
     @Test

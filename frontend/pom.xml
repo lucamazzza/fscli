@@ -83,6 +83,13 @@
             <artifactId>groovy</artifactId>
             <version>3.0.10</version>
         </dependency>
+
+        <!-- Google Guice for Dependency Injection -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>7.0.0</version>
+        </dependency>
     </dependencies>
 
     <build>

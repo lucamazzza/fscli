@@ -3,6 +3,7 @@ package ch.supsi.fscli.backend.controller;
 import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
 import ch.supsi.fscli.backend.service.CommandHistoryEntry;
 import ch.supsi.fscli.backend.service.FileSystemService;
+import com.google.inject.Inject;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,10 +31,11 @@ public class HistoryController {
     private final FileSystemService service;
     
     /**
-     * Constructs a new HistoryController.
+     * Constructs a new HistoryController with injected service.
      * 
      * @param service The service layer to delegate operations to
      */
+    @Inject
     public HistoryController(FileSystemService service) {
         this.service = service;
     }

@@ -16,9 +16,9 @@ public class CommandExecutor {
     private final CommandParser parser;
     private final FileSystem fileSystem;
     
-    public CommandExecutor(FileSystem fileSystem) {
+    public CommandExecutor(FileSystem fileSystem, CommandParser parser) {
         this.fileSystem = fileSystem;
-        this.parser = new CommandParser();
+        this.parser = parser;
         this.commands = new HashMap<>();
     }
     

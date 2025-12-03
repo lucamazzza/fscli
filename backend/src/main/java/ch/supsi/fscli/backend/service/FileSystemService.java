@@ -2,12 +2,16 @@ package ch.supsi.fscli.backend.service;
 
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.CommandResult;
+import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import ch.supsi.fscli.backend.core.command.*;
 import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.controller.CommandResponse;
+import ch.supsi.fscli.backend.provider.parser.CommandParser;
+import com.google.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service layer for filesystem command execution.
@@ -24,10 +28,13 @@ public class FileSystemService {
     private CommandExecutor executor;
     private final List<CommandHistoryEntry> history = new ArrayList<>();
     private static final int MAX_HISTORY_SIZE = 1000;
+    private final Set<Command> commands;
 
     private FileSystem fileSystem;
 
-    public FileSystemService() {
+    @Inject
+    public FileSystemService(Set<Command> commands) {
+        this.commands = commands;
     }
 
     public FileSystem getFileSystem() {
@@ -36,28 +43,21 @@ public class FileSystemService {
 
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
-        this.executor = new CommandExecutor(fileSystem);
+        this.executor = new CommandExecutor(fileSystem, new CommandParser());
         registerCommands();
     }
 
     public void createNewFileSystem() {
-        this.fileSystem = new ch.supsi.fscli.backend.core.InMemoryFileSystem();
-        this.executor = new CommandExecutor(fileSystem);
+        this.fileSystem = new InMemoryFileSystem();
+        this.executor = new CommandExecutor(fileSystem, new CommandParser());
         registerCommands();
         history.clear();
     }
 
     private void registerCommands() {
-        executor.registerCommand(new CpCommand());
-        executor.registerCommand(new MvCommand());
-        executor.registerCommand(new RmCommand());
-        executor.registerCommand(new TouchCommand());
-        executor.registerCommand(new LsCommand());
-        executor.registerCommand(new CdCommand());
-        executor.registerCommand(new MkdirCommand());
-        executor.registerCommand(new RmdirCommand());
-        executor.registerCommand(new PwdCommand());
-        executor.registerCommand(new LnCommand());
+        for (Command command : commands) {
+            executor.registerCommand(command);
+        }
     }
     
     /**

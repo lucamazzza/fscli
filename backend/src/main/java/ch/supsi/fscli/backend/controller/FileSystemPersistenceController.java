@@ -6,6 +6,7 @@ import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.service.FileSystemPersistenceService;
 import ch.supsi.fscli.backend.service.FileSystemService;
+import com.google.inject.Inject;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -36,12 +37,13 @@ public class FileSystemPersistenceController {
     private final FileSystemPersistenceService persistenceService;
 
     /**
-     * Constructs a new FileSystemPersistenceService.
+     * Constructs a new FileSystemPersistenceService with injected dependencies.
      * Initializes the underlying service layers.
      */
-    public FileSystemPersistenceController() {
-        this.service = new FileSystemService();
-        this.persistenceService = new FileSystemPersistenceService();
+    @Inject
+    public FileSystemPersistenceController(FileSystemService service, FileSystemPersistenceService persistenceService) {
+        this.service = service;
+        this.persistenceService = persistenceService;
     }
 
     /**

@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
+import ch.supsi.fscli.backend.di.BackendInjector;
 import ch.supsi.fscli.frontend.model.PreferencesModel;
 import ch.supsi.fscli.frontend.view.PreferencesView;
 
@@ -12,7 +13,7 @@ public class PreferencesController {
     private final PreferencesView view;
 
     public PreferencesController() {
-        this.backendController = new ch.supsi.fscli.backend.controller.PreferencesController();
+        this.backendController = BackendInjector.getInstance(ch.supsi.fscli.backend.controller.PreferencesController.class);
         this.model = new PreferencesModel(backendController);
         this.view = new PreferencesView(model.load());
         initializeView();

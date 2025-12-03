@@ -3,6 +3,7 @@ package ch.supsi.fscli.frontend.model;
 import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
+import ch.supsi.fscli.backend.di.BackendInjector;
 import ch.supsi.fscli.frontend.event.EventError;
 import ch.supsi.fscli.frontend.event.EventNotifier;
 import ch.supsi.fscli.frontend.event.FileEvent;
@@ -42,7 +43,7 @@ public class FileSystem {
 
     private FileSystem() {
         this.isFilePresent = false;
-        this.backendPersistenceController = new FileSystemPersistenceController();
+        this.backendPersistenceController = BackendInjector.getInstance(FileSystemPersistenceController.class);
         this.backendController = null;
     }
 
@@ -52,7 +53,8 @@ public class FileSystem {
 
         // Get the created filesystem and pass to main controller
         ch.supsi.fscli.backend.core.FileSystem fsBackend = backendPersistenceController.getFileSystem();
-        this.backendController = new FileSystemController(fsBackend);
+        this.backendController = BackendInjector.getInjector().getInstance(FileSystemController.class);
+        this.backendController.setFileSystem(fsBackend);
 
         this.isFilePresent = true;
         eventManager.notify(new FileEvent(EventError.SUCCESS, "FileSystem was created successfully", true));
@@ -61,7 +63,8 @@ public class FileSystem {
     public boolean loadFileSystem(File file) {
         boolean success = backendPersistenceController.loadFileSystem(file.toPath());
         ch.supsi.fscli.backend.core.FileSystem fsBackend = backendPersistenceController.getFileSystem();
-        this.backendController = new FileSystemController(fsBackend);
+        this.backendController = BackendInjector.getInjector().getInstance(FileSystemController.class);
+        this.backendController.setFileSystem(fsBackend);
         this.isFilePresent = true;
         eventManager.notify(new FileEvent(EventError.SUCCESS, "FileSystem was loaded successfully", true));
         return success;

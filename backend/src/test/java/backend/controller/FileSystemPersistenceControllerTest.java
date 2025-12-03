@@ -1,9 +1,11 @@
 package backend.controller;
 
+import backend.util.TestInjectorFactory;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
+import com.google.inject.Injector;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +23,8 @@ class FileSystemPersistenceControllerTest {
     
     @BeforeEach
     void setUp() throws IOException {
-        controller = new FileSystemPersistenceController();
+        Injector injector = TestInjectorFactory.createTestInjector();
+        controller = injector.getInstance(FileSystemPersistenceController.class);
         tempFile = Files.createTempFile("test-filesystem", ".json");
     }
     

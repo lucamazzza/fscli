@@ -3,6 +3,7 @@ package ch.supsi.fscli.backend.controller;
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.backend.service.FileSystemService;
+import com.google.inject.Inject;
 
 import java.util.List;
 
@@ -28,10 +29,11 @@ public class CommandExecutionController {
     private final FileSystemService service;
     
     /**
-     * Constructs a new CommandExecutionController.
+     * Constructs a new CommandExecutionController with injected service.
      * 
      * @param service The service layer to delegate operations to
      */
+    @Inject
     public CommandExecutionController(FileSystemService service) {
         this.service = service;
     }

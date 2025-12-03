@@ -1,9 +1,11 @@
 package backend.controller;
 
+import backend.util.TestInjectorFactory;
 import ch.supsi.fscli.backend.controller.HistoryController;
 import ch.supsi.fscli.backend.controller.dto.CommandHistoryDTO;
-import ch.supsi.fscli.backend.core.InMemoryFileSystem;
+import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.service.FileSystemService;
+import com.google.inject.Injector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -22,8 +24,10 @@ class HistoryControllerTest {
     
     @BeforeEach
     void setUp() {
-        service = new FileSystemService();
-        service.setFileSystem(new InMemoryFileSystem());
+        Injector injector = TestInjectorFactory.createTestInjector();
+        service = injector.getInstance(FileSystemService.class);
+        FileSystem fileSystem = injector.getInstance(FileSystem.class);
+        service.setFileSystem(fileSystem);
         controller = new HistoryController(service);
     }
     

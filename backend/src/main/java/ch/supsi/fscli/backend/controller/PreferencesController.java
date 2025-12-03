@@ -3,6 +3,7 @@ package ch.supsi.fscli.backend.controller;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.service.PreferencesService;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
+import com.google.inject.Inject;
 
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -11,8 +12,9 @@ public class PreferencesController {
 
     private final PreferencesService service;
 
-    public PreferencesController() {
-        this.service = new PreferencesService();
+    @Inject
+    public PreferencesController(PreferencesService service) {
+        this.service = service;
     }
 
     public UserPreferences getPreferences() {
