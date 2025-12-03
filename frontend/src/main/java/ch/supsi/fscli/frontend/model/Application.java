@@ -4,6 +4,8 @@ import lombok.Getter;
 
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 @Getter
 public class Application {
@@ -13,6 +15,8 @@ public class Application {
     private String developers;
 
     private static Application instance;
+
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public static Application getInstance() {
         if (instance == null) {
@@ -25,24 +29,21 @@ public class Application {
         Properties properties = new Properties();
         String resourceName = "application.properties";
 
-        this.name = "fscli";
-        this.buildDate = "today";
-        this.version = "0.0 - Testing Version";
-        this.developers = "XD";
+        this.name = MESSAGES.getString("application.name");
+        this.buildDate = MESSAGES.getString("application.buildDate");
+        this.version = MESSAGES.getString("application.version");
+        this.developers = MESSAGES.getString("application.developers");
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
-            if (is == null) {
-                System.err.println("Could not find properties file: " + resourceName);
-                return;
+            if (is != null) {
+                properties.load(is);
+                this.name = properties.getProperty("app.name", this.name);
+                this.buildDate = properties.getProperty("app.buildDate", this.buildDate);
+                this.version = properties.getProperty("app.version", this.version);
+                this.developers = properties.getProperty("app.developers", this.developers);
             }
-            properties.load(is);
         } catch (Exception e) {
-            System.err.println("Error: " + e);
+            System.err.println(MESSAGES.getString("application.errorLoading") + ": " + e);
         }
-
-        this.name = properties.getProperty("app.name");
-        this.buildDate = properties.getProperty("app.buildDate");
-        this.version = properties.getProperty("app.version");
-        this.developers = properties.getProperty("app.developers");
     }
 }

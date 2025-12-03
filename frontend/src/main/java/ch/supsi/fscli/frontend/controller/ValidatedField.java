@@ -7,12 +7,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.TextFormatter;
 import javafx.util.StringConverter;
 
+import java.util.ResourceBundle;
+import java.util.Locale;
 import java.util.function.UnaryOperator;
 
 public class ValidatedField {
     private final VBox container;
     private final TextField field;
     private final BooleanProperty invalid;
+
+    // ResourceBundle for localized messages
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public ValidatedField(int initialValue, int min, int max) {
         this.field = new TextField(String.valueOf(initialValue));
@@ -41,7 +46,12 @@ public class ValidatedField {
             if (value < min || value > max) {
                 if (!field.getStyleClass().contains("text-field-error"))
                     field.getStyleClass().add("text-field-error");
-                errorLabel.setText("Value must be between " + min + " and " + max);
+
+                String msg = MESSAGES.getString("validatedField.outOfRange")
+                        .replace("{min}", String.valueOf(min))
+                        .replace("{max}", String.valueOf(max));
+
+                errorLabel.setText(msg);
                 invalid.set(true);
             } else {
                 field.getStyleClass().remove("text-field-error");

@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 @Getter
 public class MenuBarView implements View, Listener<FileEvent> {
@@ -35,6 +37,8 @@ public class MenuBarView implements View, Listener<FileEvent> {
 
     private static MenuBarView instance;
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     public static MenuBarView getInstance() {
         if (instance == null) {
             instance = new MenuBarView();
@@ -43,19 +47,19 @@ public class MenuBarView implements View, Listener<FileEvent> {
     }
 
     private MenuBarView() {
-        this.fileMenu = new Menu("File");
-        this.editMenu = new Menu("Edit");
-        this.helpMenu = new Menu("Help");
+        this.fileMenu = new Menu(MESSAGES.getString("menu.file"));
+        this.editMenu = new Menu(MESSAGES.getString("menu.edit"));
+        this.helpMenu = new Menu(MESSAGES.getString("menu.help"));
         this.menuBar = new MenuBar();
-        this.saveMenuItem = new MenuItem("Save");
-        this.saveAsMenuItem = new MenuItem("Save as...");
+        this.saveMenuItem = new MenuItem(MESSAGES.getString("menu.save"));
+        this.saveAsMenuItem = new MenuItem(MESSAGES.getString("menu.saveAs"));
     }
 
     private void fileMenuInit() {
-        MenuItem newMenuItem = new MenuItem("New");
+        MenuItem newMenuItem = new MenuItem(MESSAGES.getString("menu.new"));
         newMenuItem.setId("newMenuItem");
 
-        MenuItem openMenuItem = new MenuItem("Open...");
+        MenuItem openMenuItem = new MenuItem(MESSAGES.getString("menu.open"));
         openMenuItem.setId("openMenuItem");
 
         this.saveMenuItem.setId("saveMenuItem");
@@ -64,7 +68,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.saveAsMenuItem.setId("saveAsMenuItem");
         this.saveAsMenuItem.setDisable(true);
 
-        MenuItem exitMenuItem = new MenuItem("Exit");
+        MenuItem exitMenuItem = new MenuItem(MESSAGES.getString("menu.exit"));
         exitMenuItem.setId("exitMenuItem");
 
         this.fileMenu.setId("fileMenu");
@@ -76,11 +80,10 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.fileMenu.getItems().add(new SeparatorMenuItem());
         this.fileMenu.getItems().add(exitMenuItem);
 
-        // MODIFY BEHAVIOUR HERE
         newMenuItem.setOnAction(e -> controller.newFileSystem());
         openMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open a filesystem...");
+            fileChooser.setTitle(MESSAGES.getString("fileChooser.open"));
             fileChooser.setInitialFileName("fscli_filesystem");
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
@@ -90,19 +93,18 @@ public class MenuBarView implements View, Listener<FileEvent> {
         saveMenuItem.setOnAction(e -> controller.save());
         saveAsMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open a filesystem...");
+            fileChooser.setTitle(MESSAGES.getString("fileChooser.saveAs"));
             fileChooser.setInitialFileName("fscli_filesystem");
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
             File file = fileChooser.showSaveDialog(null);
-            controller.load(file);
             controller.saveAs(file);
         });
         exitMenuItem.setOnAction(e -> Platform.exit());
     }
 
     private void editMenuInit() {
-        MenuItem preferencesMenuItem = new MenuItem("Preferences...");
+        MenuItem preferencesMenuItem = new MenuItem(MESSAGES.getString("menu.preferences"));
         preferencesMenuItem.setId("preferencesMenuItem");
 
         this.editMenu.setId("editMenu");
@@ -115,17 +117,16 @@ public class MenuBarView implements View, Listener<FileEvent> {
     }
 
     private void helpMenuInit() {
-        MenuItem helpMenuItem = new MenuItem("Help");
+        MenuItem helpMenuItem = new MenuItem(MESSAGES.getString("menu.helpItem"));
         helpMenuItem.setId("helpMenuItem");
 
-        MenuItem aboutMenuItem = new MenuItem("About");
+        MenuItem aboutMenuItem = new MenuItem(MESSAGES.getString("menu.about"));
         aboutMenuItem.setId("aboutMenuItem");
 
         this.helpMenu.setId("helpMenu");
         this.helpMenu.getItems().add(helpMenuItem);
         this.helpMenu.getItems().add(aboutMenuItem);
 
-        // MODIFY BEHAVIOUR HERE
         aboutMenuItem.setOnAction(e -> {
             Stage ownerStage = (Stage) aboutMenuItem.getParentPopup().getOwnerWindow();
             showAboutWindow(ownerStage);
@@ -140,32 +141,30 @@ public class MenuBarView implements View, Listener<FileEvent> {
         String developers = controller.getDevelopers();
 
         Stage aboutStage = new Stage();
-        aboutStage.setTitle("Application Information");
+        aboutStage.setTitle(MESSAGES.getString("about.title"));
 
         aboutStage.initModality(Modality.APPLICATION_MODAL);
-        aboutStage.initOwner(ownerStage); // Set the owner window
+        aboutStage.initOwner(ownerStage);
 
-        VBox contentBox = new VBox(15); // 15px spacing
+        VBox contentBox = new VBox(15);
         contentBox.setAlignment(Pos.CENTER);
         contentBox.setPadding(new Insets(20));
 
         Label titleLabel = new Label(applicationName);
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        Label buildDateLabel = new Label("Build date: " + buildDate);
-        Label versionLabel = new Label("Version: " + version);
-        Label copyrightLabel = new Label("Developers: " + developers);
+        Label buildDateLabel = new Label(MESSAGES.getString("about.buildDate") + ": " + buildDate);
+        Label versionLabel = new Label(MESSAGES.getString("about.version") + ": " + version);
+        Label developersLabel = new Label(MESSAGES.getString("about.developers") + ": " + developers);
 
-        Button closeButton = new Button("Close");
-        closeButton.setOnAction(e -> aboutStage.close()); // Action to close this stage
+        Button closeButton = new Button(MESSAGES.getString("about.close"));
+        closeButton.setOnAction(e -> aboutStage.close());
 
-        contentBox.getChildren().addAll(titleLabel, buildDateLabel, versionLabel, copyrightLabel, closeButton);
+        contentBox.getChildren().addAll(titleLabel, buildDateLabel, versionLabel, developersLabel, closeButton);
 
         Scene aboutScene = new Scene(contentBox, 350, 250);
         aboutStage.setScene(aboutScene);
-
         aboutStage.setResizable(false);
-
         aboutStage.showAndWait();
     }
 
@@ -181,24 +180,19 @@ public class MenuBarView implements View, Listener<FileEvent> {
         menuBarInit();
     }
 
-
     @Override
     public void update(FileEvent event) {
-        if (event == null) {
-            return;
-        }
+        if (event == null) return;
         System.out.println(event);
 
-        if (event.getError() == EventError.ERROR) {
-            return;
-        }
+        if (event.getError() == EventError.ERROR) return;
 
         if (event.getIsSuccess()) {
             saveMenuItem.setDisable(false);
             saveAsMenuItem.setDisable(false);
-            return;
+        } else {
+            saveMenuItem.setDisable(true);
+            saveAsMenuItem.setDisable(true);
         }
-        saveMenuItem.setDisable(true);
-        saveAsMenuItem.setDisable(true);
     }
 }

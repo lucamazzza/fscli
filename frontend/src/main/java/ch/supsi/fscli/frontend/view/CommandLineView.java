@@ -13,6 +13,9 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import lombok.Getter;
 
+import java.util.ResourceBundle;
+import java.util.Locale;
+
 @Getter
 public class CommandLineView implements View {
     private static final int COMMAND_LINE_PREF_COLUMN_COUNT = 72;
@@ -25,6 +28,8 @@ public class CommandLineView implements View {
 
     private static CommandLineView instance;
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     public static CommandLineView getInstance() {
         if (instance == null) {
             instance = new CommandLineView();
@@ -33,8 +38,8 @@ public class CommandLineView implements View {
     }
 
     private CommandLineView() {
-        this.enter = new Button("enter");
-        this.commandLineLabel = new Label("command");
+        this.enter = new Button(MESSAGES.getString("commandLine.enter"));
+        this.commandLineLabel = new Label(MESSAGES.getString("commandLine.label"));
         this.commandLine = new TextField();
         this.outputView = new TextArea();
     }
@@ -55,15 +60,15 @@ public class CommandLineView implements View {
 
     private void logAreaInit() {
         this.outputView.setId("outputView");
-        this.outputView.appendText("Filesystem Command Line Interface\n");
-        this.outputView.appendText("Type 'help' for available commands\n");
-        this.outputView.appendText("Create a new filesystem to begin (File > New)\n\n");
+        this.outputView.appendText(MESSAGES.getString("cli.welcome") + "\n");
+        this.outputView.appendText(MESSAGES.getString("cli.help") + "\n");
+        this.outputView.appendText(MESSAGES.getString("cli.createFileSystem") + "\n\n");
 
         this.outputView.setPrefRowCount(PREF_OUTPUT_VIEW_ROW_COUNT);
         this.outputView.setEditable(false);
         this.outputView.setWrapText(true);
     }
-    
+
     private void executeCommand() {
         String command = commandLine.getText();
         if (command != null && command.trim().equals("clear")) {
@@ -90,18 +95,18 @@ public class CommandLineView implements View {
         } else {
             String errorMessage = response.getErrorMessage();
             if (errorMessage != null && !errorMessage.isEmpty()) {
-                outputView.appendText("Error: " + errorMessage + "\n");
+                outputView.appendText(MESSAGES.getString("cli.error") + ": " + errorMessage + "\n");
             }
         }
         outputView.appendText("\n");
         commandLine.clear();
         outputView.setScrollTop(Double.MAX_VALUE);
     }
-    
+
     public void clearOutput() {
         outputView.clear();
     }
-    
+
     public void appendOutput(String text) {
         outputView.appendText(text);
         outputView.setScrollTop(Double.MAX_VALUE);

@@ -8,14 +8,18 @@ import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class FileSystemController implements FileSystemEventHandler {
     @Setter
     private FileSystem model;
-    
+
     private File currentFile;
 
     private static FileSystemController instance;
+
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public static FileSystemController getInstance() {
         if (instance == null) {
@@ -32,32 +36,32 @@ public class FileSystemController implements FileSystemEventHandler {
     public void newFileSystem() {
         this.model.createFileSystem();
         this.currentFile = null;
-        
+
         CommandLineView commandLine = CommandLineView.getInstance();
         commandLine.clearOutput();
-        commandLine.appendOutput("New filesystem created successfully!\n");
-        commandLine.appendOutput("Current directory: " + model.getCurrentDirectory() + "\n\n");
-        
-        FxLogger.getInstance().log("New filesystem created");
+        commandLine.appendOutput(MESSAGES.getString("filesystem.newCreated") + "\n");
+        commandLine.appendOutput(MESSAGES.getString("filesystem.currentDir") + model.getCurrentDirectory() + "\n\n");
+
+        FxLogger.getInstance().log(MESSAGES.getString("filesystem.newCreatedLog"));
     }
 
     @Override
     public void save() {
         if (currentFile == null) {
-            FxLogger.getInstance().log("Error: No file selected for save. Use 'Save As' first.");
+            FxLogger.getInstance().log(MESSAGES.getString("error.noFileSelectedSave"));
             return;
         }
-        
+
         saveToFile(currentFile);
     }
 
     @Override
     public void saveAs(File file) {
         if (file == null) {
-            FxLogger.getInstance().log("Error: No file selected");
+            FxLogger.getInstance().log(MESSAGES.getString("error.noFileSelected"));
             return;
         }
-        
+
         this.currentFile = file;
         saveToFile(file);
     }
@@ -65,53 +69,53 @@ public class FileSystemController implements FileSystemEventHandler {
     @Override
     public void load(File file) {
         if (file == null) {
-            FxLogger.getInstance().log("Error: No file selected");
+            FxLogger.getInstance().log(MESSAGES.getString("error.noFileSelected"));
             return;
         }
-        
+
         if (!file.exists()) {
-            FxLogger.getInstance().log("Error: File does not exist: " + file.getAbsolutePath());
+            FxLogger.getInstance().log(MESSAGES.getString("error.fileNotExist") + ": " + file.getAbsolutePath());
             return;
         }
-        
+
         try {
             boolean success = model.loadFileSystem(file);
 
             if (!success) {
-                FxLogger.getInstance().log("Error: Failed to load filesystem from file");
+                FxLogger.getInstance().log(MESSAGES.getString("error.loadFailed"));
                 return;
             }
-            
+
             this.currentFile = file;
 
             CommandLineView commandLine = CommandLineView.getInstance();
             commandLine.clearOutput();
-            commandLine.appendOutput("Filesystem loaded successfully from: " + file.getName() + "\n");
-            commandLine.appendOutput("Current directory: " + model.getCurrentDirectory() + "\n\n");
-            
-            FxLogger.getInstance().log("Filesystem loaded from: " + file.getAbsolutePath());
-            
+            commandLine.appendOutput(MESSAGES.getString("filesystem.loadedFrom") + ": " + file.getName() + "\n");
+            commandLine.appendOutput(MESSAGES.getString("filesystem.currentDir") + model.getCurrentDirectory() + "\n\n");
+
+            FxLogger.getInstance().log(MESSAGES.getString("filesystem.loadedLog") + ": " + file.getAbsolutePath());
+
         } catch (Exception e) {
-            FxLogger.getInstance().log("Error loading filesystem: " + e.getMessage());
+            FxLogger.getInstance().log(MESSAGES.getString("error.loadException") + ": " + e.getMessage());
         }
     }
-    
+
     private void saveToFile(File file) {
         if (!model.isFileSystemReady()) {
-            FxLogger.getInstance().log("Error: No filesystem to save");
+            FxLogger.getInstance().log(MESSAGES.getString("error.noFilesystemToSave"));
             return;
         }
-        
+
         try {
             model.saveFileSystem(file);
-            
+
             this.currentFile = file;
-            FxLogger.getInstance().log("Filesystem saved to: " + file.getAbsolutePath());
-            
+            FxLogger.getInstance().log(MESSAGES.getString("filesystem.savedTo") + ": " + file.getAbsolutePath());
+
         } catch (IOException e) {
-            FxLogger.getInstance().log("Error saving filesystem: " + e.getMessage());
+            FxLogger.getInstance().log(MESSAGES.getString("error.saveFailed") + ": " + e.getMessage());
         } catch (IllegalStateException e) {
-            FxLogger.getInstance().log("Error: " + e.getMessage());
+            FxLogger.getInstance().log(MESSAGES.getString("error.saveIllegalState") + ": " + e.getMessage());
         }
     }
 }

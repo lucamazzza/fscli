@@ -2,12 +2,17 @@ package ch.supsi.fscli.frontend.event;
 
 import lombok.Getter;
 
+import java.util.ResourceBundle;
+import java.util.Locale;
+
 @Getter
-public class FileEvent extends Event{
+public class FileEvent extends Event {
     private final Boolean isSuccess;
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     private FileEvent() {
-        super(EventError.ERROR, "Error");
+        super(EventError.ERROR, MESSAGES.getString("fileEvent.error"));
         this.isSuccess = false;
     }
 
@@ -18,6 +23,6 @@ public class FileEvent extends Event{
 
     @Override
     public String toString() {
-        return "Is successful";
+        return isSuccess ? MESSAGES.getString("fileEvent.success") : MESSAGES.getString("fileEvent.failure");
     }
 }

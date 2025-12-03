@@ -12,12 +12,9 @@ import lombok.Setter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
-/**
- * Frontend model for FileSystem.
- * Delegates to backend controller (API boundary).
- * Flow: View → Frontend Controller → Frontend Model → Backend Controller → Service
- */
 public class FileSystem {
 
     private boolean isFilePresent;
@@ -33,6 +30,8 @@ public class FileSystem {
 
     private static FileSystem instance;
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     public static FileSystem getInstance() {
         if (instance == null) {
             instance = new FileSystem();
@@ -47,15 +46,14 @@ public class FileSystem {
     }
 
     public void createFileSystem() {
-        // Create filesystem through persistence controller
         backendPersistenceController.createNewFileSystem();
-
-        // Get the created filesystem and pass to main controller
         ch.supsi.fscli.backend.core.FileSystem fsBackend = backendPersistenceController.getFileSystem();
         this.backendController = new FileSystemController(fsBackend);
-
         this.isFilePresent = true;
-        eventManager.notify(new FileEvent(EventError.SUCCESS, "FileSystem was created successfully", true));
+        if (eventManager != null) {
+            eventManager.notify(new FileEvent(EventError.SUCCESS,
+                    MESSAGES.getString("filesystem.created"), true));
+        }
     }
 
     public boolean loadFileSystem(File file) {
@@ -63,7 +61,10 @@ public class FileSystem {
         ch.supsi.fscli.backend.core.FileSystem fsBackend = backendPersistenceController.getFileSystem();
         this.backendController = new FileSystemController(fsBackend);
         this.isFilePresent = true;
-        eventManager.notify(new FileEvent(EventError.SUCCESS, "FileSystem was loaded successfully", true));
+        if (eventManager != null) {
+            eventManager.notify(new FileEvent(EventError.SUCCESS,
+                    MESSAGES.getString("filesystem.loaded"), true));
+        }
         return success;
     }
 
@@ -75,9 +76,9 @@ public class FileSystem {
         if (!isFileSystemReady()) {
             if (eventManager != null) {
                 eventManager.notify(new FileEvent(EventError.ERROR,
-                        "No filesystem loaded. Please create or load a filesystem first.", false));
+                        MESSAGES.getString("filesystem.notLoaded"), false));
             }
-            return CommandResponseDTO.error("No filesystem loaded");
+            return CommandResponseDTO.error(MESSAGES.getString("filesystem.notLoaded"));
         }
         return backendController.executeCommand(commandString);
     }
@@ -98,10 +99,11 @@ public class FileSystem {
         return backendController.getCommandHelp(commandName);
     }
 
-    public List<String> getAllCommandsHelp() { return backendController.getAllCommandsHelp(); }
+    public List<String> getAllCommandsHelp() {
+        return backendController.getAllCommandsHelp();
+    }
 
     public List<String> getCommandHistory() {
         return backendController.getHistoryCommands();
     }
 }
-

@@ -8,10 +8,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Locale;
 
 public class PreferencesView {
 
@@ -29,25 +30,25 @@ public class PreferencesView {
     public Button cancelBtn;
     public Button reloadBtn;
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     public PreferencesView(Map<String, String> prefs) {
         initUI(prefs);
     }
 
     private void initUI(Map<String, String> prefs) {
         stage = new Stage();
-        stage.setTitle("Preferences");
+        stage.setTitle(MESSAGES.getString("preferences.title"));
 
         grid = new GridPane();
         grid.setPadding(new Insets(15));
         grid.setHgap(10);
         grid.setVgap(10);
 
-        // --- ComboBox lingua
         languageBox = new ComboBox<>();
-        languageBox.getItems().addAll("en", "it", "de", "fr");
+        languageBox.getItems().addAll("en", "it");
         languageBox.setValue(prefs.get("language"));
 
-        // --- ComboBox font
         cmdFontBox = new ComboBox<>();
         cmdFontBox.getItems().addAll(FrontendGlobalVariables.SYSTEM_FONTS);
         cmdFontBox.setValue(prefs.get("cmdFont"));
@@ -58,7 +59,6 @@ public class PreferencesView {
         logFontBox = new ComboBox<>(cmdFontBox.getItems());
         logFontBox.setValue(prefs.get("logFont"));
 
-        // --- Campi numerici validati
         cmdColumnsField = new ValidatedField(
                 Integer.parseInt(prefs.get("cmdColumns")),
                 FrontendGlobalVariables.MIN_COLUMNS,
@@ -77,118 +77,55 @@ public class PreferencesView {
                 FrontendGlobalVariables.MAX_LINES
         );
 
-        // --- Pulsanti
-        saveBtn = new Button("Save");
-        cancelBtn = new Button("Cancel");
-        reloadBtn = new Button("Reload from disk");
+        saveBtn = new Button(MESSAGES.getString("preferences.save"));
+        cancelBtn = new Button(MESSAGES.getString("preferences.cancel"));
+        reloadBtn = new Button(MESSAGES.getString("preferences.reload"));
 
-        // --- Layout
         int row = 0;
-        grid.addRow(row++, new Label("Language:"), languageBox);
-        grid.addRow(row++, new Label("Command Columns:"), cmdColumnsField.container());
-        grid.addRow(row++, new Label("Command Font:"), cmdFontBox);
-        grid.addRow(row++, new Label("Output Lines:"), outputLinesField.container());
-        grid.addRow(row++, new Label("Output Font:"), outputFontBox);
-        grid.addRow(row++, new Label("Log Lines:"), logLinesField.container());
-        grid.addRow(row++, new Label("Log Font:"), logFontBox);
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.language")), languageBox);
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.cmdColumns")), cmdColumnsField.container());
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.cmdFont")), cmdFontBox);
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.outputLines")), outputLinesField.container());
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.outputFont")), outputFontBox);
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.logLines")), logLinesField.container());
+        grid.addRow(row++, new Label(MESSAGES.getString("preferences.logFont")), logFontBox);
         grid.addRow(row++, saveBtn, reloadBtn, cancelBtn);
 
-        // --- Scene + CSS
         Scene scene = new Scene(grid);
         scene.getStylesheets().add(getClass().getResource("/styles/preferences.css").toExternalForm());
         stage.setScene(scene);
     }
 
-    // --- LANGUAGE ---
-    public void setLanguage(String language) {
-        languageBox.setValue(language);
-    }
-    public String getLanguage() {
-        return languageBox.getValue();
-    }
+    public void setLanguage(String language) { languageBox.setValue(language); }
+    public String getLanguage() { return languageBox.getValue(); }
 
-    // --- CMD COLUMNS ---
-    public void setCmdColumns(String value) {
-        cmdColumnsField.field().setText(value);
-    }
-    public String getCmdColumns() {
-        return cmdColumnsField.field().getText();
-    }
-    public BooleanProperty cmdColumnsInvalidProperty() {
-        return cmdColumnsField.invalid();
-    }
+    public void setCmdColumns(String value) { cmdColumnsField.field().setText(value); }
+    public String getCmdColumns() { return cmdColumnsField.field().getText(); }
+    public BooleanProperty cmdColumnsInvalidProperty() { return cmdColumnsField.invalid(); }
 
-    // --- OUTPUT LINES ---
-    public void setOutputLines(String value) {
-        outputLinesField.field().setText(value);
-    }
-    public String getOutputLines() {
-        return outputLinesField.field().getText();
-    }
-    public BooleanProperty outputLinesInvalidProperty() {
-        return outputLinesField.invalid();
-    }
+    public void setOutputLines(String value) { outputLinesField.field().setText(value); }
+    public String getOutputLines() { return outputLinesField.field().getText(); }
+    public BooleanProperty outputLinesInvalidProperty() { return outputLinesField.invalid(); }
 
-    // --- LOG LINES ---
-    public void setLogLines(String value) {
-        logLinesField.field().setText(value);
-    }
-    public String getLogLines() {
-        return logLinesField.field().getText();
-    }
-    public BooleanProperty logLinesInvalidProperty() {
-        return logLinesField.invalid();
-    }
+    public void setLogLines(String value) { logLinesField.field().setText(value); }
+    public String getLogLines() { return logLinesField.field().getText(); }
+    public BooleanProperty logLinesInvalidProperty() { return logLinesField.invalid(); }
 
-    // --- CMD FONT ---
-    public void setCmdFont(String font) {
-        cmdFontBox.setValue(font);
-    }
-    public String getCmdFont() {
-        return cmdFontBox.getValue();
-    }
+    public void setCmdFont(String font) { cmdFontBox.setValue(font); }
+    public String getCmdFont() { return cmdFontBox.getValue(); }
 
-    // --- OUTPUT FONT ---
-    public void setOutputFont(String font) {
-        outputFontBox.setValue(font);
-    }
-    public String getOutputFont() {
-        return outputFontBox.getValue();
-    }
+    public void setOutputFont(String font) { outputFontBox.setValue(font); }
+    public String getOutputFont() { return outputFontBox.getValue(); }
 
-    // --- LOG FONT ---
-    public void setLogFont(String font) {
-        logFontBox.setValue(font);
-    }
-    public String getLogFont() {
-        return logFontBox.getValue();
-    }
+    public void setLogFont(String font) { logFontBox.setValue(font); }
+    public String getLogFont() { return logFontBox.getValue(); }
 
-    // --- BUTTON EVENT HANDLERS ---
-    public void setOnSave(Runnable r) {
-        saveBtn.setOnAction(e -> r.run());
-    }
-    public void setOnCancel(Runnable r) {
-        cancelBtn.setOnAction(e -> r.run());
-    }
-    public void setOnReload(Runnable r) {
-        reloadBtn.setOnAction(e -> r.run());
-    }
+    public void setOnSave(Runnable r) { saveBtn.setOnAction(e -> r.run()); }
+    public void setOnCancel(Runnable r) { cancelBtn.setOnAction(e -> r.run()); }
+    public void setOnReload(Runnable r) { reloadBtn.setOnAction(e -> r.run()); }
 
-    // --- DISABLE SAVE BUTTON BIND ---
-    // Getter per il disableProperty del pulsante save
-    public BooleanProperty saveBtnDisableProperty() {
-        return saveBtn.disableProperty();
-    }
+    public BooleanProperty saveBtnDisableProperty() { return saveBtn.disableProperty(); }
 
-
-    // --- SHOW / CLOSE ---
-    public void show() {
-        stage.show();
-    }
-
-    public void close() {
-        stage.close();
-    }
-
+    public void show() { stage.show(); }
+    public void close() { stage.close(); }
 }

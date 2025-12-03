@@ -16,15 +16,22 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class MainFx extends Application {
     private final String applicationTitle;
+    private final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     // VIEWS
     private final MenuBarView menuBar;
     private final CommandLineView commandLine;
     private final LogAreaView logArea;
 
     public MainFx() {
-        this.applicationTitle = "filesystem command interpreter simulator";
+        // titolo preso da file di risorse
+        this.applicationTitle = MESSAGES.getString("mainfx.title");
+
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
         this.logArea = LogAreaView.getInstance();
@@ -47,11 +54,9 @@ public class MainFx extends Application {
         this.commandLine.init();
         this.logArea.init();
 
-        // --- CARICA PREFERENZE SANITIZZATE ---
-        PreferencesController bacendController = new PreferencesController();
-        UserPreferences prefs = bacendController.getPreferences(); // già sanitizzate
+        PreferencesController backendController = new PreferencesController();
+        UserPreferences prefs = backendController.getPreferences();
 
-        // --- LOGGER FX ---
         FxLogger fxLogger = FxLogger.getInstance();
         fxLogger.setLogArea(this.logArea.getLogView());
         fxLogger.setLogAreaRowCount(prefs.getLogLines());
@@ -60,25 +65,19 @@ public class MainFx extends Application {
             fxLogger.log("[" + level + "] " + message);
         });
 
-        fxLogger.log("Frontend logger initialized.");
-        PreferencesLogger.logInfo("Backend logger bridge active.");
+        fxLogger.log(MESSAGES.getString("logger.frontendInitialized"));
+        PreferencesLogger.logInfo(MESSAGES.getString("logger.backendBridgeActive"));
 
-
-        // --- GUI ---
+        // GUI
         this.commandLine.getCommandLine().setPrefColumnCount(prefs.getCmdColumns());
         this.commandLine.getCommandLine().setStyle("-fx-font-family: '" + prefs.getCmdFont() + "';");
 
         HBox commandLinePane = new HBox(10, this.commandLine.getCommandLineLabel(), this.commandLine.getCommandLine(), this.commandLine.getEnter());
         commandLinePane.setAlignment(Pos.BASELINE_LEFT);
         commandLinePane.setPadding(new Insets(5));
-
         HBox.setHgrow(this.commandLine.getCommandLine(), Priority.ALWAYS);
 
-        // vertical pane to hold the menu bar and the command line
-        VBox top = new VBox(
-                this.menuBar.getMenuBar(),
-                commandLinePane
-        );
+        VBox top = new VBox(this.menuBar.getMenuBar(), commandLinePane);
 
         this.commandLine.getOutputView().setPrefRowCount(prefs.getOutputLines());
         this.commandLine.getOutputView().setStyle("-fx-font-family: '" + prefs.getOutputFont() + "';");
@@ -91,11 +90,9 @@ public class MainFx extends Application {
         rootPane.setCenter(new ScrollPane(this.commandLine.getOutputView()));
         rootPane.setBottom(new ScrollPane(this.logArea.getLogView()));
 
-        // --- Calcolo larghezza fissa basata sulle colonne ---
         double charWidth = 8.0;
         double baseWidth = prefs.getCmdColumns() * charWidth + 120;
 
-// --- Blocca larghezze coerenti ---
         this.commandLine.getCommandLine().setPrefColumnCount(prefs.getCmdColumns());
         this.commandLine.getCommandLine().setMinWidth(Region.USE_PREF_SIZE);
         this.commandLine.getCommandLine().setMaxWidth(Region.USE_PREF_SIZE);
@@ -108,7 +105,6 @@ public class MainFx extends Application {
         this.logArea.getLogView().setMinWidth(baseWidth);
         this.logArea.getLogView().setMaxWidth(baseWidth);
 
-// --- GUI layout ---
         primaryStage.setResizable(false);
         Scene mainScene = new Scene(rootPane);
         primaryStage.setTitle(this.applicationTitle);
@@ -117,7 +113,6 @@ public class MainFx extends Application {
                 80 + prefs.getOutputLines() * 20 + prefs.getLogLines() * 15
         );
         primaryStage.show();
-
     }
 
     public static void main(String[] args) {
