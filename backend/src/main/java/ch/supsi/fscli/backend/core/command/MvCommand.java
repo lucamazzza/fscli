@@ -5,19 +5,26 @@ import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class MvCommand extends AbstractCommand {
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     public MvCommand() {
-        super("mv", "Move/rename file or directory", "mv <source> <destination>");
+        super("mv",
+                MESSAGES.getString("mv.description"),
+                MESSAGES.getString("mv.usage"));
     }
 
     @Override
     public CommandResult execute(FileSystem fs, CommandSyntax syntax) throws FSException {
         if (syntax.getArgumentCount() < 2) {
-            return CommandResult.error("mv: missing operand");
+            return CommandResult.error(MESSAGES.getString("mv.error.missingOperand"));
         }
         if (syntax.getArgumentCount() > 2) {
-            return CommandResult.error("mv: too many arguments");
+            return CommandResult.error(MESSAGES.getString("mv.error.tooManyArguments"));
         }
 
         fs.mv(syntax.getArgument(0), syntax.getArgument(1));

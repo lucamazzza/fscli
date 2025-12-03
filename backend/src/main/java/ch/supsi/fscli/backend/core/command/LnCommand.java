@@ -5,10 +5,17 @@ import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class LnCommand extends AbstractCommand {
 
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     public LnCommand() {
-        super("ln", "Create link", "ln [-s] <target> <link>");
+        super("ln",
+                MESSAGES.getString("ln.description"),
+                MESSAGES.getString("ln.usage"));
     }
 
     @Override
@@ -22,10 +29,10 @@ public class LnCommand extends AbstractCommand {
         }
 
         if (syntax.getArgumentCount() - argIndex < 2) {
-            return CommandResult.error("ln: missing operand");
+            return CommandResult.error(MESSAGES.getString("ln.error.missingOperand"));
         }
         if (syntax.getArgumentCount() - argIndex > 2) {
-            return CommandResult.error("ln: too many arguments");
+            return CommandResult.error(MESSAGES.getString("ln.error.tooManyArguments"));
         }
 
         String target = syntax.getArgument(argIndex);

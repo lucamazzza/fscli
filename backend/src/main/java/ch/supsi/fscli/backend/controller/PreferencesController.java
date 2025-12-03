@@ -4,12 +4,17 @@ import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.service.PreferencesService;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 
+import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class PreferencesController {
 
     private final PreferencesService service;
+
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
 
     public PreferencesController() {
         this.service = new PreferencesService();
@@ -65,7 +70,10 @@ public class PreferencesController {
                 case "cmdFont" -> setCmdFont(v);
                 case "outputFont" -> setOutputFont(v);
                 case "logFont" -> setLogFont(v);
-                default -> PreferencesLogger.logError("Invalid preference key: " + key, null);
+                default -> PreferencesLogger.logError(
+                        MESSAGES.getString("error.invalidPreferenceKey") + ": " + key,
+                        null
+                );
             }
         });
     }

@@ -6,12 +6,17 @@ import ch.supsi.fscli.backend.util.FilesystemLogger;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class FilesystemFileManager {
+
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
     private Path path;
-    private Serializer<FileSystemNode> serializer;
-    private Deserializer<FileSystemNode> deserializer;
+    private final Serializer<FileSystemNode> serializer;
+    private final Deserializer<FileSystemNode> deserializer;
 
     public FilesystemFileManager(Path path) {
         this.path = path;
@@ -31,9 +36,8 @@ public class FilesystemFileManager {
             String json = Files.readString(path);
             return Optional.of(deserializer.deserialize(json, FileSystemNode.class));
         } catch (IOException e) {
-            FilesystemLogger.logError("Failed to load Filesystem");
+            FilesystemLogger.logError(MESSAGES.getString("error.noFilesystemLoaded"));
             return Optional.empty();
         }
     }
-
 }

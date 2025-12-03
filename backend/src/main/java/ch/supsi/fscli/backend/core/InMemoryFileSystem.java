@@ -9,12 +9,17 @@ import ch.supsi.fscli.backend.data.FileNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class InMemoryFileSystem implements FileSystem {
     private final DirectoryNode root;
     private DirectoryNode cwd;
     private final PathResolver pathResolver;
-    
+
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
+
+
     public InMemoryFileSystem() {
         this.root = new DirectoryNode();
         this.root.setParent(root);
@@ -28,58 +33,67 @@ public class InMemoryFileSystem implements FileSystem {
         this.cwd = root;
         this.pathResolver = PathResolver.getInstance();
     }
-    
+
     @Override
     public void mkdir(String path) throws FSException {
         if (path == null || path.isEmpty()) {
-            throw new InvalidPathException("Path cannot be empty");
+            throw new InvalidPathException(MESSAGES.getString("emptyPath"));
         }
         try {
-            FileSystemNode existing = pathResolver.resolve(cwd, path, false);
-            throw new AlreadyExistsException("File or directory already exists: " + path);
-        } catch (NotFoundException e) {
-            // It doesn't exist, we can create it
+            pathResolver.resolve(cwd, path, false);
+            throw new AlreadyExistsException(MESSAGES.getString("alreadyExists") + ": " + path);
+        } catch (NotFoundException ignored) {
+            // it does not exist, we can create it
         }
+
         String parentPath = getParentPath(path);
         String dirName = getFileName(path);
         DirectoryNode parent;
+
         if (parentPath.isEmpty()) {
             parent = cwd;
         } else {
             try {
                 FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
                 if (!parentNode.isDirectory()) {
-                    throw new NotADirectoryException("Parent is not a directory: " + parentPath);
+                    throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
                 }
                 parent = (DirectoryNode) parentNode;
             } catch (NotFoundException e) {
-                throw new NotFoundException("Parent directory not found: " + parentPath);
+                throw new NotFoundException(MESSAGES.getString("parentNotFound") + ": " + parentPath);
             }
         }
+
         DirectoryNode newDir = new DirectoryNode();
         parent.add(dirName, newDir);
     }
-    
+
     @Override
     public void rmdir(String path) throws FSException {
         FileSystemNode node = pathResolver.resolve(cwd, path, false);
+
         if (!node.isDirectory()) {
-            throw new NotADirectoryException("Not a directory: " + path);
+            throw new NotADirectoryException(MESSAGES.getString("notDirectory") + ": " + path);
         }
+
         DirectoryNode dir = (DirectoryNode) node;
+
         if (!dir.isEmpty()) {
-            throw new FSException("Directory not empty: " + path);
+            throw new FSException(MESSAGES.getString("notEmpty") + ": " + path);
         }
+
         DirectoryNode parent = dir.getParent();
+
         if (parent == null || parent == dir) {
-            throw new FSException("Cannot remove root directory");
+            throw new FSException(MESSAGES.getString("cannotRemoveRoot"));
         }
+
         String name = findNameInParent(parent, dir);
         if (name != null) {
             parent.remove(name);
         }
     }
-    
+
     @Override
     public void touch(String path) throws FSException {
         try {
@@ -89,114 +103,115 @@ public class InMemoryFileSystem implements FileSystem {
             String parentPath = getParentPath(path);
             String fileName = getFileName(path);
             DirectoryNode parent;
+
             if (parentPath.isEmpty()) {
                 parent = cwd;
             } else {
                 FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
                 if (!parentNode.isDirectory()) {
-                    throw new NotADirectoryException("Parent is not a directory: " + parentPath);
+                    throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
                 }
                 parent = (DirectoryNode) parentNode;
             }
+
             FileNode newFile = new FileNode();
             parent.add(fileName, newFile);
         }
     }
-    
+
     @Override
     public void rm(String path) throws FSException {
         FileSystemNode node = pathResolver.resolve(cwd, path, false);
+
         if (node.isDirectory()) {
-            throw new FSException("Cannot remove directory with rm, use rmdir: " + path);
+            throw new FSException(MESSAGES.getString("rmNotDir") + ": " + path);
         }
+
         DirectoryNode parent = node.getParent();
         if (parent == null) {
-            throw new FSException("Cannot remove root");
+            throw new FSException(MESSAGES.getString("cannotRemoveRoot"));
         }
+
         String name = findNameInParent(parent, node);
         if (name != null) {
             parent.remove(name);
         }
     }
-    
+
     @Override
     public void mv(String src, String dest) throws FSException {
         FileSystemNode srcNode = pathResolver.resolve(cwd, src, false);
+
         try {
             pathResolver.resolve(cwd, dest, false);
-            throw new AlreadyExistsException("Destination already exists: " + dest);
-        } catch (NotFoundException e) {
-            // Good - destination doesn't exist
+            throw new AlreadyExistsException(MESSAGES.getString("destExists") + ": " + dest);
+        } catch (NotFoundException ignored) {
+            // Destination does not exist, proceed
         }
+
         String destParentPath = getParentPath(dest);
         String destName = getFileName(dest);
         DirectoryNode destParent;
+
         if (destParentPath.isEmpty()) {
             destParent = cwd;
         } else {
             FileSystemNode destParentNode = pathResolver.resolve(cwd, destParentPath, true);
             if (!destParentNode.isDirectory()) {
-                throw new NotADirectoryException("Destination parent is not a directory: " + destParentPath);
+                throw new NotADirectoryException(MESSAGES.getString("destParentNotDir") + ": " + destParentPath);
             }
             destParent = (DirectoryNode) destParentNode;
         }
+
         DirectoryNode srcParent = srcNode.getParent();
         if (srcParent == null) {
-            throw new FSException("Cannot move root");
+            throw new FSException(MESSAGES.getString("cannotMoveRoot"));
         }
+
         String srcName = findNameInParent(srcParent, srcNode);
         if (srcName != null) {
             srcParent.remove(srcName);
         }
+
         destParent.add(destName, srcNode);
     }
-    
+
     @Override
     public void ln(String target, String link, boolean sym) throws FSException {
         try {
             pathResolver.resolve(cwd, link, false);
-            throw new AlreadyExistsException("Link already exists: " + link);
-        } catch (NotFoundException e) {
+            throw new AlreadyExistsException(MESSAGES.getString("linkExists") + ": " + link);
+        } catch (NotFoundException ignored) {
             // Good - link doesn't exist
         }
-        if (sym) {
-            String linkParentPath = getParentPath(link);
-            String linkName = getFileName(link);
-            DirectoryNode linkParent;
-            if (linkParentPath.isEmpty()) {
-                linkParent = cwd;
-            } else {
-                FileSystemNode linkParentNode = pathResolver.resolve(cwd, linkParentPath, true);
-                if (!linkParentNode.isDirectory()) {
-                    throw new NotADirectoryException("Link parent is not a directory: " + linkParentPath);
-                }
-                linkParent = (DirectoryNode) linkParentNode;
+
+        String linkParentPath = getParentPath(link);
+        String linkName = getFileName(link);
+        DirectoryNode linkParent;
+
+        if (linkParentPath.isEmpty()) {
+            linkParent = cwd;
+        } else {
+            FileSystemNode linkParentNode = pathResolver.resolve(cwd, linkParentPath, true);
+            if (!linkParentNode.isDirectory()) {
+                throw new NotADirectoryException(MESSAGES.getString("linkParentNotDir") + ": " + linkParentPath);
             }
-            
+            linkParent = (DirectoryNode) linkParentNode;
+        }
+
+        if (sym) {
             LinkNode symlink = new LinkNode(target);
             linkParent.add(linkName, symlink);
         } else {
             FileSystemNode targetNode = pathResolver.resolve(cwd, target, true);
             if (targetNode.isDirectory()) {
-                throw new InvalidPathException("Target must not be a directory, for hard links: " + target);
-            }
-            String linkParentPath = getParentPath(link);
-            String linkName = getFileName(link);
-            DirectoryNode linkParent;
-            if (linkParentPath.isEmpty()) {
-                linkParent = cwd;
-            } else {
-                FileSystemNode linkParentNode = pathResolver.resolve(cwd, linkParentPath, true);
-                if (!linkParentNode.isDirectory()) {
-                    throw new NotADirectoryException("Link parent is not a directory: " + linkParentPath);
-                }
-                linkParent = (DirectoryNode) linkParentNode;
+                throw new InvalidPathException(MESSAGES.getString("hardLinkTargetDir") + ": " + target);
             }
             linkParent.add(linkName, targetNode);
             targetNode.incrementLinkCount();
         }
     }
-    
+
     @Override
     public List<String> ls(String path, boolean showI) throws FSException {
         FileSystemNode node = pathResolver.resolve(cwd, path, true);
@@ -234,16 +249,16 @@ public class InMemoryFileSystem implements FileSystem {
         }
         return result;
     }
-    
+
     @Override
     public void cd(String path) throws FSException {
         FileSystemNode node = pathResolver.resolve(cwd, path, true);
         if (!node.isDirectory()) {
-            throw new NotADirectoryException("Not a directory: " + path);
+            throw new NotADirectoryException(MESSAGES.getString("notDirectory") + ": " + path);
         }
         cwd = (DirectoryNode) node;
     }
-    
+
     @Override
     public String pwd() {
         return getAbsolutePath(cwd);
@@ -254,26 +269,29 @@ public class InMemoryFileSystem implements FileSystem {
         FileSystemNode srcNode = pathResolver.resolve(cwd, src, true);
         try {
             pathResolver.resolve(cwd, dest, false);
-            throw new AlreadyExistsException("Destination already exists: " + dest);
-        } catch (NotFoundException e) {
+            throw new AlreadyExistsException(MESSAGES.getString("alreadyExists") + ": " + dest);
+        } catch (NotFoundException ignored) {
             // Good - destination doesn't exist
         }
+
         String destParentPath = getParentPath(dest);
         String destName = getFileName(dest);
         DirectoryNode destParent;
+
         if (destParentPath.isEmpty()) {
             destParent = cwd;
         } else {
             FileSystemNode destParentNode = pathResolver.resolve(cwd, destParentPath, true);
             if (!destParentNode.isDirectory()) {
-                throw new NotADirectoryException("Destination parent is not a directory: " + destParentPath);
+                throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + destParentPath);
             }
             destParent = (DirectoryNode) destParentNode;
         }
+
         FileSystemNode copy = copyNode(this, srcNode, srcNode.isDirectory());
         destParent.add(destName, copy);
     }
-    
+
     @Override
     public List<String> expWildcard(String path, DirectoryNode curDir) throws FSException {
         List<String> result = new ArrayList<>();
@@ -354,45 +372,45 @@ public class InMemoryFileSystem implements FileSystem {
     public FileSystemNode resolveNode(String path, boolean followSymlinks) throws FSException {
         return pathResolver.resolve(cwd, path, followSymlinks);
     }
-    
+
     @Override
     public void createNode(String path, FileSystemNode node) throws FSException {
         if (path == null || path.isEmpty()) {
-            throw new InvalidPathException("Path cannot be empty");
+            throw new InvalidPathException(MESSAGES.getString("emptyPath"));
         }
         try {
             pathResolver.resolve(cwd, path, false);
-            throw new AlreadyExistsException("Node already exists: " + path);
-        } catch (NotFoundException e) {
+            throw new AlreadyExistsException(MESSAGES.getString("alreadyExists") + ": " + path);
+        } catch (NotFoundException ignored) {
             // Good - doesn't exist yet
         }
-        
+
         String parentPath = getParentPath(path);
         String nodeName = getFileName(path);
-        
         DirectoryNode parent;
+
         if (parentPath.isEmpty()) {
             parent = cwd;
         } else {
             FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
             if (!parentNode.isDirectory()) {
-                throw new NotADirectoryException("Parent is not a directory: " + parentPath);
+                throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
             }
             parent = (DirectoryNode) parentNode;
         }
-        
+
         parent.add(nodeName, node);
     }
-    
+
     @Override
     public void deleteNode(String path) throws FSException {
         FileSystemNode node = pathResolver.resolve(cwd, path, false);
         DirectoryNode parent = node.getParent();
-        
+
         if (parent == null || parent == node) {
-            throw new FSException("Cannot delete root directory");
+            throw new FSException(MESSAGES.getString("cannotRemoveRoot"));
         }
-        
+
         String name = findNameInParent(parent, node);
         if (name != null) {
             parent.remove(name);
@@ -424,23 +442,23 @@ public class InMemoryFileSystem implements FileSystem {
             return new DirectoryNode();
         }
     }
-    
+
     @Override
     public DirectoryNode getParentDirectory(String path) throws FSException {
         String parentPath = getParentPath(path);
-        
+
         if (parentPath.isEmpty()) {
             return cwd;
         }
-        
+
         FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
         if (!parentNode.isDirectory()) {
-            throw new NotADirectoryException("Parent is not a directory: " + parentPath);
+            throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
         }
-        
+
         return (DirectoryNode) parentNode;
     }
-    
+
     @Override
     public List<FileSystemNode> listNodes(DirectoryNode directory) {
         List<FileSystemNode> nodes = new ArrayList<>();
