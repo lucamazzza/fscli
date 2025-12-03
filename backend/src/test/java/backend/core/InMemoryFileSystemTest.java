@@ -37,6 +37,21 @@ class InMemoryFileSystemTest {
         assertNotNull(cwd);
         assertEquals(fs.getRoot(), cwd);
     }
+    
+    @Test
+    void testConstructorWithRoot() throws FSException {
+        DirectoryNode customRoot = new DirectoryNode();
+        customRoot.setParent(customRoot);
+        DirectoryNode subdir = new DirectoryNode();
+        customRoot.add("existing", subdir);
+        
+        InMemoryFileSystem fsWithRoot = new InMemoryFileSystem(customRoot);
+        
+        assertNotNull(fsWithRoot.getRoot());
+        assertEquals("/", fsWithRoot.pwd());
+        List<String> files = fsWithRoot.ls(".", false);
+        assertTrue(files.contains("existing/"));
+    }
 
     @Test
     void testMkdir() throws FSException {

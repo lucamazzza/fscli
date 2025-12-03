@@ -65,7 +65,7 @@ public class DirectoryNode extends FileSystemNode {
         return true;
     }
     @Override
-    public boolean isSymlink() {
+    public boolean isLink() {
         return false;
     }
     @Override

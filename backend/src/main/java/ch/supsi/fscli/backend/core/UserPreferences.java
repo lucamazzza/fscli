@@ -38,7 +38,7 @@ public class UserPreferences {
     }
 
     private String validateFont(String input, String defaultFont) {
-        if (!BackendGlobalVariables.SYSTEM_FONTS.contains(input)) {
+        if (!BackendGlobalVariables.getSystemFonts().contains(input)) {
             return defaultFont;
         }
         return input;

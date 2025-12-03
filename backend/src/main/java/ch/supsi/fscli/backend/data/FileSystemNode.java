@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = FileNode.class, name = "file"),
         @JsonSubTypes.Type(value = DirectoryNode.class, name = "directory"),
-        @JsonSubTypes.Type(value = SymlinkNode.class, name = "symlink")
+        @JsonSubTypes.Type(value = LinkNode.class, name = "link")
 })
 public abstract class FileSystemNode {
     private static final AtomicInteger ID_GEN = new AtomicInteger(1);
@@ -79,8 +79,8 @@ public abstract class FileSystemNode {
 
     @JsonProperty(value = "isDirectory", access = JsonProperty.Access.READ_ONLY)
     public abstract boolean isDirectory();
-    @JsonProperty(value = "isSymlink", access = JsonProperty.Access.READ_ONLY)
-    public abstract boolean isSymlink();
+    @JsonProperty(value = "isLink", access = JsonProperty.Access.READ_ONLY)
+    public abstract boolean isLink();
     @JsonProperty(value = "typeName", access = JsonProperty.Access.READ_ONLY)
     public abstract String typeName();
 

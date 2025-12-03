@@ -29,7 +29,7 @@ public class FilesystemDeserializerTest {
         assertNotNull(node);
         assertInstanceOf(FileNode.class, node);
         assertFalse(node.isDirectory());
-        assertFalse(node.isSymlink());
+        assertFalse(node.isLink());
         assertEquals("file", node.typeName());
         assertEquals(1, node.getLinkCount());
     }
@@ -54,7 +54,7 @@ public class FilesystemDeserializerTest {
         assertNotNull(node);
         assertInstanceOf(DirectoryNode.class, node);
         assertTrue(node.isDirectory());
-        assertFalse(node.isSymlink());
+        assertFalse(node.isLink());
         assertEquals("directory", node.typeName());
     }
 

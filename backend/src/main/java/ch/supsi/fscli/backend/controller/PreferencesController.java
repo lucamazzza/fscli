@@ -19,31 +19,25 @@ public class PreferencesController {
         return service.getCurrentPrefs();
     }
 
-
     public void updatePreferences(Consumer<UserPreferences> modifier) {
         service.updatePreference(modifier);
     }
-
 
     public void setLanguage(String language) {
         updatePreferences(p -> p.setLanguage(language));
     }
 
-
     public void setCmdColumns(int columns) {
         updatePreferences(p -> p.setCmdColumns(columns));
     }
-
 
     public void setOutputLines(int lines) {
         updatePreferences(p -> p.setOutputLines(lines));
     }
 
-
     public void setLogLines(int lines) {
         updatePreferences(p -> p.setLogLines(lines));
     }
-
 
     public void setCmdFont(String font) {
         updatePreferences(p -> p.setCmdFont(font));
@@ -57,11 +51,9 @@ public class PreferencesController {
         updatePreferences(p -> p.setLogFont(font));
     }
 
-
     public void reloadPreferences() {
         service.reload();
     }
-
 
     public void updateOptionalPreference(String key, Optional<String> value) {
         value.ifPresent(v -> {

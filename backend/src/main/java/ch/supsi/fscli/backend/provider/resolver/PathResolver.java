@@ -4,7 +4,7 @@ import ch.supsi.fscli.backend.core.exception.InvalidPathException;
 import ch.supsi.fscli.backend.core.exception.NotFoundException;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
-import ch.supsi.fscli.backend.data.SymlinkNode;
+import ch.supsi.fscli.backend.data.LinkNode;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -58,8 +58,8 @@ public class PathResolver {
             DirectoryNode dir = (DirectoryNode) cur;
             FileSystemNode next = dir.get(comp);
             if (next == null) throw new NotFoundException("no such file or directory: " + comp);
-            if (next.isSymlink() && (followSym || i < parts.length - 1)) {
-                SymlinkNode sl = (SymlinkNode) next;
+            if (next.isLink() && (followSym || i < parts.length - 1)) {
+                LinkNode sl = (LinkNode) next;
                 String target = sl.getTarget();
                 String suffix = (i + 1 < parts.length) ? ("/" + String.join("/", Arrays.copyOfRange(parts, i + 1, parts.length))) : "";
                 String resolvedTarget;

@@ -12,6 +12,10 @@ public class BackendGlobalVariables {
     //used to get all fonts from the system
     public static final List<String> SYSTEM_FONTS = List.copyOf(Font.getFamilies());
 
+    public static List<String> getSystemFonts() {
+        return SYSTEM_FONTS;
+    }
+
     //limits
     public static final int MIN_COLUMNS = 10;
     public static final int MAX_COLUMNS = 100;

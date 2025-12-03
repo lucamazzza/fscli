@@ -2,35 +2,46 @@ package ch.supsi.fscli.backend.controller;
 
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.InMemoryFileSystem;
+import ch.supsi.fscli.backend.data.DirectoryNode;
+import ch.supsi.fscli.backend.data.FileSystemNode;
+import ch.supsi.fscli.backend.service.FileSystemPersistenceService;
 import ch.supsi.fscli.backend.service.FileSystemService;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Controller responsible for filesystem persistence operations.
  * Handles filesystem lifecycle management (creation, loading, saving).
  * 
- * <p>This controller wraps {@link FileSystemService} and provides:</p>
+ * <p>This controller wraps {@link FileSystemService} and {@link FileSystemPersistenceService}:</p>
  * <ul>
  *   <li>Filesystem creation</li>
  *   <li>Filesystem state management</li>
  *   <li>Current directory tracking</li>
- *   <li>Filesystem instance access for serialization</li>
+ *   <li>Save/load operations through proper layer delegation</li>
  * </ul>
  * 
- * <p>Used primarily by frontend controllers for save/load operations.</p>
+ * <p>Architecture: Frontend → Controller → Service → FileManager → Serializer</p>
  * 
  * @see FileSystemService
- * @see ch.supsi.fscli.backend.data.serde.FilesystemFileManager
+ * @see FileSystemPersistenceService
  */
 public class FileSystemPersistenceController {
     /** The service layer that manages filesystem state */
     private final FileSystemService service;
+    
+    /** The service layer that handles persistence operations */
+    private final FileSystemPersistenceService persistenceService;
 
     /**
-     * Constructs a new FileSystemPersistenceController.
-     * Initializes the underlying service layer.
+     * Constructs a new FileSystemPersistenceService.
+     * Initializes the underlying service layers.
      */
     public FileSystemPersistenceController() {
         this.service = new FileSystemService();
+        this.persistenceService = new FileSystemPersistenceService();
     }
 
     /**
@@ -65,7 +76,7 @@ public class FileSystemPersistenceController {
      * 
      * @param fs The filesystem instance to use
      */
-    public void setFileSystem(InMemoryFileSystem fs) {
+    public void setFileSystem(FileSystem fs) {
         service.setFileSystem(fs);
     }
 
@@ -77,5 +88,43 @@ public class FileSystemPersistenceController {
      */
     public FileSystem getFileSystem() {
         return service.getFileSystem();
+    }
+    
+    /**
+     * Saves the current filesystem to the specified path.
+     * Delegates to the persistence service layer.
+     * 
+     * @param path The file path where to save the filesystem
+     * @throws IOException If an I/O error occurs during save
+     * @throws IllegalStateException If no filesystem is loaded
+     */
+    public void saveFileSystem(Path path) throws IOException {
+        FileSystem fs = service.getFileSystem();
+        if (fs == null) {
+            throw new IllegalStateException("No filesystem loaded");
+        }
+        DirectoryNode root = fs.getRoot();
+        persistenceService.save(root, path);
+    }
+    
+    /**
+     * Loads a filesystem from the specified path.
+     * Delegates to the persistence service layer and updates the filesystem state.
+     * 
+     * @param path The file path from where to load the filesystem
+     * @return true if filesystem was loaded successfully, false otherwise
+     */
+    public boolean loadFileSystem(Path path) {
+        Optional<FileSystemNode> rootOpt = persistenceService.load(path);
+        
+        if (rootOpt.isEmpty() || !(rootOpt.get() instanceof DirectoryNode)) {
+            return false;
+        }
+        
+        DirectoryNode root = (DirectoryNode) rootOpt.get();
+        InMemoryFileSystem loadedFS = new InMemoryFileSystem(root);
+        service.setFileSystem(loadedFS);
+        
+        return true;
     }
 }
