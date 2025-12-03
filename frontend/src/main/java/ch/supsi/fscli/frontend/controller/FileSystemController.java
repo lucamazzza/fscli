@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.model.FileSystem;
 import ch.supsi.fscli.frontend.view.CommandLineView;
@@ -19,7 +20,6 @@ public class FileSystemController implements FileSystemEventHandler {
 
     private static FileSystemController instance;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public static FileSystemController getInstance() {
         if (instance == null) {
@@ -39,16 +39,16 @@ public class FileSystemController implements FileSystemEventHandler {
 
         CommandLineView commandLine = CommandLineView.getInstance();
         commandLine.clearOutput();
-        commandLine.appendOutput(MESSAGES.getString("filesystem.newCreated") + "\n");
-        commandLine.appendOutput(MESSAGES.getString("filesystem.currentDir") + model.getCurrentDirectory() + "\n\n");
+        commandLine.appendOutput(FrontendMessageProvider.get("filesystem.newCreated") + "\n");
+        commandLine.appendOutput(FrontendMessageProvider.get("filesystem.currentDir") + model.getCurrentDirectory() + "\n\n");
 
-        FxLogger.getInstance().log(MESSAGES.getString("filesystem.newCreatedLog"));
+        FxLogger.getInstance().log(FrontendMessageProvider.get("filesystem.newCreatedLog"));
     }
 
     @Override
     public void save() {
         if (currentFile == null) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.noFileSelectedSave"));
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.noFileSelectedSave"));
             return;
         }
 
@@ -58,7 +58,7 @@ public class FileSystemController implements FileSystemEventHandler {
     @Override
     public void saveAs(File file) {
         if (file == null) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.noFileSelected"));
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.noFileSelected"));
             return;
         }
 
@@ -69,12 +69,12 @@ public class FileSystemController implements FileSystemEventHandler {
     @Override
     public void load(File file) {
         if (file == null) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.noFileSelected"));
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.noFileSelected"));
             return;
         }
 
         if (!file.exists()) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.fileNotExist") + ": " + file.getAbsolutePath());
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.fileNotExist") + ": " + file.getAbsolutePath());
             return;
         }
 
@@ -82,7 +82,7 @@ public class FileSystemController implements FileSystemEventHandler {
             boolean success = model.loadFileSystem(file);
 
             if (!success) {
-                FxLogger.getInstance().log(MESSAGES.getString("error.loadFailed"));
+                FxLogger.getInstance().log(FrontendMessageProvider.get("error.loadFailed"));
                 return;
             }
 
@@ -90,19 +90,19 @@ public class FileSystemController implements FileSystemEventHandler {
 
             CommandLineView commandLine = CommandLineView.getInstance();
             commandLine.clearOutput();
-            commandLine.appendOutput(MESSAGES.getString("filesystem.loadedFrom") + ": " + file.getName() + "\n");
-            commandLine.appendOutput(MESSAGES.getString("filesystem.currentDir") + model.getCurrentDirectory() + "\n\n");
+            commandLine.appendOutput(FrontendMessageProvider.get("filesystem.loadedFrom") + ": " + file.getName() + "\n");
+            commandLine.appendOutput(FrontendMessageProvider.get("filesystem.currentDir") + model.getCurrentDirectory() + "\n\n");
 
-            FxLogger.getInstance().log(MESSAGES.getString("filesystem.loadedLog") + ": " + file.getAbsolutePath());
+            FxLogger.getInstance().log(FrontendMessageProvider.get("filesystem.loadedLog") + ": " + file.getAbsolutePath());
 
         } catch (Exception e) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.loadException") + ": " + e.getMessage());
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.loadException") + ": " + e.getMessage());
         }
     }
 
     private void saveToFile(File file) {
         if (!model.isFileSystemReady()) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.noFilesystemToSave"));
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.noFilesystemToSave"));
             return;
         }
 
@@ -110,12 +110,12 @@ public class FileSystemController implements FileSystemEventHandler {
             model.saveFileSystem(file);
 
             this.currentFile = file;
-            FxLogger.getInstance().log(MESSAGES.getString("filesystem.savedTo") + ": " + file.getAbsolutePath());
+            FxLogger.getInstance().log(FrontendMessageProvider.get("filesystem.savedTo") + ": " + file.getAbsolutePath());
 
         } catch (IOException e) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.saveFailed") + ": " + e.getMessage());
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.saveFailed") + ": " + e.getMessage());
         } catch (IllegalStateException e) {
-            FxLogger.getInstance().log(MESSAGES.getString("error.saveIllegalState") + ": " + e.getMessage());
+            FxLogger.getInstance().log(FrontendMessageProvider.get("error.saveIllegalState") + ": " + e.getMessage());
         }
     }
 }

@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.view;
 
-import javafx.scene.control.TextArea;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import javafx.scene.control.TextArea;
 import lombok.Getter;
 
 import java.util.ResourceBundle;
@@ -14,7 +14,6 @@ public class LogAreaView implements View {
 
     private static LogAreaView instance;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public static LogAreaView getInstance() {
         if (instance == null) {
@@ -29,7 +28,7 @@ public class LogAreaView implements View {
 
     private void logAreaInit() {
         this.logView.setId("logView");
-        this.logView.appendText(MESSAGES.getString("logArea.sampleText") + "\n");
+        this.logView.appendText(FrontendMessageProvider.get("logArea.sampleText") + "\n");
 
         this.logView.setPrefRowCount(PREF_LOG_VIEW_ROW_COUNT);
         this.logView.setEditable(false);

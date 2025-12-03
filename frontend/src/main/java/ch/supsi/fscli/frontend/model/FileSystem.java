@@ -3,7 +3,7 @@ package ch.supsi.fscli.frontend.model;
 import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
-import ch.supsi.fscli.frontend.event.EventError;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.event.EventError;
 import ch.supsi.fscli.frontend.event.EventNotifier;
 import ch.supsi.fscli.frontend.event.FileEvent;
 import lombok.Getter;
@@ -30,7 +30,6 @@ public class FileSystem {
 
     private static FileSystem instance;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public static FileSystem getInstance() {
         if (instance == null) {
@@ -52,7 +51,7 @@ public class FileSystem {
         this.isFilePresent = true;
         if (eventManager != null) {
             eventManager.notify(new FileEvent(EventError.SUCCESS,
-                    MESSAGES.getString("filesystem.created"), true));
+                    FrontendMessageProvider.get("filesystem.created"), true));
         }
     }
 
@@ -63,7 +62,7 @@ public class FileSystem {
         this.isFilePresent = true;
         if (eventManager != null) {
             eventManager.notify(new FileEvent(EventError.SUCCESS,
-                    MESSAGES.getString("filesystem.loaded"), true));
+                    FrontendMessageProvider.get("filesystem.loaded"), true));
         }
         return success;
     }
@@ -76,9 +75,9 @@ public class FileSystem {
         if (!isFileSystemReady()) {
             if (eventManager != null) {
                 eventManager.notify(new FileEvent(EventError.ERROR,
-                        MESSAGES.getString("filesystem.notLoaded"), false));
+                        FrontendMessageProvider.get("filesystem.notLoaded"), false));
             }
-            return CommandResponseDTO.error(MESSAGES.getString("filesystem.notLoaded"));
+            return CommandResponseDTO.error(FrontendMessageProvider.get("filesystem.notLoaded"));
         }
         return backendController.executeCommand(commandString);
     }

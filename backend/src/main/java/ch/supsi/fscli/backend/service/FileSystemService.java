@@ -3,6 +3,7 @@ package ch.supsi.fscli.backend.service;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.command.*;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.controller.CommandResponse;
 
@@ -14,7 +15,7 @@ import java.util.ResourceBundle;
  * Service layer for filesystem command execution.
  */
 public class FileSystemService {
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages");
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages_backend");
 
     private CommandExecutor executor;
     private final List<CommandHistoryEntry> history = new ArrayList<>();
@@ -67,7 +68,7 @@ public class FileSystemService {
 
     private CommandResponse executeInternal(String commandString) {
         if (commandString == null || commandString.trim().isEmpty()) {
-            return new CommandResponse(false, null, MESSAGES.getString("commandEmpty"));
+            return new CommandResponse(false, null, BackendMessageProvider.get("commandEmpty"));
         }
         CommandResult result = executor.execute(commandString);
         return new CommandResponse(
@@ -83,11 +84,11 @@ public class FileSystemService {
 
     public String getCommandHelp(String commandName) {
         Command command = executor.getCommand(commandName);
-        if (command == null) return commandName + ": " + MESSAGES.getString("unknownCommand");
+        if (command == null) return commandName + ": " + BackendMessageProvider.get("unknownCommand");
         String descKey = commandName + ".description";
         String usageKey = commandName + ".usage";
-        String desc = MESSAGES.containsKey(descKey) ? MESSAGES.getString(descKey) : "";
-        String usage = MESSAGES.containsKey(usageKey) ? MESSAGES.getString(usageKey) : "";
+        String desc = MESSAGES.containsKey(descKey) ? BackendMessageProvider.get(descKey) : "";
+        String usage = MESSAGES.containsKey(usageKey) ? BackendMessageProvider.get(usageKey) : "";
         return String.format("%s\nUsage: %s", desc, usage);
     }
 
@@ -150,6 +151,6 @@ public class FileSystemService {
     }
 
     public String getMessage(String key) {
-        return MESSAGES.containsKey(key) ? MESSAGES.getString(key) : key;
+        return MESSAGES.containsKey(key) ? BackendMessageProvider.get(key) : key;
     }
 }

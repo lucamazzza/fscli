@@ -3,17 +3,16 @@ package ch.supsi.fscli.backend.data.serde;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.util.BackendGlobalVariables;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 public class PreferencesFileManager {
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     private final Path prefPath;
     private final Serializer<UserPreferences> serializer = new Serializer<>();
@@ -55,7 +54,7 @@ public class PreferencesFileManager {
 
             return Optional.of(prefs);
         } catch (IOException e) {
-            PreferencesLogger.logError(MESSAGES.getString("error.prefsLoadFailed"), e);
+            PreferencesLogger.logError(BackendMessageProvider.get("error.prefsLoadFailed"), e);
             return Optional.empty();
         }
     }

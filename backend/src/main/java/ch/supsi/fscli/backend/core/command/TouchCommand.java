@@ -4,24 +4,25 @@ import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.util.Locale;
 import java.util.ResourceBundle;
 
 public class TouchCommand extends AbstractCommand {
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public TouchCommand() {
         super("touch",
-                MESSAGES.getString("touch.description"),
-                MESSAGES.getString("touch.usage"));
+                BackendMessageProvider.get("touch.description"),
+                BackendMessageProvider.get("touch.usage"));
     }
 
     @Override
     public CommandResult execute(FileSystem fs, CommandSyntax syntax) throws FSException {
         if (syntax.getArgumentCount() == 0) {
-            return CommandResult.error(MESSAGES.getString("touch.error.missingOperand"));
+            return CommandResult.error(BackendMessageProvider.get("touch.error.missingOperand"));
         }
 
         for (String path : syntax.getArguments()) {

@@ -3,6 +3,7 @@ package ch.supsi.fscli.backend.core.command;
 import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
 
 import java.util.Locale;
@@ -10,12 +11,11 @@ import java.util.ResourceBundle;
 
 public class CpCommand extends AbstractCommand {
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public CpCommand() {
         super("cp",
-                MESSAGES.getString("cp.description"),
-                MESSAGES.getString("cp.usage"));
+                BackendMessageProvider.get("cp.description"),
+                BackendMessageProvider.get("cp.usage"));
     }
 
     @Override
@@ -27,10 +27,10 @@ public class CpCommand extends AbstractCommand {
             argStart = 1;
         }
         if (syntax.getArgumentCount() - argStart < 2) {
-            return CommandResult.error(MESSAGES.getString("cp.error.missingOperand"));
+            return CommandResult.error(BackendMessageProvider.get("cp.error.missingOperand"));
         }
         if (syntax.getArgumentCount() - argStart > 2) {
-            return CommandResult.error(MESSAGES.getString("cp.error.tooManyArguments"));
+            return CommandResult.error(BackendMessageProvider.get("cp.error.tooManyArguments"));
         }
         String src = syntax.getArgument(argStart);
         String dest = syntax.getArgument(argStart + 1);

@@ -6,6 +6,8 @@ import ch.supsi.fscli.backend.core.exception.*;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +19,6 @@ public class InMemoryFileSystem implements FileSystem {
     private DirectoryNode cwd;
     private final PathResolver pathResolver;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
 
     public InMemoryFileSystem() {
@@ -37,11 +38,11 @@ public class InMemoryFileSystem implements FileSystem {
     @Override
     public void mkdir(String path) throws FSException {
         if (path == null || path.isEmpty()) {
-            throw new InvalidPathException(MESSAGES.getString("emptyPath"));
+            throw new InvalidPathException(BackendMessageProvider.get("emptyPath"));
         }
         try {
             pathResolver.resolve(cwd, path, false);
-            throw new AlreadyExistsException(MESSAGES.getString("alreadyExists") + ": " + path);
+            throw new AlreadyExistsException(BackendMessageProvider.get("alreadyExists") + ": " + path);
         } catch (NotFoundException ignored) {
             // it does not exist, we can create it
         }
@@ -56,11 +57,11 @@ public class InMemoryFileSystem implements FileSystem {
             try {
                 FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
                 if (!parentNode.isDirectory()) {
-                    throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
+                    throw new NotADirectoryException(BackendMessageProvider.get("parentNotDir") + ": " + parentPath);
                 }
                 parent = (DirectoryNode) parentNode;
             } catch (NotFoundException e) {
-                throw new NotFoundException(MESSAGES.getString("parentNotFound") + ": " + parentPath);
+                throw new NotFoundException(BackendMessageProvider.get("parentNotFound") + ": " + parentPath);
             }
         }
 
@@ -73,19 +74,19 @@ public class InMemoryFileSystem implements FileSystem {
         FileSystemNode node = pathResolver.resolve(cwd, path, false);
 
         if (!node.isDirectory()) {
-            throw new NotADirectoryException(MESSAGES.getString("notDirectory") + ": " + path);
+            throw new NotADirectoryException(BackendMessageProvider.get("notDirectory") + ": " + path);
         }
 
         DirectoryNode dir = (DirectoryNode) node;
 
         if (!dir.isEmpty()) {
-            throw new FSException(MESSAGES.getString("notEmpty") + ": " + path);
+            throw new FSException(BackendMessageProvider.get("notEmpty") + ": " + path);
         }
 
         DirectoryNode parent = dir.getParent();
 
         if (parent == null || parent == dir) {
-            throw new FSException(MESSAGES.getString("cannotRemoveRoot"));
+            throw new FSException(BackendMessageProvider.get("cannotRemoveRoot"));
         }
 
         String name = findNameInParent(parent, dir);
@@ -109,7 +110,7 @@ public class InMemoryFileSystem implements FileSystem {
             } else {
                 FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
                 if (!parentNode.isDirectory()) {
-                    throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
+                    throw new NotADirectoryException(BackendMessageProvider.get("parentNotDir") + ": " + parentPath);
                 }
                 parent = (DirectoryNode) parentNode;
             }
@@ -124,12 +125,12 @@ public class InMemoryFileSystem implements FileSystem {
         FileSystemNode node = pathResolver.resolve(cwd, path, false);
 
         if (node.isDirectory()) {
-            throw new FSException(MESSAGES.getString("rmNotDir") + ": " + path);
+            throw new FSException(BackendMessageProvider.get("rmNotDir") + ": " + path);
         }
 
         DirectoryNode parent = node.getParent();
         if (parent == null) {
-            throw new FSException(MESSAGES.getString("cannotRemoveRoot"));
+            throw new FSException(BackendMessageProvider.get("cannotRemoveRoot"));
         }
 
         String name = findNameInParent(parent, node);
@@ -144,7 +145,7 @@ public class InMemoryFileSystem implements FileSystem {
 
         try {
             pathResolver.resolve(cwd, dest, false);
-            throw new AlreadyExistsException(MESSAGES.getString("destExists") + ": " + dest);
+            throw new AlreadyExistsException(BackendMessageProvider.get("destExists") + ": " + dest);
         } catch (NotFoundException ignored) {
             // Destination does not exist, proceed
         }
@@ -158,14 +159,14 @@ public class InMemoryFileSystem implements FileSystem {
         } else {
             FileSystemNode destParentNode = pathResolver.resolve(cwd, destParentPath, true);
             if (!destParentNode.isDirectory()) {
-                throw new NotADirectoryException(MESSAGES.getString("destParentNotDir") + ": " + destParentPath);
+                throw new NotADirectoryException(BackendMessageProvider.get("destParentNotDir") + ": " + destParentPath);
             }
             destParent = (DirectoryNode) destParentNode;
         }
 
         DirectoryNode srcParent = srcNode.getParent();
         if (srcParent == null) {
-            throw new FSException(MESSAGES.getString("cannotMoveRoot"));
+            throw new FSException(BackendMessageProvider.get("cannotMoveRoot"));
         }
 
         String srcName = findNameInParent(srcParent, srcNode);
@@ -180,7 +181,7 @@ public class InMemoryFileSystem implements FileSystem {
     public void ln(String target, String link, boolean sym) throws FSException {
         try {
             pathResolver.resolve(cwd, link, false);
-            throw new AlreadyExistsException(MESSAGES.getString("linkExists") + ": " + link);
+            throw new AlreadyExistsException(BackendMessageProvider.get("linkExists") + ": " + link);
         } catch (NotFoundException ignored) {
             // Good - link doesn't exist
         }
@@ -194,7 +195,7 @@ public class InMemoryFileSystem implements FileSystem {
         } else {
             FileSystemNode linkParentNode = pathResolver.resolve(cwd, linkParentPath, true);
             if (!linkParentNode.isDirectory()) {
-                throw new NotADirectoryException(MESSAGES.getString("linkParentNotDir") + ": " + linkParentPath);
+                throw new NotADirectoryException(BackendMessageProvider.get("linkParentNotDir") + ": " + linkParentPath);
             }
             linkParent = (DirectoryNode) linkParentNode;
         }
@@ -205,7 +206,7 @@ public class InMemoryFileSystem implements FileSystem {
         } else {
             FileSystemNode targetNode = pathResolver.resolve(cwd, target, true);
             if (targetNode.isDirectory()) {
-                throw new InvalidPathException(MESSAGES.getString("hardLinkTargetDir") + ": " + target);
+                throw new InvalidPathException(BackendMessageProvider.get("hardLinkTargetDir") + ": " + target);
             }
             linkParent.add(linkName, targetNode);
             targetNode.incrementLinkCount();
@@ -254,7 +255,7 @@ public class InMemoryFileSystem implements FileSystem {
     public void cd(String path) throws FSException {
         FileSystemNode node = pathResolver.resolve(cwd, path, true);
         if (!node.isDirectory()) {
-            throw new NotADirectoryException(MESSAGES.getString("notDirectory") + ": " + path);
+            throw new NotADirectoryException(BackendMessageProvider.get("notDirectory") + ": " + path);
         }
         cwd = (DirectoryNode) node;
     }
@@ -269,7 +270,7 @@ public class InMemoryFileSystem implements FileSystem {
         FileSystemNode srcNode = pathResolver.resolve(cwd, src, true);
         try {
             pathResolver.resolve(cwd, dest, false);
-            throw new AlreadyExistsException(MESSAGES.getString("alreadyExists") + ": " + dest);
+            throw new AlreadyExistsException(BackendMessageProvider.get("alreadyExists") + ": " + dest);
         } catch (NotFoundException ignored) {
             // Good - destination doesn't exist
         }
@@ -283,7 +284,7 @@ public class InMemoryFileSystem implements FileSystem {
         } else {
             FileSystemNode destParentNode = pathResolver.resolve(cwd, destParentPath, true);
             if (!destParentNode.isDirectory()) {
-                throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + destParentPath);
+                throw new NotADirectoryException(BackendMessageProvider.get("parentNotDir") + ": " + destParentPath);
             }
             destParent = (DirectoryNode) destParentNode;
         }
@@ -376,11 +377,11 @@ public class InMemoryFileSystem implements FileSystem {
     @Override
     public void createNode(String path, FileSystemNode node) throws FSException {
         if (path == null || path.isEmpty()) {
-            throw new InvalidPathException(MESSAGES.getString("emptyPath"));
+            throw new InvalidPathException(BackendMessageProvider.get("emptyPath"));
         }
         try {
             pathResolver.resolve(cwd, path, false);
-            throw new AlreadyExistsException(MESSAGES.getString("alreadyExists") + ": " + path);
+            throw new AlreadyExistsException(BackendMessageProvider.get("alreadyExists") + ": " + path);
         } catch (NotFoundException ignored) {
             // Good - doesn't exist yet
         }
@@ -394,7 +395,7 @@ public class InMemoryFileSystem implements FileSystem {
         } else {
             FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
             if (!parentNode.isDirectory()) {
-                throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
+                throw new NotADirectoryException(BackendMessageProvider.get("parentNotDir") + ": " + parentPath);
             }
             parent = (DirectoryNode) parentNode;
         }
@@ -408,7 +409,7 @@ public class InMemoryFileSystem implements FileSystem {
         DirectoryNode parent = node.getParent();
 
         if (parent == null || parent == node) {
-            throw new FSException(MESSAGES.getString("cannotRemoveRoot"));
+            throw new FSException(BackendMessageProvider.get("cannotRemoveRoot"));
         }
 
         String name = findNameInParent(parent, node);
@@ -453,7 +454,7 @@ public class InMemoryFileSystem implements FileSystem {
 
         FileSystemNode parentNode = pathResolver.resolve(cwd, parentPath, true);
         if (!parentNode.isDirectory()) {
-            throw new NotADirectoryException(MESSAGES.getString("parentNotDir") + ": " + parentPath);
+            throw new NotADirectoryException(BackendMessageProvider.get("parentNotDir") + ": " + parentPath);
         }
 
         return (DirectoryNode) parentNode;

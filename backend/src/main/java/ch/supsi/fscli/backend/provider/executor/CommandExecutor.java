@@ -7,15 +7,14 @@ import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.core.exception.InvalidCommandException;
 import ch.supsi.fscli.backend.provider.parser.CommandParser;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 public class CommandExecutor {
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
 
     private final Map<String, Command> commands;
@@ -39,19 +38,19 @@ public class CommandExecutor {
             Command command = commands.get(parsedCommand.getCommandName());
             if (command == null) {
                 return CommandResult.error(
-                        MESSAGES.getString("unknownCommand") + ": " + parsedCommand.getCommandName());
+                        BackendMessageProvider.get("unknownCommand") + ": " + parsedCommand.getCommandName());
             }
 
             return command.execute(fileSystem, parsedCommand);
 
         } catch (InvalidCommandException e) {
             return CommandResult.error(
-                    MESSAGES.getString("invalidCommand") + ": " + e.getMessage());
+                    BackendMessageProvider.get("invalidCommand") + ": " + e.getMessage());
         } catch (FSException e) {
             return CommandResult.error(e.getMessage());
         } catch (Exception e) {
             return CommandResult.error(
-                    MESSAGES.getString("executionError") + ": " + e.getMessage());
+                    BackendMessageProvider.get("executionError") + ": " + e.getMessage());
         }
     }
 

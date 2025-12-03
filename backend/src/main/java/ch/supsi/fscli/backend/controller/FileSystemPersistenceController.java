@@ -6,14 +6,12 @@ import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.service.FileSystemPersistenceService;
 import ch.supsi.fscli.backend.service.FileSystemService;
-import ch.supsi.fscli.backend.i18n.MessageProvider;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Locale;
 import java.util.Optional;
-import java.util.ResourceBundle;
 
 /**
  * Controller responsible for filesystem persistence operations.
@@ -38,8 +36,6 @@ public class FileSystemPersistenceController {
     
     /** The service layer that handles persistence operations */
     private final FileSystemPersistenceService persistenceService;
-
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     /**
      * Constructs a new FileSystemPersistenceService.
@@ -107,7 +103,7 @@ public class FileSystemPersistenceController {
     public void saveFileSystem(Path path) throws IOException {
         FileSystem fs = service.getFileSystem();
         if (fs == null) {
-            throw new IllegalStateException(MESSAGES.getString("error.noFilesystemLoaded"));
+            throw new IllegalStateException(BackendMessageProvider.get("error.noFilesystemLoaded"));
         }
         DirectoryNode root = fs.getRoot();
         persistenceService.save(root, path);

@@ -4,6 +4,8 @@ import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.util.List;
 import java.util.Locale;
@@ -11,12 +13,11 @@ import java.util.ResourceBundle;
 
 public class LsCommand extends AbstractCommand {
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public LsCommand() {
         super("ls",
-                MESSAGES.getString("ls.description"),
-                MESSAGES.getString("ls.usage"));
+                BackendMessageProvider.get("ls.description"),
+                BackendMessageProvider.get("ls.usage"));
     }
 
     @Override
@@ -30,7 +31,7 @@ public class LsCommand extends AbstractCommand {
             } else if (!arg.startsWith("-")) {
                 path = arg;
             } else {
-                return CommandResult.error(MESSAGES.getString("ls.error.invalidOption") + ": " + arg);
+                return CommandResult.error(BackendMessageProvider.get("ls.error.invalidOption") + ": " + arg);
             }
         }
 

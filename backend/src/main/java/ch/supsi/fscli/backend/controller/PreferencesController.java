@@ -3,6 +3,8 @@ package ch.supsi.fscli.backend.controller;
 import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.service.PreferencesService;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.util.Locale;
 import java.util.Optional;
@@ -13,7 +15,6 @@ public class PreferencesController {
 
     private final PreferencesService service;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
 
     public PreferencesController() {
@@ -30,6 +31,12 @@ public class PreferencesController {
 
     public void setLanguage(String language) {
         updatePreferences(p -> p.setLanguage(language));
+
+        switch (language.toLowerCase()) {
+            case "en" -> BackendMessageProvider.setLocale(Locale.ENGLISH);
+            case "it" -> BackendMessageProvider.setLocale(Locale.ITALIAN);
+            default -> BackendMessageProvider.setLocale(Locale.getDefault());
+        }
     }
 
     public void setCmdColumns(int columns) {
@@ -71,7 +78,7 @@ public class PreferencesController {
                 case "outputFont" -> setOutputFont(v);
                 case "logFont" -> setLogFont(v);
                 default -> PreferencesLogger.logError(
-                        MESSAGES.getString("error.invalidPreferenceKey") + ": " + key,
+                        BackendMessageProvider.get("error.invalidPreferenceKey") + ": " + key,
                         null
                 );
             }

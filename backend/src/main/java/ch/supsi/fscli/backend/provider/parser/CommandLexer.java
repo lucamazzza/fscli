@@ -1,19 +1,17 @@
 package ch.supsi.fscli.backend.provider.parser;
 
 import ch.supsi.fscli.backend.core.exception.InvalidCommandException;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.List;;
 
 public class CommandLexer {
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public List<String> tokenize(String input) throws InvalidCommandException {
         if (input == null || input.trim().isEmpty()) {
-            throw new InvalidCommandException(MESSAGES.getString("commandEmpty"));
+            throw new InvalidCommandException(BackendMessageProvider.get("commandEmpty"));
         }
         List<String> tokens = new ArrayList<>();
         StringBuilder current = new StringBuilder();
@@ -49,16 +47,16 @@ public class CommandLexer {
             current.append(c);
         }
         if (inSingleQuote || inDoubleQuote) {
-            throw new InvalidCommandException(MESSAGES.getString("unclosedQuote"));
+            throw new InvalidCommandException(BackendMessageProvider.get("unclosedQuote"));
         }
         if (escaped) {
-            throw new InvalidCommandException(MESSAGES.getString("trailingEscape"));
+            throw new InvalidCommandException(BackendMessageProvider.get("trailingEscape"));
         }
         if (!current.isEmpty()) {
             tokens.add(current.toString());
         }
         if (tokens.isEmpty()) {
-            throw new InvalidCommandException(MESSAGES.getString("commandEmpty"));
+            throw new InvalidCommandException(BackendMessageProvider.get("commandEmpty"));
         }
         return tokens;
     }

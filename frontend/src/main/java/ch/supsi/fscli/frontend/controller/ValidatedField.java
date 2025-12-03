@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.controller;
 
-import javafx.beans.property.BooleanProperty;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
@@ -17,7 +17,6 @@ public class ValidatedField {
     private final BooleanProperty invalid;
 
     // ResourceBundle for localized messages
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public ValidatedField(int initialValue, int min, int max) {
         this.field = new TextField(String.valueOf(initialValue));
@@ -47,7 +46,7 @@ public class ValidatedField {
                 if (!field.getStyleClass().contains("text-field-error"))
                     field.getStyleClass().add("text-field-error");
 
-                String msg = MESSAGES.getString("validatedField.outOfRange")
+                String msg = FrontendMessageProvider.get("validatedField.outOfRange")
                         .replace("{min}", String.valueOf(min))
                         .replace("{max}", String.valueOf(max));
 

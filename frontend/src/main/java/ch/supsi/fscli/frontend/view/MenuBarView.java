@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.frontend.controller.AboutController;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.controller.AboutController;
 import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.event.EventError;
 import ch.supsi.fscli.frontend.event.FileEvent;
@@ -19,8 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
-import java.util.ResourceBundle;
-import java.util.Locale;
 
 @Getter
 public class MenuBarView implements View, Listener<FileEvent> {
@@ -37,8 +35,6 @@ public class MenuBarView implements View, Listener<FileEvent> {
 
     private static MenuBarView instance;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
-
     public static MenuBarView getInstance() {
         if (instance == null) {
             instance = new MenuBarView();
@@ -46,20 +42,30 @@ public class MenuBarView implements View, Listener<FileEvent> {
         return instance;
     }
 
+    // Costruttore: solo crea componenti, senza testi
     private MenuBarView() {
-        this.fileMenu = new Menu(MESSAGES.getString("menu.file"));
-        this.editMenu = new Menu(MESSAGES.getString("menu.edit"));
-        this.helpMenu = new Menu(MESSAGES.getString("menu.help"));
+        this.fileMenu = new Menu();
+        this.editMenu = new Menu();
+        this.helpMenu = new Menu();
         this.menuBar = new MenuBar();
-        this.saveMenuItem = new MenuItem(MESSAGES.getString("menu.save"));
-        this.saveAsMenuItem = new MenuItem(MESSAGES.getString("menu.saveAs"));
+        this.saveMenuItem = new MenuItem();
+        this.saveAsMenuItem = new MenuItem();
+    }
+
+    /** Assegna tutti i testi dal FrontendMessageProvider */
+    private void loadTexts() {
+        fileMenu.setText(FrontendMessageProvider.get("menu.file"));
+        editMenu.setText(FrontendMessageProvider.get("menu.edit"));
+        helpMenu.setText(FrontendMessageProvider.get("menu.help"));
+        saveMenuItem.setText(FrontendMessageProvider.get("menu.save"));
+        saveAsMenuItem.setText(FrontendMessageProvider.get("menu.saveAs"));
     }
 
     private void fileMenuInit() {
-        MenuItem newMenuItem = new MenuItem(MESSAGES.getString("menu.new"));
+        MenuItem newMenuItem = new MenuItem(FrontendMessageProvider.get("menu.new"));
         newMenuItem.setId("newMenuItem");
 
-        MenuItem openMenuItem = new MenuItem(MESSAGES.getString("menu.open"));
+        MenuItem openMenuItem = new MenuItem(FrontendMessageProvider.get("menu.open"));
         openMenuItem.setId("openMenuItem");
 
         this.saveMenuItem.setId("saveMenuItem");
@@ -68,7 +74,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.saveAsMenuItem.setId("saveAsMenuItem");
         this.saveAsMenuItem.setDisable(true);
 
-        MenuItem exitMenuItem = new MenuItem(MESSAGES.getString("menu.exit"));
+        MenuItem exitMenuItem = new MenuItem(FrontendMessageProvider.get("menu.exit"));
         exitMenuItem.setId("exitMenuItem");
 
         this.fileMenu.setId("fileMenu");
@@ -83,7 +89,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
         newMenuItem.setOnAction(e -> controller.newFileSystem());
         openMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle(MESSAGES.getString("fileChooser.open"));
+            fileChooser.setTitle(FrontendMessageProvider.get("fileChooser.open"));
             fileChooser.setInitialFileName("fscli_filesystem");
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
@@ -93,7 +99,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
         saveMenuItem.setOnAction(e -> controller.save());
         saveAsMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle(MESSAGES.getString("fileChooser.saveAs"));
+            fileChooser.setTitle(FrontendMessageProvider.get("fileChooser.saveAs"));
             fileChooser.setInitialFileName("fscli_filesystem");
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
@@ -104,7 +110,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
     }
 
     private void editMenuInit() {
-        MenuItem preferencesMenuItem = new MenuItem(MESSAGES.getString("menu.preferences"));
+        MenuItem preferencesMenuItem = new MenuItem(FrontendMessageProvider.get("menu.preferences"));
         preferencesMenuItem.setId("preferencesMenuItem");
 
         this.editMenu.setId("editMenu");
@@ -117,10 +123,10 @@ public class MenuBarView implements View, Listener<FileEvent> {
     }
 
     private void helpMenuInit() {
-        MenuItem helpMenuItem = new MenuItem(MESSAGES.getString("menu.helpItem"));
+        MenuItem helpMenuItem = new MenuItem(FrontendMessageProvider.get("menu.helpItem"));
         helpMenuItem.setId("helpMenuItem");
 
-        MenuItem aboutMenuItem = new MenuItem(MESSAGES.getString("menu.about"));
+        MenuItem aboutMenuItem = new MenuItem(FrontendMessageProvider.get("menu.about"));
         aboutMenuItem.setId("aboutMenuItem");
 
         this.helpMenu.setId("helpMenu");
@@ -141,7 +147,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
         String developers = controller.getDevelopers();
 
         Stage aboutStage = new Stage();
-        aboutStage.setTitle(MESSAGES.getString("about.title"));
+        aboutStage.setTitle(FrontendMessageProvider.get("about.title"));
 
         aboutStage.initModality(Modality.APPLICATION_MODAL);
         aboutStage.initOwner(ownerStage);
@@ -153,11 +159,11 @@ public class MenuBarView implements View, Listener<FileEvent> {
         Label titleLabel = new Label(applicationName);
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        Label buildDateLabel = new Label(MESSAGES.getString("about.buildDate") + ": " + buildDate);
-        Label versionLabel = new Label(MESSAGES.getString("about.version") + ": " + version);
-        Label developersLabel = new Label(MESSAGES.getString("about.developers") + ": " + developers);
+        Label buildDateLabel = new Label(FrontendMessageProvider.get("about.buildDate") + ": " + buildDate);
+        Label versionLabel = new Label(FrontendMessageProvider.get("about.version") + ": " + version);
+        Label developersLabel = new Label(FrontendMessageProvider.get("about.developers") + ": " + developers);
 
-        Button closeButton = new Button(MESSAGES.getString("about.close"));
+        Button closeButton = new Button(FrontendMessageProvider.get("about.close"));
         closeButton.setOnAction(e -> aboutStage.close());
 
         contentBox.getChildren().addAll(titleLabel, buildDateLabel, versionLabel, developersLabel, closeButton);
@@ -174,6 +180,7 @@ public class MenuBarView implements View, Listener<FileEvent> {
 
     @Override
     public void init() {
+        loadTexts();    // assegna testi corretti prima di inizializzare i menu
         fileMenuInit();
         editMenuInit();
         helpMenuInit();

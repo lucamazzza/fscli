@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.model;
 
-import lombok.Getter;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import lombok.Getter;
 
 import java.io.InputStream;
 import java.util.Properties;
@@ -16,7 +16,6 @@ public class Application {
 
     private static Application instance;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public static Application getInstance() {
         if (instance == null) {
@@ -29,10 +28,10 @@ public class Application {
         Properties properties = new Properties();
         String resourceName = "application.properties";
 
-        this.name = MESSAGES.getString("application.name");
-        this.buildDate = MESSAGES.getString("application.buildDate");
-        this.version = MESSAGES.getString("application.version");
-        this.developers = MESSAGES.getString("application.developers");
+        this.name = FrontendMessageProvider.get("application.name");
+        this.buildDate = FrontendMessageProvider.get("application.buildDate");
+        this.version = FrontendMessageProvider.get("application.version");
+        this.developers = FrontendMessageProvider.get("application.developers");
 
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
             if (is != null) {
@@ -43,7 +42,7 @@ public class Application {
                 this.developers = properties.getProperty("app.developers", this.developers);
             }
         } catch (Exception e) {
-            System.err.println(MESSAGES.getString("application.errorLoading") + ": " + e);
+            System.err.println(FrontendMessageProvider.get("application.errorLoading") + ": " + e);
         }
     }
 }

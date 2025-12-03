@@ -5,6 +5,7 @@ import ch.supsi.fscli.backend.core.exception.NotFoundException;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.LinkNode;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -13,7 +14,6 @@ import java.util.ResourceBundle;
 
 public class PathResolver {
     private static final String SEP = "/";
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     private static PathResolver self;
     public static PathResolver getInstance() {
@@ -30,9 +30,9 @@ public class PathResolver {
     }
 
     private FileSystemNode resolve(DirectoryNode cwd, String path, boolean followSym, int depth) throws NotFoundException, InvalidPathException {
-        if (depth > 32) throw new InvalidPathException(MESSAGES.getString("tooManySymlinkLevels"));
-        if (path == null || path.isEmpty()) throw new NotFoundException(MESSAGES.getString("EmptyPath"));
-        if (cwd == null) throw new InvalidPathException(MESSAGES.getString("cwdNull"));
+        if (depth > 32) throw new InvalidPathException(BackendMessageProvider.get("tooManySymlinkLevels"));
+        if (path == null || path.isEmpty()) throw new NotFoundException(BackendMessageProvider.get("EmptyPath"));
+        if (cwd == null) throw new InvalidPathException(BackendMessageProvider.get("cwdNull"));
 
         DirectoryNode base;
         String rel;
@@ -61,11 +61,11 @@ public class PathResolver {
                 }
                 continue;
             }
-            if (cur == null) throw new NotFoundException(MESSAGES.getString("notDirectory") + ": " + comp);
+            if (cur == null) throw new NotFoundException(BackendMessageProvider.get("notDirectory") + ": " + comp);
 
             DirectoryNode dir = (DirectoryNode) cur;
             FileSystemNode next = dir.get(comp);
-            if (next == null) throw new NotFoundException(MESSAGES.getString("noSuchFileOrDir") + ": " + comp);
+            if (next == null) throw new NotFoundException(BackendMessageProvider.get("noSuchFileOrDir") + ": " + comp);
 
             if (next.isLink() && (followSym || i < parts.length - 1)) {
                 LinkNode sl = (LinkNode) next;

@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.frontend.controller.ValidatedField;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.controller.ValidatedField;
 import ch.supsi.fscli.frontend.util.FieldValidator;
 import ch.supsi.fscli.frontend.util.FrontendGlobalVariables;
 import javafx.beans.property.BooleanProperty;
@@ -30,7 +30,6 @@ public class PreferencesView {
     public Button cancelBtn;
     public Button reloadBtn;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
     public PreferencesView(Map<String, String> prefs) {
         initUI(prefs);
@@ -38,7 +37,7 @@ public class PreferencesView {
 
     private void initUI(Map<String, String> prefs) {
         stage = new Stage();
-        stage.setTitle(MESSAGES.getString("preferences.title"));
+        stage.setTitle(FrontendMessageProvider.get("preferences.title"));
 
         grid = new GridPane();
         grid.setPadding(new Insets(15));
@@ -77,18 +76,18 @@ public class PreferencesView {
                 FrontendGlobalVariables.MAX_LINES
         );
 
-        saveBtn = new Button(MESSAGES.getString("preferences.save"));
-        cancelBtn = new Button(MESSAGES.getString("preferences.cancel"));
-        reloadBtn = new Button(MESSAGES.getString("preferences.reload"));
+        saveBtn = new Button(FrontendMessageProvider.get("preferences.save"));
+        cancelBtn = new Button(FrontendMessageProvider.get("preferences.cancel"));
+        reloadBtn = new Button(FrontendMessageProvider.get("preferences.reload"));
 
         int row = 0;
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.language")), languageBox);
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.cmdColumns")), cmdColumnsField.container());
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.cmdFont")), cmdFontBox);
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.outputLines")), outputLinesField.container());
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.outputFont")), outputFontBox);
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.logLines")), logLinesField.container());
-        grid.addRow(row++, new Label(MESSAGES.getString("preferences.logFont")), logFontBox);
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.language")), languageBox);
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.cmdColumns")), cmdColumnsField.container());
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.cmdFont")), cmdFontBox);
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.outputLines")), outputLinesField.container());
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.outputFont")), outputFontBox);
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.logLines")), logLinesField.container());
+        grid.addRow(row++, new Label(FrontendMessageProvider.get("preferences.logFont")), logFontBox);
         grid.addRow(row++, saveBtn, reloadBtn, cancelBtn);
 
         Scene scene = new Scene(grid);

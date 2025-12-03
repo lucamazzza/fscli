@@ -1,8 +1,7 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
-import ch.supsi.fscli.frontend.model.FileSystem;
-import javafx.geometry.Insets;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.model.FileSystem;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -12,9 +11,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import lombok.Getter;
-
-import java.util.ResourceBundle;
-import java.util.Locale;
 
 @Getter
 public class CommandLineView implements View {
@@ -28,8 +24,6 @@ public class CommandLineView implements View {
 
     private static CommandLineView instance;
 
-    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
-
     public static CommandLineView getInstance() {
         if (instance == null) {
             instance = new CommandLineView();
@@ -37,11 +31,22 @@ public class CommandLineView implements View {
         return instance;
     }
 
+    // Costruttore: solo crea componenti, senza testi
     private CommandLineView() {
-        this.enter = new Button(MESSAGES.getString("commandLine.enter"));
-        this.commandLineLabel = new Label(MESSAGES.getString("commandLine.label"));
+        this.enter = new Button();
+        this.commandLineLabel = new Label();
         this.commandLine = new TextField();
         this.outputView = new TextArea();
+    }
+
+    /** Carica tutti i testi dal FrontendMessageProvider */
+    private void loadTexts() {
+        enter.setText(FrontendMessageProvider.get("commandLine.enter"));
+        commandLineLabel.setText(FrontendMessageProvider.get("commandLine.label"));
+        outputView.clear();
+        outputView.appendText(FrontendMessageProvider.get("cli.welcome") + "\n");
+        outputView.appendText(FrontendMessageProvider.get("cli.help") + "\n");
+        outputView.appendText(FrontendMessageProvider.get("cli.createFileSystem") + "\n\n");
     }
 
     private void enterButtonInit() {
@@ -60,10 +65,6 @@ public class CommandLineView implements View {
 
     private void logAreaInit() {
         this.outputView.setId("outputView");
-        this.outputView.appendText(MESSAGES.getString("cli.welcome") + "\n");
-        this.outputView.appendText(MESSAGES.getString("cli.help") + "\n");
-        this.outputView.appendText(MESSAGES.getString("cli.createFileSystem") + "\n\n");
-
         this.outputView.setPrefRowCount(PREF_OUTPUT_VIEW_ROW_COUNT);
         this.outputView.setEditable(false);
         this.outputView.setWrapText(true);
@@ -77,14 +78,17 @@ public class CommandLineView implements View {
             return;
         }
         if (command == null || command.trim().isEmpty()) return;
+
         FileSystem fileSystem = FileSystem.getInstance();
         String currentDir = fileSystem.getCurrentDirectory();
         outputView.appendText(currentDir + " $ " + command + "\n");
+
         if (fileSystem.isFileSystemReady() && command.trim().equals("help")) {
             for (String s : fileSystem.getAllCommandsHelp()) outputView.appendText(s + "\n");
             commandLine.clear();
             return;
         }
+
         CommandResponseDTO response = fileSystem.executeCommand(command);
         if (response.isSuccess()) {
             if (response.getOutput() != null && !response.getOutput().isEmpty()) {
@@ -95,9 +99,10 @@ public class CommandLineView implements View {
         } else {
             String errorMessage = response.getErrorMessage();
             if (errorMessage != null && !errorMessage.isEmpty()) {
-                outputView.appendText(MESSAGES.getString("cli.error") + ": " + errorMessage + "\n");
+                outputView.appendText(FrontendMessageProvider.get("cli.error") + ": " + errorMessage + "\n");
             }
         }
+
         outputView.appendText("\n");
         commandLine.clear();
         outputView.setScrollTop(Double.MAX_VALUE);
@@ -114,6 +119,7 @@ public class CommandLineView implements View {
 
     @Override
     public void init() {
+        loadTexts();       // carica i testi dalla lingua corrente
         enterButtonInit();
         commandLineInit();
         logAreaInit();
