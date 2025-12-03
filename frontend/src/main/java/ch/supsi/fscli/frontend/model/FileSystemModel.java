@@ -4,12 +4,15 @@ import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.backend.core.FileSystem;
+import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
 import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.EventPublisher;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
-import lombok.Getter;
+import ch.supsi.fscli.frontend.util.AppError;
 import lombok.Setter;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -18,15 +21,16 @@ import java.util.List;
  * Flow: View → Frontend Controller → Frontend Model → Backend Controller → Service
  */
 public final class FileSystemModel {
-    @Getter
     private FileSystemController backendController;
-    @Getter @Setter
+    @Setter
     private FileSystemPersistenceController backendPersistenceController;
 
     @Setter
     private EventPublisher<FileSystemEvent> fileSystemEventManager;
     @Setter
     private EventPublisher<CommandLineEvent> commandLineEventManager;
+
+    private File file;
 
     private static FileSystemModel instance;
 
@@ -37,35 +41,59 @@ public final class FileSystemModel {
         return instance;
     }
 
-    private FileSystemModel() {}
+    private FileSystemModel() {
+        file = null;
+    }
 
-    public void createFileSystem() {
+    public void save() {
+        if (!isPersistedFileValid()) {
+            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_FAILED_FILE_NOT_FOUND));
+            return;
+        }
+        FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
+        try {
+            fileManager.save(backendPersistenceController.getFileSystem().getRoot());
+        } catch (IOException e) {
+            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_FAILED_GENERIC));
+        }
+        fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_SUCCESS));
+    }
+
+    public void saveAs(File file) {
+
+    }
+
+    public void createFileSystem(boolean force) {
         if (fileSystemEventManager == null) return;
         if (backendPersistenceController == null) return;
+        if (file == null && isFileSystemReady() && !force) {
+            fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_FAILED_UNSAVED_WORK));
+            return;
+        }
         backendPersistenceController.createNewFileSystem();
         FileSystem fileSystem = backendPersistenceController.getFileSystem();
         if (fileSystem == null) {
-            fileSystemEventManager.notify(new FileSystemEvent(false));
+            fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_FAILED_BS_MISSING));
             return;
         }
         this.backendController = new FileSystemController(fileSystem);
-        fileSystemEventManager.notify(new FileSystemEvent(true));
+        fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_SUCCESS));
     }
 
     public void executeCommand(String command) {
         if (fileSystemEventManager == null) return;
         if (!isFileSystemReady()) {
             // Make this event better for logging in the future
-            commandLineEventManager.notify(new CommandLineEvent(false, null, null, null));
+            commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_FAILED_FS_MISSING, null, null, null));
             return;
         }
         String currentDir = getCurrentDirectory();
         CommandResponseDTO response = backendController.executeCommand(command);
         if (response == null) {
-            commandLineEventManager.notify(new CommandLineEvent(false, null, null, null));
+            commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_FAILED_BAD_RESPONSE, null, null, null));
             return;
         }
-        commandLineEventManager.notify(new CommandLineEvent(true, currentDir, response.getOutputAsString(), response.getErrorMessage()));
+        commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_SUCCESS, currentDir, response.getOutputAsString(), response.getErrorMessage()));
     }
 
     private String getCurrentDirectory() {
@@ -74,6 +102,10 @@ public final class FileSystemModel {
 
     private boolean isFileSystemReady() {
         return backendController != null && backendPersistenceController.isFileSystemLoaded();
+    }
+
+    private boolean isPersistedFileValid() {
+        return file != null && file.exists();
     }
 
     public String[] getAvailableCommands() {

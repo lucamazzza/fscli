@@ -4,6 +4,7 @@ import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
 import ch.supsi.fscli.frontend.listener.Listener;
+import ch.supsi.fscli.frontend.util.AppError;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -46,7 +47,8 @@ public class CommandLineView implements View {
         this.outputView = new TextArea();
         this.commandLineListener = event -> {
             if (event == null) return;
-            if (!event.successful()) return;
+            if (event.error() == null) return;
+            if (event.error() == AppError.CMD_EXECUTION_FAILED_FS_MISSING || event.error() == AppError.CMD_EXECUTION_FAILED_BAD_RESPONSE) return;
             String output = event.currentDir() + "$ " + lastCommandExecuted;
             if (event.output() != null && !event.output().isBlank()) {
                 output += "\n" + event.output();
@@ -57,7 +59,6 @@ public class CommandLineView implements View {
             outputView.appendText(output + "\n");
         };
         this.fileSystemListener = event -> {
-
         };
     }
 

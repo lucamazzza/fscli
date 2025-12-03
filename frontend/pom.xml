@@ -102,6 +102,9 @@
                 <version>0.0.8</version>
                 <configuration>
                     <mainClass>ch.supsi.fscli.frontend.Main</mainClass>
+                    <options>
+                        <option>--enable-native-access=ALL-UNNAMED</option>
+                    </options>
                 </configuration>
             </plugin>
             <plugin>

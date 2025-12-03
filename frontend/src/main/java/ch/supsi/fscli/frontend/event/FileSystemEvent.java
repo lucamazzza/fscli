@@ -1,3 +1,10 @@
 package ch.supsi.fscli.frontend.event;
 
-public record FileSystemEvent(boolean successful) implements Event {}
+import ch.supsi.fscli.frontend.util.AppError;
+
+public record FileSystemEvent(AppError error) implements Event {
+    @Override
+    public String toString() {
+        return error().getDefaultMessage();
+    }
+}

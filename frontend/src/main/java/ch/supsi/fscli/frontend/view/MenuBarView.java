@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
+import java.util.Optional;
 
 @Getter
 public class MenuBarView implements View {
@@ -28,6 +29,7 @@ public class MenuBarView implements View {
 
     private final MenuItem saveMenuItem;
     private final MenuItem saveAsMenuItem;
+    private final MenuItem newMenuItem;
 
     @Setter
     private FileSystemEventHandler fileSystemEventHandler;
@@ -51,21 +53,39 @@ public class MenuBarView implements View {
         this.menuBar = new MenuBar();
         this.saveMenuItem = new MenuItem("Save");
         this.saveAsMenuItem = new MenuItem("Save as...");
+        this.newMenuItem = new MenuItem("New");
         fileSystemListener = event -> {
             if (event == null) return;
-            if (event.successful()) {
-                saveMenuItem.setDisable(false);
-                saveAsMenuItem.setDisable(false);
-                return;
+            if (event.error() == null) return;
+            switch (event.error()) {
+                case NEW_SUCCESS, LOAD_SUCCESS -> {
+                    saveMenuItem.setDisable(false);
+                    saveAsMenuItem.setDisable(false);
+                }
+                case NEW_FAILED_UNSAVED_WORK -> {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    Stage owner = (Stage) newMenuItem.getParentPopup().getOwnerWindow();
+                    alert.initOwner(owner);
+                    alert.initModality(Modality.NONE);
+                    alert.setTitle("Unsaved Work");
+                    alert.setHeaderText("Unsaved Changes Detected");
+                    alert.setContentText("You have unsaved changes. Do you want to discard them and create a new file?");
+                    alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == ButtonType.YES) {
+                        fileSystemEventHandler.newFileSystem(true);
+                    }
+                }
+                case SAVE_FAILED_FILE_NOT_FOUND -> {
+                    savePrompt();
+                }
             }
-            saveMenuItem.setDisable(true);
-            saveAsMenuItem.setDisable(true);
         };
     }
 
     private void fileMenuInit() {
-        MenuItem newMenuItem = new MenuItem("New");
-        newMenuItem.setId("newMenuItem");
+        this.newMenuItem.setId("newMenuItem");
 
         MenuItem openMenuItem = new MenuItem("Open...");
         openMenuItem.setId("openMenuItem");
@@ -89,28 +109,28 @@ public class MenuBarView implements View {
         this.fileMenu.getItems().add(exitMenuItem);
 
         // MODIFY BEHAVIOUR HERE
-        newMenuItem.setOnAction(e -> fileSystemEventHandler.newFileSystem());
+        newMenuItem.setOnAction(e -> fileSystemEventHandler.newFileSystem(false));
         openMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Open a filesystem...");
-            fileChooser.setInitialFileName("fscli_filesystem");
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
             File file = fileChooser.showOpenDialog(null);
             fileSystemEventHandler.load(file);
         });
         saveMenuItem.setOnAction(e -> fileSystemEventHandler.save());
-        saveAsMenuItem.setOnAction(e -> {
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open a filesystem...");
-            fileChooser.setInitialFileName("fscli_filesystem");
-            fileChooser.getExtensionFilters().addAll(
-                    new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-            File file = fileChooser.showSaveDialog(null);
-            fileSystemEventHandler.load(file);
-            fileSystemEventHandler.saveAs(file);
-        });
+        saveAsMenuItem.setOnAction(e -> savePrompt());
         exitMenuItem.setOnAction(e -> Platform.exit());
+    }
+
+    private void savePrompt() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save filesystem...");
+        fileChooser.setInitialFileName("fscli_filesystem");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+        File file = fileChooser.showSaveDialog(null);
+        fileSystemEventHandler.saveAs(file);
     }
 
     private void editMenuInit() {

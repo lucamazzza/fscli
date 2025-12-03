@@ -32,26 +32,24 @@ public class FileSystemController implements FileSystemEventHandler, CommandLine
     }
 
     @Override
-    public void newFileSystem() {
-        this.fileSystemModel.createFileSystem();
+    public void newFileSystem(boolean force) {
+        this.fileSystemModel.createFileSystem(force);
     }
 
     @Override
     public void save() {
+        fileSystemModel.save();
     }
 
     @Override
     public void saveAs(File file) {
-        if (file == null) {
-            FxLogger.getInstance().log("Error: No file selected");
-            return;
-        }
-        
-        saveToFile(file);
+        if (file == null) return;
+        fileSystemModel.saveAs(file);
     }
 
     @Override
     public void load(File file) {
+        /*
         if (file == null) {
             FxLogger.getInstance().log("Error: No file selected");
             return;
@@ -96,9 +94,11 @@ public class FileSystemController implements FileSystemEventHandler, CommandLine
         } catch (Exception e) {
             FxLogger.getInstance().log("Error loading filesystem: " + e.getMessage());
         }
+         */
     }
     
     private void saveToFile(File file) {
+        /*
         try {
             ch.supsi.fscli.backend.core.FileSystem backendFS = fileSystemModel.getBackendPersistenceController().getFileSystem();
             DirectoryNode root = backendFS.getRoot();
@@ -111,6 +111,7 @@ public class FileSystemController implements FileSystemEventHandler, CommandLine
         } catch (IOException e) {
             FxLogger.getInstance().log("Error saving filesystem: " + e.getMessage());
         }
+         */
     }
 
     @Override
