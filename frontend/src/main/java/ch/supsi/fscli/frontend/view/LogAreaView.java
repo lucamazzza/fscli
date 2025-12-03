@@ -45,16 +45,16 @@ public class LogAreaView implements View {
 
     private void logError(AppError error) {
         switch (error) {
-            case NEW_SUCCESS, NEW_FAILED_BS_MISSING, SAVE_SUCCESS ,SAVE_FAILED_GENERIC -> log(error.getDefaultMessage());
+            case NEW_SUCCESS, NEW_FAILED_BS_MISSING, SAVE_SUCCESS ,SAVE_FAILED_GENERIC -> log(error);
             case NEW_FAILED_UNSAVED_WORK -> {
                 return;
             }
         }
     }
 
-    private void log(String message) {
+    private void log(AppError error) {
         String time = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
-        String formatted = "[" + time + "] " + message;
+        String formatted = "[" + error.getErrorCode() + "][" + time + "] " + error.getDefaultMessage();
         Platform.runLater(() -> logView.appendText(formatted + "\n"));
     }
 

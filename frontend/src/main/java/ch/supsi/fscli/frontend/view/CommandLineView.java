@@ -59,6 +59,11 @@ public class CommandLineView implements View {
             outputView.appendText(output + "\n");
         };
         this.fileSystemListener = event -> {
+            if (event == null) return;
+            if (event.error() == null) return;
+            if (event.error() == AppError.NEW_SUCCESS || event.error() == AppError.LOAD_SUCCESS) {
+                outputView.clear();
+            }
         };
     }
 
