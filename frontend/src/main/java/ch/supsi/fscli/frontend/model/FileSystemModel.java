@@ -73,6 +73,7 @@ public final class FileSystemModel {
             DirectoryNode root = backendFS.getRoot();
             FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
             fileManager.save(root);
+            this.file = file;
             fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_AS_SUCCESS));
         } catch (IOException e) {
             fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_AS_FAILED_INVALID_PATH));
@@ -100,7 +101,7 @@ public final class FileSystemModel {
             // to properly reconstruct the filesystem from the serialized root node.
             // For now, we'll set it and let the backend handle the structure
             backendPersistenceController.setFileSystem(loadedFS);
-
+            this.file = file;
             fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_SUCCESS));
 
         } catch (Exception e) {
@@ -122,6 +123,7 @@ public final class FileSystemModel {
             return;
         }
         this.backendController = new FileSystemController(fileSystem);
+        this.file = null;
         fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_SUCCESS));
     }
 
