@@ -4,9 +4,7 @@ import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.backend.core.FileSystem;
-import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import ch.supsi.fscli.backend.data.DirectoryNode;
-import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
 import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.EventPublisher;
@@ -17,7 +15,6 @@ import lombok.Setter;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Frontend model for FileSystem.
@@ -47,6 +44,7 @@ public final class FileSystemModel {
 
     private FileSystemModel() {
         file = null;
+        backendController = null;
     }
 
     public void save() {
@@ -83,30 +81,14 @@ public final class FileSystemModel {
     public void load(File file) {
         if (file == null) return;
         if (!file.exists()) return;
-        try {
-            FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
-            Optional<FileSystemNode> rootOpt = fileManager.load();
-            if (rootOpt.isEmpty()) {
-                fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_FAILED_READ));
-                return;
-            }
-            FileSystemNode rootNode = rootOpt.get();
-
-            if (!(rootNode instanceof DirectoryNode)) {
-                fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_FAILED_READ));
-                return;
-            }
-            InMemoryFileSystem loadedFS = new InMemoryFileSystem();
-            // Note: This is a simplified load. A complete implementation would need
-            // to properly reconstruct the filesystem from the serialized root node.
-            // For now, we'll set it and let the backend handle the structure
-            backendPersistenceController.setFileSystem(loadedFS);
+        if (backendPersistenceController.loadFileSystem(file.toPath())) {
+            FileSystem fsBackend = backendPersistenceController.getFileSystem();
+            this.backendController = new FileSystemController(fsBackend);
             this.file = file;
             fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_SUCCESS));
-
-        } catch (Exception e) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_FAILED_READ));
+            return;
         }
+        fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_FAILED_READ));
     }
 
     public void createFileSystem(boolean force) {
