@@ -1,7 +1,9 @@
 package ch.supsi.fscli.frontend.controller;
 
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.model.PreferencesModel;
 import ch.supsi.fscli.frontend.view.PreferencesView;
+import javafx.scene.control.Alert;
 
 import java.util.Map;
 
@@ -10,6 +12,7 @@ public class PreferencesController {
     private final ch.supsi.fscli.backend.controller.PreferencesController backendController;
     private final PreferencesModel model;
     private final PreferencesView view;
+    private Map<String, String> originalPrefs;
 
     public PreferencesController() {
         this.backendController = new ch.supsi.fscli.backend.controller.PreferencesController();
@@ -20,7 +23,8 @@ public class PreferencesController {
     }
 
     private void initializeView() {
-        Map<String, String> prefs = model.load();
+        originalPrefs = model.load();
+        Map<String, String> prefs = originalPrefs;
 
         view.setLanguage(prefs.get("language"));
         view.setCmdColumns(prefs.get("cmdColumns"));
@@ -44,7 +48,7 @@ public class PreferencesController {
     }
 
     private void savePreferences() {
-        model.edit(Map.of(
+        Map<String, String> newPrefs = Map.of(
                 "language", view.getLanguage(),
                 "cmdColumns", view.getCmdColumns(),
                 "outputLines", view.getOutputLines(),
@@ -52,9 +56,24 @@ public class PreferencesController {
                 "cmdFont", view.getCmdFont(),
                 "outputFont", view.getOutputFont(),
                 "logFont", view.getLogFont()
-        ));
+        );
+
+        if (!newPrefs.equals(originalPrefs)) {
+            model.edit(newPrefs);
+            showRestartAlert();
+        }
+
         view.close();
     }
+
+    private void showRestartAlert() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(FrontendMessageProvider.get("alert.information"));
+        alert.setHeaderText(null);
+        alert.setContentText(FrontendMessageProvider.get("alert.applyPreferences"));
+        alert.showAndWait();
+    }
+
 
     private void reloadPreferences() {
         model.reload();
