@@ -1,35 +1,29 @@
 package ch.supsi.fscli.backend.util;
 
 import java.util.function.BiConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class PreferencesLogger {
-    private static final Logger LOGGER = Logger.getLogger("Preferences");
+    private static BiConsumer<String, String> externalListener;
 
-    private static BiConsumer<Level, String> externalListener;
-
-    public static void setExternalListener(BiConsumer<Level, String> listener) {
+    public static void setExternalListener(BiConsumer<String, String> listener) {
         externalListener = listener;
     }
 
-    public static void logInfo(String msg) {
-        LOGGER.log(Level.INFO, msg);
-        notifyExternal(Level.INFO, msg);
-    }
-
-    public static void logError(String msg, Exception e) {
-        LOGGER.log(Level.SEVERE, msg, e);
-        if (e != null) {
-            notifyExternal(Level.SEVERE, msg + " (" + e.getMessage() + ")");
-        } else {
-            notifyExternal(Level.SEVERE, msg);
+    public static void logInfo(String message) {
+        System.out.println("[INFO] " + message);
+        if (externalListener != null) {
+            externalListener.accept("INFO", message);
         }
     }
 
-    private static void notifyExternal(Level level, String msg) {
+    public static void logError(String message, Exception e) {
+        System.err.println("[ERROR] " + message);
+        if (e != null) {
+            e.printStackTrace();
+        }
         if (externalListener != null) {
-            externalListener.accept(level, msg);
+            String fullMessage = message + (e != null ? ": " + e.getMessage() : "");
+            externalListener.accept("ERROR", fullMessage);
         }
     }
 }

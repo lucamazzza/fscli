@@ -5,26 +5,29 @@ import ch.supsi.fscli.backend.service.PreferencesService;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
-
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class PreferencesController {
-
     private final PreferencesService service;
+    private static PreferencesController instance;
 
+    public static PreferencesController getInstance() {
+        if (instance == null) {
+            instance = new PreferencesController();
+        }
+        return instance;
+    }
 
-
-    public PreferencesController() {
+    private PreferencesController() {
         this.service = new PreferencesService();
     }
 
     public UserPreferences getPreferences() {
         return service.getCurrentPrefs();
     }
-
     public void updatePreferences(Consumer<UserPreferences> modifier) {
         service.updatePreference(modifier);
     }

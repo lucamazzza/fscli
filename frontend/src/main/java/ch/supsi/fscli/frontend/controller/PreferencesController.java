@@ -8,14 +8,14 @@ import javafx.scene.control.Alert;
 import java.util.Map;
 
 public class PreferencesController {
-
     private final ch.supsi.fscli.backend.controller.PreferencesController backendController;
     private final PreferencesModel model;
     private final PreferencesView view;
     private Map<String, String> originalPrefs;
 
     public PreferencesController() {
-        this.backendController = new ch.supsi.fscli.backend.controller.PreferencesController();
+        // ✅ Usa il singleton invece di creare nuove istanze
+        this.backendController = ch.supsi.fscli.backend.controller.PreferencesController.getInstance();
         this.model = new PreferencesModel(backendController);
         this.view = new PreferencesView(model.load());
         initializeView();

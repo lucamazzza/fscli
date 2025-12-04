@@ -31,16 +31,24 @@ public class MainFx extends Application {
     private final LogAreaView logArea;
 
     public MainFx() {
-        // --- Leggi preferenze lingua ---
-        PreferencesController backendController = new PreferencesController();
-        String lang = backendController.getPreferences().getLanguage();
-        Locale locale = lang.equalsIgnoreCase("en") ? Locale.ENGLISH : Locale.ITALIAN;
-        FrontendMessageProvider.setLocale(locale);
-
         this.applicationTitle = FrontendMessageProvider.get("mainfx.title");
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
         this.logArea = LogAreaView.getInstance();
+
+        this.logArea.init();
+        FxLogger fxLogger = FxLogger.getInstance();
+        fxLogger.setLogArea(this.logArea.getLogView());
+
+        PreferencesLogger.setExternalListener((level, message) -> {
+            fxLogger.log("[" + level + "] " + message);
+        });
+
+        PreferencesController backendController =
+                ch.supsi.fscli.backend.controller.PreferencesController.getInstance();
+        String lang = backendController.getPreferences().getLanguage();
+        Locale locale = lang.equalsIgnoreCase("en") ? Locale.ENGLISH : Locale.ITALIAN;
+        FrontendMessageProvider.setLocale(locale);
 
         // BACKEND STUFF
         FileSystemPersistenceController backendPersistenceController = new FileSystemPersistenceController();
@@ -73,30 +81,20 @@ public class MainFx extends Application {
         // VIEWS INIT
         this.menuBar.setFileSystemEventHandler(fileSystemController);
         this.commandLine.setCommandLineEventHandler(fileSystemController);
+
+        this.menuBar.init();
+        this.commandLine.init();
     }
 
     @Override
     public void start(Stage primaryStage) {
-        this.menuBar.init();
-        this.commandLine.init();
-        this.logArea.init();
+        // --- CARICA PREFERENZE ---
+        PreferencesController backendController =
+                ch.supsi.fscli.backend.controller.PreferencesController.getInstance();
+        UserPreferences prefs = backendController.getPreferences();
 
-        // --- CARICA PREFERENZE SANITIZZATE ---
-        PreferencesController bacendController = new PreferencesController();
-        UserPreferences prefs = bacendController.getPreferences(); // già sanitizzate
-
-        // --- LOGGER FX ---
         FxLogger fxLogger = FxLogger.getInstance();
-        fxLogger.setLogArea(this.logArea.getLogView());
         fxLogger.setLogAreaRowCount(prefs.getLogLines());
-
-        PreferencesLogger.setExternalListener((level, message) -> {
-            fxLogger.log("[" + level + "] " + message);
-        });
-
-        fxLogger.log(FrontendMessageProvider.get("logger.frontendInitialized"));
-        PreferencesLogger.logInfo(FrontendMessageProvider.get("logger.backendBridgeActive"));
-
 
         // --- GUI ---
         this.commandLine.getCommandLine().setPrefColumnCount(prefs.getCmdColumns());
@@ -107,6 +105,7 @@ public class MainFx extends Application {
         commandLinePane.setPadding(new Insets(5));
 
         HBox.setHgrow(this.commandLine.getCommandLine(), Priority.ALWAYS);
+
 
         // vertical pane to hold the menu bar and the command line
         VBox top = new VBox(
