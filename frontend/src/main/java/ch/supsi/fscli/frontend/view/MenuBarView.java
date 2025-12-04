@@ -12,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -128,6 +129,10 @@ public class MenuBarView implements View, Listener<FileEvent> {
         this.helpMenu.getItems().add(aboutMenuItem);
 
         // MODIFY BEHAVIOUR HERE
+        helpMenuItem.setOnAction(e -> {
+            Stage ownerStage = (Stage) helpMenuItem.getParentPopup().getOwnerWindow();
+            showHelpWindow(ownerStage);
+        });
         aboutMenuItem.setOnAction(e -> {
             Stage ownerStage = (Stage) aboutMenuItem.getParentPopup().getOwnerWindow();
             showAboutWindow(ownerStage);
@@ -164,6 +169,53 @@ public class MenuBarView implements View, Listener<FileEvent> {
         contentBox.getChildren().addAll(titleLabel, buildDateLabel, versionLabel, copyrightLabel, closeButton);
 
         Scene aboutScene = new Scene(contentBox, 350, 250);
+        aboutStage.setScene(aboutScene);
+
+        aboutStage.setResizable(false);
+
+        aboutStage.showAndWait();
+    }
+
+    private void showHelpWindow(Stage ownerStage) {
+        AboutController controller = AboutController.getInstance();
+        String title = "Help";
+        String text = """
+            This application allows you to create, open, and manage virtual file systems
+            in a user-friendly way.
+            Features:
+            - Create new file systems
+            - Open existing file systems from JSON files
+            - Save and save as functionality
+            - Customize preferences for command line and output views
+            For more information, visit our documentation or contact support.
+            """;
+
+        Stage aboutStage = new Stage();
+        aboutStage.setTitle("Help");
+
+        aboutStage.initModality(Modality.APPLICATION_MODAL);
+        aboutStage.initOwner(ownerStage); // Set the owner window
+
+        VBox contentBox = new VBox(15); // 15px spacing
+        contentBox.setAlignment(Pos.TOP_LEFT);
+        contentBox.setPadding(new Insets(10));
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        Text helpText = new Text(text); 
+        helpText.setWrappingWidth(450); // Wrap text within 310px
+        ScrollPane scrollPane = new ScrollPane(helpText);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefViewportHeight(200);
+
+
+        Button closeButton = new Button("Close");
+        closeButton.setOnAction(e -> aboutStage.close()); // Action to close this stage
+
+        contentBox.getChildren().addAll(titleLabel, scrollPane, closeButton);
+
+        Scene aboutScene = new Scene(contentBox, 450, 350);
         aboutStage.setScene(aboutScene);
 
         aboutStage.setResizable(false);
