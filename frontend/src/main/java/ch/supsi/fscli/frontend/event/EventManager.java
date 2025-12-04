@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend.event;
 
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.listener.Listener;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public final class EventManager<T extends Event> implements EventNotifier<T>, Ev
         try {
             listeners.forEach(listener -> listener.update(event));
         } catch (Exception e) {
-            System.err.println("[ERROR] - Something went wrong when notifying the listeners.");
+            System.err.println(FrontendMessageProvider.get("error.listener"));
             e.printStackTrace();
         }
     }

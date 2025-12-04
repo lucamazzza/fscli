@@ -28,11 +28,6 @@ public class Application {
         Properties properties = new Properties();
         String resourceName = "application.properties";
 
-        this.name = FrontendMessageProvider.get("application.name");
-        this.buildDate = FrontendMessageProvider.get("application.buildDate");
-        this.version = FrontendMessageProvider.get("application.version");
-        this.developers = FrontendMessageProvider.get("application.developers");
-
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
             if (is != null) {
                 properties.load(is);

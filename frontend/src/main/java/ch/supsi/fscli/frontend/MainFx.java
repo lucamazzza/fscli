@@ -21,6 +21,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
+import java.util.Locale;
+
 public class MainFx extends Application {
     private final String applicationTitle;
     // VIEWS
@@ -29,8 +31,13 @@ public class MainFx extends Application {
     private final LogAreaView logArea;
 
     public MainFx() {
-        // VIEWS
-        this.applicationTitle = "filesystem command interpreter simulator";
+        // --- Leggi preferenze lingua ---
+        PreferencesController backendController = new PreferencesController();
+        String lang = backendController.getPreferences().getLanguage();
+        Locale locale = lang.equalsIgnoreCase("en") ? Locale.ENGLISH : Locale.ITALIAN;
+        FrontendMessageProvider.setLocale(locale);
+
+        this.applicationTitle = FrontendMessageProvider.get("mainfx.title");
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
         this.logArea = LogAreaView.getInstance();

@@ -5,9 +5,7 @@ import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
 import ch.supsi.fscli.frontend.listener.Listener;
 import ch.supsi.fscli.frontend.util.AppError;
-import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.model.FileSystem;
-import javafx.geometry.Pos;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -44,8 +42,8 @@ public class CommandLineView implements View {
     }
 
     private CommandLineView() {
-        this.enter = new Button("enter");
-        this.commandLineLabel = new Label("command");
+        this.enter = new Button(FrontendMessageProvider.get("commandLine.enter"));
+        this.commandLineLabel = new Label(FrontendMessageProvider.get("commandLine.label"));
         this.commandLine = new TextField();
         this.outputView = new TextArea();
         this.commandLineListener = event -> {
@@ -96,9 +94,9 @@ public class CommandLineView implements View {
 
     private void logAreaInit() {
         this.outputView.setId("outputView");
-        this.outputView.appendText("Filesystem Command Line Interface\n");
-        this.outputView.appendText("Type 'help' for available commands\n");
-        this.outputView.appendText("Create a new filesystem to begin (File > New)\n\n");
+        this.outputView.appendText(FrontendMessageProvider.get("cli.welcome") + "\n");
+        this.outputView.appendText(FrontendMessageProvider.get("cli.help") + "\n");
+        this.outputView.appendText(FrontendMessageProvider.get("cli.createFileSystem") + "\n");
 
         this.outputView.setPrefRowCount(PREF_OUTPUT_VIEW_ROW_COUNT);
         this.outputView.setEditable(false);
@@ -130,7 +128,6 @@ public class CommandLineView implements View {
 
     @Override
     public void init() {
-        loadTexts();       // carica i testi dalla lingua corrente
         enterButtonInit();
         commandLineInit();
         logAreaInit();

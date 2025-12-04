@@ -47,13 +47,13 @@ public class MenuBarView implements View {
     }
 
     private MenuBarView() {
-        this.fileMenu = new Menu("File");
-        this.editMenu = new Menu("Edit");
-        this.helpMenu = new Menu("Help");
+        this.fileMenu = new Menu(FrontendMessageProvider.get("menu.file"));
+        this.editMenu = new Menu(FrontendMessageProvider.get("menu.edit"));
+        this.helpMenu = new Menu(FrontendMessageProvider.get("menu.help"));
         this.menuBar = new MenuBar();
-        this.saveMenuItem = new MenuItem("Save");
-        this.saveAsMenuItem = new MenuItem("Save as...");
-        this.newMenuItem = new MenuItem("New");
+        this.saveMenuItem = new MenuItem(FrontendMessageProvider.get("menu.save"));
+        this.saveAsMenuItem = new MenuItem(FrontendMessageProvider.get("menu.saveAs"));
+        this.newMenuItem = new MenuItem(FrontendMessageProvider.get("menu.new"));
         fileSystemListener = event -> {
             if (event == null) return;
             if (event.error() == null) return;
@@ -67,9 +67,9 @@ public class MenuBarView implements View {
                     Stage owner = (Stage) newMenuItem.getParentPopup().getOwnerWindow();
                     alert.initOwner(owner);
                     alert.initModality(Modality.NONE);
-                    alert.setTitle("Unsaved Work");
-                    alert.setHeaderText("Unsaved Changes Detected");
-                    alert.setContentText("You have unsaved changes. Do you want to discard them and create a new file?");
+                    alert.setTitle(FrontendMessageProvider.get("fileEvent.UnsavedWork"));
+                    alert.setHeaderText(FrontendMessageProvider.get("fileEvent.UnsavedWork"));
+                    alert.setContentText(FrontendMessageProvider.get("fileEvent.UnsavedWorkMessage"));
                     alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
 
                     Optional<ButtonType> result = alert.showAndWait();
@@ -87,7 +87,7 @@ public class MenuBarView implements View {
     private void fileMenuInit() {
         this.newMenuItem.setId("newMenuItem");
 
-        MenuItem openMenuItem = new MenuItem("Open...");
+        MenuItem openMenuItem = new MenuItem(FrontendMessageProvider.get("menu.open"));
         openMenuItem.setId("openMenuItem");
 
         this.saveMenuItem.setId("saveMenuItem");
@@ -96,7 +96,7 @@ public class MenuBarView implements View {
         this.saveAsMenuItem.setId("saveAsMenuItem");
         this.saveAsMenuItem.setDisable(true);
 
-        MenuItem exitMenuItem = new MenuItem("Exit");
+        MenuItem exitMenuItem = new MenuItem(FrontendMessageProvider.get("menu.exit"));
         exitMenuItem.setId("exitMenuItem");
 
         this.fileMenu.setId("fileMenu");
@@ -112,7 +112,7 @@ public class MenuBarView implements View {
         newMenuItem.setOnAction(e -> fileSystemEventHandler.newFileSystem(false));
         openMenuItem.setOnAction(e -> {
             FileChooser fileChooser = new FileChooser();
-            fileChooser.setTitle("Open a filesystem...");
+            fileChooser.setTitle(FrontendMessageProvider.get("fileChooser.open"));
             fileChooser.getExtensionFilters().addAll(
                     new FileChooser.ExtensionFilter("JSON Files", "*.json"));
             File file = fileChooser.showOpenDialog(null);
@@ -125,7 +125,7 @@ public class MenuBarView implements View {
 
     private void savePrompt() {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Save filesystem...");
+        fileChooser.setTitle(FrontendMessageProvider.get("fileChooser.saveAs"));
         fileChooser.setInitialFileName("fscli_filesystem");
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("JSON Files", "*.json"));
@@ -134,7 +134,7 @@ public class MenuBarView implements View {
     }
 
     private void editMenuInit() {
-        MenuItem preferencesMenuItem = new MenuItem("Preferences...");
+        MenuItem preferencesMenuItem = new MenuItem(FrontendMessageProvider.get("menu.preferences"));
         preferencesMenuItem.setId("preferencesMenuItem");
 
         this.editMenu.setId("editMenu");
@@ -147,10 +147,10 @@ public class MenuBarView implements View {
     }
 
     private void helpMenuInit() {
-        MenuItem helpMenuItem = new MenuItem("Help");
+        MenuItem helpMenuItem = new MenuItem(FrontendMessageProvider.get("menu.help"));
         helpMenuItem.setId("helpMenuItem");
 
-        MenuItem aboutMenuItem = new MenuItem("About");
+        MenuItem aboutMenuItem = new MenuItem(FrontendMessageProvider.get("menu.about"));
         aboutMenuItem.setId("aboutMenuItem");
 
         this.helpMenu.setId("helpMenu");
@@ -172,7 +172,7 @@ public class MenuBarView implements View {
         String developers = controller.getDevelopers();
 
         Stage aboutStage = new Stage();
-        aboutStage.setTitle("Application Information");
+        aboutStage.setTitle(FrontendMessageProvider.get("about.title"));
 
         aboutStage.initModality(Modality.APPLICATION_MODAL);
         aboutStage.initOwner(ownerStage); // Set the owner window
@@ -184,11 +184,11 @@ public class MenuBarView implements View {
         Label titleLabel = new Label(applicationName);
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
-        Label buildDateLabel = new Label("Build date: " + buildDate);
-        Label versionLabel = new Label("Version: " + version);
-        Label copyrightLabel = new Label("Developers: " + developers);
+        Label buildDateLabel = new Label(FrontendMessageProvider.get("about.buildDate") + buildDate);
+        Label versionLabel = new Label(FrontendMessageProvider.get("about.version") + version);
+        Label copyrightLabel = new Label(FrontendMessageProvider.get("about.developers") + developers);
 
-        Button closeButton = new Button("Close");
+        Button closeButton = new Button(FrontendMessageProvider.get("about.close"));
         closeButton.setOnAction(e -> aboutStage.close()); // Action to close this stage
 
         contentBox.getChildren().addAll(titleLabel, buildDateLabel, versionLabel, copyrightLabel, closeButton);

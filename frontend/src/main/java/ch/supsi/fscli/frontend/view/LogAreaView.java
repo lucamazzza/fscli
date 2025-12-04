@@ -46,7 +46,7 @@ public class LogAreaView implements View {
 
     private void logError(AppError error) {
         switch (error) {
-            case NEW_SUCCESS, NEW_FAILED_BS_MISSING, SAVE_SUCCESS ,SAVE_FAILED_GENERIC -> log(error);
+            case NEW_SUCCESS, NEW_FAILED_BS_MISSING, SAVE_SUCCESS ,SAVE_FAILED_GENERIC, CMD_EXECUTION_FAILED_FS_MISSING -> log(error);
             case NEW_FAILED_UNSAVED_WORK -> {
                 return;
             }

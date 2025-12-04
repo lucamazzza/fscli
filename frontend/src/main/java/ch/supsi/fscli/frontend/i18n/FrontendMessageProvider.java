@@ -5,7 +5,7 @@ import java.util.ResourceBundle;
 
 public class FrontendMessageProvider {
 
-    private static final String BUNDLE_NAME = "messages_frontend";  // direttamente in resources
+    private static final String BUNDLE_NAME = "messages_frontend";
     private static Locale currentLocale = Locale.getDefault();
 
     private FrontendMessageProvider() {}
