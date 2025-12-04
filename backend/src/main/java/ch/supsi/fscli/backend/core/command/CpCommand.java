@@ -30,4 +30,10 @@ public class CpCommand extends AbstractCommand {
         fs.cp(src, dest);
         return CommandResult.success();
     }
+    
+    @Override
+    public boolean shouldExpandArgument(int index, int totalArgs) {
+        // Only expand source arguments, not the last (destination)
+        return index < totalArgs - 1;
+    }
 }

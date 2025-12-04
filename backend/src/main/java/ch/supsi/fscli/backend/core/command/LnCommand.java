@@ -34,4 +34,10 @@ public class LnCommand extends AbstractCommand {
         fs.ln(target, link, symbolic);
         return CommandResult.success();
     }
+    
+    @Override
+    public boolean shouldExpandArgument(int index, int totalArgs) {
+        // Only expand the first argument (target), not the last (link name)
+        return index < totalArgs - 1;
+    }
 }

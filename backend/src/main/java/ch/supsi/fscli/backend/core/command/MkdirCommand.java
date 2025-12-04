@@ -23,4 +23,9 @@ public class MkdirCommand extends AbstractCommand {
 
         return CommandResult.success();
     }
+    
+    @Override
+    public boolean shouldExpandWildcards() {
+        return false;
+    }
 }

@@ -14,4 +14,9 @@ public class PwdCommand extends AbstractCommand {
     public CommandResult execute(FileSystem fs, CommandSyntax syntax) {
         return CommandResult.success(fs.pwd());
     }
+    
+    @Override
+    public boolean shouldExpandWildcards() {
+        return false;
+    }
 }

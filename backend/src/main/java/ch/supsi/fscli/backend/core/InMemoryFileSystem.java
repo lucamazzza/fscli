@@ -281,10 +281,57 @@ public class InMemoryFileSystem implements FileSystem {
             result.add(path);
             return result;
         }
-        // For now, just return the pattern itself
-        // TODO: Implement proper wildcard matching
-        result.add(path);
+        
+        String pattern = path;
+        String regex = wildcardToRegex(pattern);
+        List<String> filenames = curDir.listNames();
+        
+        for (String filename : filenames) {
+            if (filename.matches(regex)) {
+                result.add(filename);
+            }
+        }
+        
+        if (result.isEmpty()) {
+            result.add(path);
+        }
+        
         return result;
+    }
+    
+    private String wildcardToRegex(String wildcard) {
+        StringBuilder regex = new StringBuilder("^");
+        for (char c : wildcard.toCharArray()) {
+            switch (c) {
+                case '*':
+                    regex.append(".*");
+                    break;
+                case '?':
+                    regex.append(".");
+                    break;
+                case '.':
+                case '(':
+                case ')':
+                case '+':
+                case '|':
+                case '^':
+                case '$':
+                case '@':
+                case '%':
+                case '[':
+                case ']':
+                case '{':
+                case '}':
+                case '\\':
+                    regex.append("\\").append(c);
+                    break;
+                default:
+                    regex.append(c);
+                    break;
+            }
+        }
+        regex.append("$");
+        return regex.toString();
     }
     
     @Override

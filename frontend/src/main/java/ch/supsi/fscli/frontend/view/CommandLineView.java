@@ -93,7 +93,6 @@ public class CommandLineView implements View {
                 outputView.appendText("Error: " + errorMessage + "\n");
             }
         }
-        outputView.appendText("\n");
         commandLine.clear();
         outputView.setScrollTop(Double.MAX_VALUE);
     }

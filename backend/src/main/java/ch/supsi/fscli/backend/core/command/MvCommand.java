@@ -23,4 +23,10 @@ public class MvCommand extends AbstractCommand {
         fs.mv(syntax.getArgument(0), syntax.getArgument(1));
         return CommandResult.success();
     }
+    
+    @Override
+    public boolean shouldExpandArgument(int index, int totalArgs) {
+        // Only expand the first argument (source), not the last (destination)
+        return index < totalArgs - 1;
+    }
 }

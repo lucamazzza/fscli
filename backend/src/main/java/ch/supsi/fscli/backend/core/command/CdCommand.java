@@ -23,4 +23,9 @@ public class CdCommand extends AbstractCommand {
         fs.cd(syntax.getArgument(0));
         return CommandResult.success();
     }
+    
+    @Override
+    public boolean shouldExpandWildcards() {
+        return false;
+    }
 }
