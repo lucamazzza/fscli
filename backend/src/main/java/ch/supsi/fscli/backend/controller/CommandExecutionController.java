@@ -2,6 +2,7 @@ package ch.supsi.fscli.backend.controller;
 
 import ch.supsi.fscli.backend.controller.dto.CommandRequest;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.service.FileSystemService;
 
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.List;
 public class CommandExecutionController {
     /** The service layer that handles business logic and command execution */
     private final FileSystemService service;
-    
+
     /**
      * Constructs a new CommandExecutionController.
      * 
@@ -51,7 +52,8 @@ public class CommandExecutionController {
      */
     public CommandResponseDTO executeCommand(CommandRequest request) {
         if (request == null || request.getCommand() == null) {
-            return CommandResponseDTO.error("Invalid request");
+            return CommandResponseDTO.error(BackendMessageProvider.get("error.invalidRequest")
+            );
         }
         
         CommandResponse response = request.isAddToHistory()

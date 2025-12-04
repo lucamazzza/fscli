@@ -5,6 +5,9 @@ import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
 import ch.supsi.fscli.frontend.listener.Listener;
 import ch.supsi.fscli.frontend.util.AppError;
+import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.model.FileSystem;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
@@ -67,6 +70,16 @@ public class CommandLineView implements View {
         };
     }
 
+    /** Carica tutti i testi dal FrontendMessageProvider */
+    private void loadTexts() {
+        enter.setText(FrontendMessageProvider.get("commandLine.enter"));
+        commandLineLabel.setText(FrontendMessageProvider.get("commandLine.label"));
+        outputView.clear();
+        outputView.appendText(FrontendMessageProvider.get("cli.welcome") + "\n");
+        outputView.appendText(FrontendMessageProvider.get("cli.help") + "\n");
+        outputView.appendText(FrontendMessageProvider.get("cli.createFileSystem") + "\n\n");
+    }
+
     private void enterButtonInit() {
         this.enter.setId("enter");
         this.enter.setOnAction(e -> executeCommand());
@@ -117,6 +130,7 @@ public class CommandLineView implements View {
 
     @Override
     public void init() {
+        loadTexts();       // carica i testi dalla lingua corrente
         enterButtonInit();
         commandLineInit();
         logAreaInit();

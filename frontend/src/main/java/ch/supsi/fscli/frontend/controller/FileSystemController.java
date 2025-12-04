@@ -1,11 +1,15 @@
 package ch.supsi.fscli.frontend.controller;
 
 import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.model.FileSystemModel;
 import lombok.Setter;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class FileSystemController implements FileSystemEventHandler, CommandLineEventHandler {
     @Setter

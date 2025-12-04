@@ -3,21 +3,28 @@ package ch.supsi.fscli.backend.core.command;
 import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class CdCommand extends AbstractCommand {
 
+
     public CdCommand() {
-        super("cd", "Change directory", "cd <directory>");
+        super("cd",
+                BackendMessageProvider.get("cd.description"),
+                BackendMessageProvider.get("cd.usage"));
     }
 
     @Override
     public CommandResult execute(FileSystem fs, CommandSyntax syntax) throws FSException {
         if (syntax.getArgumentCount() == 0) {
-            return CommandResult.error("cd: missing operand");
+            return CommandResult.error(BackendMessageProvider.get("cd.error.missingOperand"));
         }
         if (syntax.getArgumentCount() > 1) {
-            return CommandResult.error("cd: too many arguments");
+            return CommandResult.error(BackendMessageProvider.get("cd.error.tooManyArguments"));
         }
 
         fs.cd(syntax.getArgument(0));

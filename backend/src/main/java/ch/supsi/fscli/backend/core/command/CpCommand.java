@@ -3,12 +3,19 @@ package ch.supsi.fscli.backend.core.command;
 import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.exception.FSException;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class CpCommand extends AbstractCommand {
 
+
     public CpCommand() {
-        super("cp", "Copy files and directories", "cp [-r] <source> <destination>");
+        super("cp",
+                BackendMessageProvider.get("cp.description"),
+                BackendMessageProvider.get("cp.usage"));
     }
 
     @Override
@@ -20,10 +27,10 @@ public class CpCommand extends AbstractCommand {
             argStart = 1;
         }
         if (syntax.getArgumentCount() - argStart < 2) {
-            return CommandResult.error("cp: missing operand");
+            return CommandResult.error(BackendMessageProvider.get("cp.error.missingOperand"));
         }
         if (syntax.getArgumentCount() - argStart > 2) {
-            return CommandResult.error("cp: too many arguments");
+            return CommandResult.error(BackendMessageProvider.get("cp.error.tooManyArguments"));
         }
         String src = syntax.getArgument(argStart);
         String dest = syntax.getArgument(argStart + 1);

@@ -1,6 +1,6 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.frontend.controller.AboutController;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.controller.AboutController;
 import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;

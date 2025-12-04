@@ -29,7 +29,7 @@ public class BackendGlobalVariables {
     public static final int DEFAULT_LOG_LINES = 5;
     public static final String DEFAULT_CMD_FONT = "Monospaced";
     public static final String DEFAULT_OUTPUT_FONT = "Monospaced";
-    public static final String DEFAULT_LOG_FONT = "SansSerif";
+    public static final String DEFAULT_LOG_FONT = "Monospaced";
 
     //user home path
     public static final Path DEFAULT_PREF_PATH =

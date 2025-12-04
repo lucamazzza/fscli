@@ -8,6 +8,8 @@ import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.EventManager;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.util.*;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
+import ch.supsi.fscli.frontend.util.FxLogger;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import ch.supsi.fscli.frontend.model.FileSystemModel;
 import ch.supsi.fscli.frontend.view.*;
@@ -85,8 +87,8 @@ public class MainFx extends Application {
             fxLogger.log("[" + level + "] " + message);
         });
 
-        fxLogger.log("Frontend logger initialized.");
-        PreferencesLogger.logInfo("Backend logger bridge active.");
+        fxLogger.log(FrontendMessageProvider.get("logger.frontendInitialized"));
+        PreferencesLogger.logInfo(FrontendMessageProvider.get("logger.backendBridgeActive"));
 
 
         // --- GUI ---

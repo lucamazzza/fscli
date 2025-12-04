@@ -6,6 +6,8 @@ import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.service.FileSystemPersistenceService;
 import ch.supsi.fscli.backend.service.FileSystemService;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -101,7 +103,7 @@ public class FileSystemPersistenceController {
     public void saveFileSystem(Path path) throws IOException {
         FileSystem fs = service.getFileSystem();
         if (fs == null) {
-            throw new IllegalStateException("No filesystem loaded");
+            throw new IllegalStateException(BackendMessageProvider.get("error.noFilesystemLoaded"));
         }
         DirectoryNode root = fs.getRoot();
         persistenceService.save(root, path);

@@ -30,7 +30,7 @@ public class UserPreferences {
     }
 
     private String validateLanguage(String input) {
-        List<String> allowed = List.of("en", "it", "de", "fr");
+        List<String> allowed = List.of("en", "it");
         if (!allowed.contains(input)) {
             return BackendGlobalVariables.DEFAULT_LANGUAGE;
         }

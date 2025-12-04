@@ -6,6 +6,7 @@ import ch.supsi.fscli.frontend.listener.Listener;
 import ch.supsi.fscli.frontend.util.AppError;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import javafx.scene.control.TextArea;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -60,7 +61,7 @@ public class LogAreaView implements View {
 
     private void logAreaInit() {
         this.logView.setId("logView");
-        this.logView.appendText("This is an example log text...\n");
+        this.logView.appendText(FrontendMessageProvider.get("logArea.sampleText") + "\n");
 
         this.logView.setPrefRowCount(PREF_LOG_VIEW_ROW_COUNT);
         this.logView.setEditable(false);

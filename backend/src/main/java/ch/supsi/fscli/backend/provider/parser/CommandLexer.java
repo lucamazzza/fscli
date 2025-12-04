@@ -1,15 +1,17 @@
 package ch.supsi.fscli.backend.provider.parser;
 
 import ch.supsi.fscli.backend.core.exception.InvalidCommandException;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.List;;
 
 public class CommandLexer {
-    
+
+
     public List<String> tokenize(String input) throws InvalidCommandException {
         if (input == null || input.trim().isEmpty()) {
-            throw new InvalidCommandException("Command cannot be empty");
+            throw new InvalidCommandException(BackendMessageProvider.get("commandEmpty"));
         }
         List<String> tokens = new ArrayList<>();
         StringBuilder current = new StringBuilder();
@@ -45,20 +47,20 @@ public class CommandLexer {
             current.append(c);
         }
         if (inSingleQuote || inDoubleQuote) {
-            throw new InvalidCommandException("Unclosed quote");
+            throw new InvalidCommandException(BackendMessageProvider.get("unclosedQuote"));
         }
         if (escaped) {
-            throw new InvalidCommandException("Trailing escape character");
+            throw new InvalidCommandException(BackendMessageProvider.get("trailingEscape"));
         }
         if (!current.isEmpty()) {
             tokens.add(current.toString());
         }
         if (tokens.isEmpty()) {
-            throw new InvalidCommandException("Command cannot be empty");
+            throw new InvalidCommandException(BackendMessageProvider.get("commandEmpty"));
         }
         return tokens;
     }
-    
+
     public boolean validateCommandName(String name) {
         if (name == null || name.isEmpty()) {
             return false;
