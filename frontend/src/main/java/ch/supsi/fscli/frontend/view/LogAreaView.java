@@ -61,8 +61,6 @@ public class LogAreaView implements View {
 
     private void logAreaInit() {
         this.logView.setId("logView");
-        this.logView.appendText(FrontendMessageProvider.get("logArea.sampleText") + "\n");
-
         this.logView.setPrefRowCount(PREF_LOG_VIEW_ROW_COUNT);
         this.logView.setEditable(false);
     }
