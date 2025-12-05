@@ -14,6 +14,9 @@ public class UserPreferences {
     private String outputFont = BackendGlobalVariables.DEFAULT_OUTPUT_FONT;
     private String logFont = BackendGlobalVariables.DEFAULT_LOG_FONT;
 
+    // flag che indica se durante il caricamento è stato fatto clamping/fallback
+    private boolean clamped = false;
+
     public UserPreferences() {}
 
     public UserPreferences(UserPreferences other) {
@@ -24,15 +27,17 @@ public class UserPreferences {
         this.cmdFont = other.cmdFont;
         this.outputFont = other.outputFont;
         this.logFont = other.logFont;
+        this.clamped = other.clamped;
     }
 
-    // --- VALIDATOR METHODS ---
+    // --- VALIDATOR METHODS --- (ora impostano clamped = true quando usano default)
 
     private int validateInt(Object input, int min, int max, int defaultValue) {
         if (input instanceof Number) {
             int value = ((Number) input).intValue();
             if (value >= min && value <= max) return value;
         }
+        this.clamped = true;
         return defaultValue;
     }
 
@@ -40,6 +45,7 @@ public class UserPreferences {
         if (input instanceof String str) {
             if (allowed.contains(str)) return str;
         }
+        this.clamped = true;
         return defaultValue;
     }
 
@@ -47,6 +53,7 @@ public class UserPreferences {
         if (input instanceof String str) {
             if (BackendGlobalVariables.getSystemFonts().contains(str)) return str;
         }
+        this.clamped = true;
         return defaultFont;
     }
 
@@ -91,6 +98,21 @@ public class UserPreferences {
     public String getLogFont() { return logFont; }
     public void setLogFont(Object logFont) {
         this.logFont = validateFont(logFont, BackendGlobalVariables.DEFAULT_LOG_FONT);
+    }
+
+    // --- Metodi per comunicare il clamping al resto dell'app ---
+
+    /**
+     * True se durante il caricamento dal file sono stati usati dei valori di default
+     * (cioè qualche campo era invalido / fuori range / font non disponibile).
+     */
+    public boolean wasClamped() {
+        return clamped;
+    }
+
+    /** Resetta il flag (utile dopo aver notificato l'utente). */
+    public void clearClamped() {
+        this.clamped = false;
     }
 
     // --- OPTIONAL: Carica da JSON-like Map ---

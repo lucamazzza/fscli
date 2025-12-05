@@ -16,6 +16,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -25,12 +26,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MainFx extends Application {
+
     private final String applicationTitle;
     private final MenuBarView menuBar;
     private final CommandLineView commandLine;
     private final LogAreaView logArea;
 
-    // Piccola classe wrapper per catturare il primo messaggio
     private static class Captured {
         String level;
         String message;
@@ -45,7 +46,7 @@ public class MainFx extends Application {
 
         Captured captured = new Captured();
 
-        // Listener TEMPORANEO
+        // Listener TEMPORANEO per catturare il primo log
         PreferencesLogger.setExternalListener((level, message) -> {
             if (captured.message == null) {
                 captured.level = level;
@@ -61,15 +62,14 @@ public class MainFx extends Application {
         Locale locale = prefs.getLanguage().equalsIgnoreCase("en") ? Locale.ENGLISH : Locale.ITALIAN;
         FrontendMessageProvider.setLocale(locale);
 
-        // Log del primo messaggio
+        // Log del primo messaggio con prefisso localizzato
         if (captured.message != null && captured.level != null) {
             String raw = captured.message;
-            String rawLower = raw.toLowerCase();
-            boolean created = rawLower.contains("nessun file") ||
-                    rawLower.contains("no preferences file") ||
-                    rawLower.contains("created a new") ||
-                    rawLower.contains("creato uno nuovo") ||
-                    rawLower.contains("creato un nuovo");
+            boolean created = raw.toLowerCase().contains("nessun file") ||
+                    raw.toLowerCase().contains("no preferences file") ||
+                    raw.toLowerCase().contains("created a new") ||
+                    raw.toLowerCase().contains("creato uno nuovo") ||
+                    raw.toLowerCase().contains("creato un nuovo");
 
             String path = raw.trim();
             Matcher driveMatcher = Pattern.compile("[A-Za-z]:").matcher(raw);
@@ -93,13 +93,12 @@ public class MainFx extends Application {
             fxLogger.log("[" + captured.level + "] " + localizedPrefix + ": " + path);
         }
 
-        // Listener definitivo
+        // Listener definitivo per i log delle preferenze
         PreferencesLogger.setExternalListener((level, message) -> fxLogger.log("[" + level + "] " + message));
 
         // Inizializza le view
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
-
         this.applicationTitle = FrontendMessageProvider.get("mainfx.title");
 
         FileSystemPersistenceController backendPersistenceController = new FileSystemPersistenceController();
@@ -188,6 +187,15 @@ public class MainFx extends Application {
         );
 
         primaryStage.show();
+
+        // Alert opzionale se preferenze erano state clamped
+        if (prefs.wasClamped()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle(FrontendMessageProvider.get("preferences.warning.title"));
+            alert.setHeaderText(null);
+            alert.setContentText(FrontendMessageProvider.get("preferences.warning.message"));
+            alert.showAndWait();
+        }
     }
 
     public static void main(String[] args) {
