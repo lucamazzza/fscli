@@ -21,7 +21,6 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,39 +30,40 @@ public class MainFx extends Application {
     private final CommandLineView commandLine;
     private final LogAreaView logArea;
 
+    // Piccola classe wrapper per catturare il primo messaggio
+    private static class Captured {
+        String level;
+        String message;
+    }
+
     public MainFx() {
-        // 0) Prepara la logArea e l'FxLogger subito
         this.logArea = LogAreaView.getInstance();
         this.logArea.init();
 
         FxLogger fxLogger = FxLogger.getInstance();
         fxLogger.setLogArea(this.logArea.getLogView());
 
-        // 1) Listener TEMPORANEO per catturare il primo messaggio prodotto dal backend
-        AtomicReference<String> capturedLevel = new AtomicReference<>(null);
-        AtomicReference<String> capturedMessage = new AtomicReference<>(null);
+        Captured captured = new Captured();
 
+        // Listener TEMPORANEO
         PreferencesLogger.setExternalListener((level, message) -> {
-            if (capturedMessage.get() == null) {
-                capturedLevel.set(level);
-                capturedMessage.set(message);
+            if (captured.message == null) {
+                captured.level = level;
+                captured.message = message;
             }
-            // non inoltriamo nulla ora (evitiamo duplicati o stampa su terminale)
         });
 
-        // 2) Carichiamo le preferenze (il backend potrebbe creare un nuovo file e loggare)
+        // Carica preferenze
         PreferencesController backendController = PreferencesController.getInstance();
         UserPreferences prefs = backendController.getPreferences();
 
-        // 3) Imposta la lingua dalle preferenze (ora che prefs è disponibile)
+        // Imposta lingua
         Locale locale = prefs.getLanguage().equalsIgnoreCase("en") ? Locale.ENGLISH : Locale.ITALIAN;
         FrontendMessageProvider.setLocale(locale);
 
-        // 4) Costruisci e pubblica un messaggio localizzato in base al tipo di log catturato
-        String lvl = capturedLevel.get();
-        String raw = capturedMessage.get();
-        if (raw != null && lvl != null) {
-            // Determine if it's the "created new preferences" message (it/eng)
+        // Log del primo messaggio
+        if (captured.message != null && captured.level != null) {
+            String raw = captured.message;
             String rawLower = raw.toLowerCase();
             boolean created = rawLower.contains("nessun file") ||
                     rawLower.contains("no preferences file") ||
@@ -71,20 +71,12 @@ public class MainFx extends Application {
                     rawLower.contains("creato uno nuovo") ||
                     rawLower.contains("creato un nuovo");
 
-            // Extract path robustly: look for drive-letter pattern (e.g. "C:") and take substring from there
             String path = raw.trim();
             Matcher driveMatcher = Pattern.compile("[A-Za-z]:").matcher(raw);
             if (driveMatcher.find()) {
-                int start = driveMatcher.start();
-                path = raw.substring(start).trim();
-                // Strip trailing punctuation or brackets if present
-                path = path.replaceAll("[\\]\\)\\r\\n]+$", "");
-            } else {
-                // fallback: use whole message (trimmed)
-                path = raw.trim();
+                path = raw.substring(driveMatcher.start()).trim().replaceAll("[\\]\\)\\r\\n]+$", "");
             }
 
-            // Get localized prefix depending on event type
             String key = created ? "preferences.created" : "preferences.loaded";
             String localizedPrefix;
             try {
@@ -92,33 +84,24 @@ public class MainFx extends Application {
             } catch (Exception e) {
                 localizedPrefix = null;
             }
-
             if (localizedPrefix == null || localizedPrefix.isBlank()) {
-                // fallback testo semplice nelle due lingue
-                if (created) {
-                    localizedPrefix = locale.equals(Locale.ENGLISH)
-                            ? "No preferences file found, created a new one at"
-                            : "Nessun file di preferenze trovato, creato uno nuovo a";
-                } else {
-                    localizedPrefix = locale.equals(Locale.ENGLISH)
-                            ? "Preferences loaded from"
-                            : "Preferenze caricate da";
-                }
+                localizedPrefix = created
+                        ? (locale.equals(Locale.ENGLISH) ? "No preferences file found, created a new one at" : "Nessun file di preferenze trovato, creato uno nuovo a")
+                        : (locale.equals(Locale.ENGLISH) ? "Preferences loaded from" : "Preferenze caricate da");
             }
 
-            fxLogger.log("[" + lvl + "] " + localizedPrefix + ": " + path);
+            fxLogger.log("[" + captured.level + "] " + localizedPrefix + ": " + path);
         }
 
-        // 5) Ora sostituiamo il listener temporaneo con quello definitivo
+        // Listener definitivo
         PreferencesLogger.setExternalListener((level, message) -> fxLogger.log("[" + level + "] " + message));
 
-        // 6) Inizializza le view che usano testi (dopo aver settato il provider di lingua)
+        // Inizializza le view
         this.menuBar = MenuBarView.getInstance();
         this.commandLine = CommandLineView.getInstance();
 
         this.applicationTitle = FrontendMessageProvider.get("mainfx.title");
 
-        // 7) Backend controller e event manager
         FileSystemPersistenceController backendPersistenceController = new FileSystemPersistenceController();
 
         EventManager<FileSystemEvent> fileSystemEventManager = new EventManager<>();
@@ -131,17 +114,14 @@ public class MainFx extends Application {
         commandLineEventManager.addListener(this.commandLine.getCommandLineListener());
         commandLineEventManager.addListener(this.logArea.getCommandLineListener());
 
-        // 8) Model
         FileSystemModel fileSystemModel = FileSystemModel.getInstance();
         fileSystemModel.setFileSystemEventManager(fileSystemEventManager);
         fileSystemModel.setCommandLineEventManager(commandLineEventManager);
         fileSystemModel.setBackendPersistenceController(backendPersistenceController);
 
-        // 9) Controller
         FileSystemController fileSystemController = FileSystemController.getInstance();
         fileSystemController.setFileSystemModel(fileSystemModel);
 
-        // 10) Init views
         this.menuBar.setFileSystemEventHandler(fileSystemController);
         this.commandLine.setCommandLineEventHandler(fileSystemController);
 
@@ -157,7 +137,6 @@ public class MainFx extends Application {
         FxLogger fxLogger = FxLogger.getInstance();
         fxLogger.setLogAreaRowCount(prefs.getLogLines());
 
-        // GUI
         this.commandLine.getCommandLine().setPrefColumnCount(prefs.getCmdColumns());
         this.commandLine.getCommandLine().setStyle("-fx-font-family: '" + prefs.getCmdFont() + "';");
 
@@ -184,7 +163,6 @@ public class MainFx extends Application {
         rootPane.setCenter(new ScrollPane(this.commandLine.getOutputView()));
         rootPane.setBottom(new ScrollPane(this.logArea.getLogView()));
 
-        // Larghezze
         double charWidth = 8.0;
         double baseWidth = prefs.getCmdColumns() * charWidth + 120;
 
