@@ -1,10 +1,12 @@
 package ch.supsi.fscli.backend.core;
 
 import ch.supsi.fscli.backend.util.BackendGlobalVariables;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserPreferences {
     private String language = BackendGlobalVariables.DEFAULT_LANGUAGE;
     private int cmdColumns = BackendGlobalVariables.DEFAULT_CMD_COLUMNS;
@@ -117,12 +119,12 @@ public class UserPreferences {
 
     // --- OPTIONAL: Carica da JSON-like Map ---
     public void loadFromMap(Map<String, Object> json) {
-        setLanguage(json.get("language"));
-        setCmdColumns(json.get("cmdColumns"));
-        setOutputLines(json.get("outputLines"));
-        setLogLines(json.get("logLines"));
-        setCmdFont(json.get("cmdFont"));
-        setOutputFont(json.get("outputFont"));
-        setLogFont(json.get("logFont"));
+        if (json.containsKey("language")) setLanguage(json.get("language"));
+        if (json.containsKey("cmdColumns")) setCmdColumns(json.get("cmdColumns"));
+        if (json.containsKey("outputLines")) setOutputLines(json.get("outputLines"));
+        if (json.containsKey("logLines")) setLogLines(json.get("logLines"));
+        if (json.containsKey("cmdFont")) setCmdFont(json.get("cmdFont"));
+        if (json.containsKey("outputFont")) setOutputFont(json.get("outputFont"));
+        if (json.containsKey("logFont")) setLogFont(json.get("logFont"));
     }
 }
