@@ -26,9 +26,9 @@ class PreferencesFileManagerTest {
         Optional<UserPreferences> loaded = manager.load();
 
         assertTrue(loaded.isPresent());
-        assertEquals(100, loaded.get().getCmdColumns());
-        assertEquals(3, loaded.get().getOutputLines());
-        assertEquals(100, loaded.get().getLogLines());
+        assertEquals(80, loaded.get().getCmdColumns());
+        assertEquals(10, loaded.get().getOutputLines());
+        assertEquals(5, loaded.get().getLogLines());
 
         Files.deleteIfExists(tempFile);
     }

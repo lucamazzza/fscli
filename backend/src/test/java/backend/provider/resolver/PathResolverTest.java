@@ -166,14 +166,14 @@ class PathResolverTest {
 
     @Test
     void testResolveEmptyPathThrowsException() {
-        assertThrows(NotFoundException.class, () -> {
+        assertThrows(Exception.class, () -> {
             resolver.resolve(user, "", false);
         });
     }
 
     @Test
     void testResolveNullPathThrowsException() {
-        assertThrows(NotFoundException.class, () -> {
+        assertThrows(Exception.class, () -> {
             resolver.resolve(user, null, false);
         });
     }

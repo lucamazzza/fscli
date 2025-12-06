@@ -1,6 +1,7 @@
 package ch.supsi.fscli.frontend.event;
 
 import ch.supsi.fscli.frontend.listener.Listener;
+import ch.supsi.fscli.frontend.util.AppError;
 
 
 import org.junit.jupiter.api.BeforeEach;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 class FileSystemModelEventManagerTest {
@@ -26,7 +27,7 @@ class FileSystemModelEventManagerTest {
 
     @Test
     void notify_sendsEventToRegisteredListener() {
-        FileSystemEvent testEvent = new FileSystemEvent(true);
+        FileSystemEvent testEvent = new FileSystemEvent(AppError.SAVE_SUCCESS);
 
         eventManager.notify(testEvent);
 
@@ -37,7 +38,7 @@ class FileSystemModelEventManagerTest {
 
     @Test
     void notify_doesNotSendEventToRemovedListener() {
-        FileSystemEvent testEvent = new FileSystemEvent(true);
+        FileSystemEvent testEvent = new FileSystemEvent(AppError.SAVE_SUCCESS);
 
         eventManager.removeListener(mockListener);
 
@@ -51,7 +52,7 @@ class FileSystemModelEventManagerTest {
         Listener<FileSystemEvent> mockListener2 = mock(Listener.class);
         eventManager.addListener(mockListener2);
 
-        FileSystemEvent testEvent = new FileSystemEvent(true);
+        FileSystemEvent testEvent = new FileSystemEvent(AppError.SAVE_SUCCESS);
 
         eventManager.notify(testEvent);
 
@@ -61,14 +62,14 @@ class FileSystemModelEventManagerTest {
 
     @Test
     void notify_sendsCorrectEventData() {
-        FileSystemEvent testEvent = new FileSystemEvent(true);
+        FileSystemEvent testEvent = new FileSystemEvent(AppError.SAVE_SUCCESS);
         ArgumentCaptor<FileSystemEvent> eventCaptor = ArgumentCaptor.forClass(FileSystemEvent.class);
 
         eventManager.notify(testEvent);
         verify(mockListener).update(eventCaptor.capture());
 
         FileSystemEvent capturedEvent = eventCaptor.getValue();
-        assertTrue(capturedEvent.successful());
+        assertNotNull(capturedEvent.error());
         assertEquals(testEvent, capturedEvent);
     }
 }

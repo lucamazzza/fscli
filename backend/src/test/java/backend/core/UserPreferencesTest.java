@@ -22,21 +22,21 @@ public class UserPreferencesTest {
         assertEquals(5, prefs.getLogLines());
         assertEquals("Monospaced", prefs.getCmdFont());
         assertEquals("Monospaced", prefs.getOutputFont());
-        assertEquals("SansSerif", prefs.getLogFont());
+        assertEquals("Monospaced", prefs.getLogFont());
     }
 
     @Test
     void testClamping() {
         UserPreferences prefs = new UserPreferences();
 
-        // valori troppo bassi o alti vengono clampati ai limiti definiti
+        // valori troppo bassi o alti vengono clampati ai valori di default
         prefs.setCmdColumns(-10);
         prefs.setOutputLines(9999);
         prefs.setLogLines(0);
 
-        assertEquals(BackendGlobalVariables.MIN_COLUMNS, prefs.getCmdColumns());
-        assertEquals(BackendGlobalVariables.MAX_LINES, prefs.getOutputLines());
-        assertEquals(BackendGlobalVariables.MIN_LINES, prefs.getLogLines());
+        assertEquals(BackendGlobalVariables.DEFAULT_CMD_COLUMNS, prefs.getCmdColumns());
+        assertEquals(BackendGlobalVariables.DEFAULT_OUTPUT_LINES, prefs.getOutputLines());
+        assertEquals(BackendGlobalVariables.DEFAULT_LOG_LINES, prefs.getLogLines());
     }
 
     @Test

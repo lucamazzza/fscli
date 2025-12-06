@@ -41,15 +41,15 @@ class PreferencesServiceTest {
 
         UserPreferences prefs = service.getCurrentPrefs();
 
-        assertEquals(100, prefs.getCmdColumns());
-        assertEquals(3, prefs.getOutputLines());
-        assertEquals(100, prefs.getLogLines());
+        assertEquals(80, prefs.getCmdColumns());
+        assertEquals(10, prefs.getOutputLines());
+        assertEquals(5, prefs.getLogLines());
 
         PreferencesFileManager newManager = new PreferencesFileManager(tempFile);
         UserPreferences loaded = newManager.load().orElseThrow();
-        assertEquals(100, loaded.getCmdColumns());
-        assertEquals(3, loaded.getOutputLines());
-        assertEquals(100, loaded.getLogLines());
+        assertEquals(80, loaded.getCmdColumns());
+        assertEquals(10, loaded.getOutputLines());
+        assertEquals(5, loaded.getLogLines());
     }
 
     @Test

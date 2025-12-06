@@ -49,13 +49,13 @@ class PreferencesControllerTest {
     @Test
     void testSetCmdColumns_ClampedToMax() {
         controller.setCmdColumns(200);
-        assertEquals(BackendGlobalVariables.MAX_COLUMNS, controller.getPreferences().getCmdColumns());
+        assertEquals(BackendGlobalVariables.DEFAULT_CMD_COLUMNS, controller.getPreferences().getCmdColumns());
     }
     
     @Test
     void testSetCmdColumns_ClampedToMin() {
         controller.setCmdColumns(5);
-        assertEquals(BackendGlobalVariables.MIN_COLUMNS, controller.getPreferences().getCmdColumns());
+        assertEquals(BackendGlobalVariables.DEFAULT_CMD_COLUMNS, controller.getPreferences().getCmdColumns());
     }
     
     @Test
@@ -67,7 +67,7 @@ class PreferencesControllerTest {
     @Test
     void testSetOutputLines_ClampedToMax() {
         controller.setOutputLines(500);
-        assertEquals(BackendGlobalVariables.MAX_LINES, controller.getPreferences().getOutputLines());
+        assertEquals(BackendGlobalVariables.DEFAULT_OUTPUT_LINES, controller.getPreferences().getOutputLines());
     }
     
     @Test
@@ -79,7 +79,7 @@ class PreferencesControllerTest {
     @Test
     void testSetLogLines_ClampedToMax() {
         controller.setLogLines(250);
-        assertEquals(BackendGlobalVariables.MAX_LINES, controller.getPreferences().getLogLines());
+        assertEquals(BackendGlobalVariables.DEFAULT_LOG_LINES, controller.getPreferences().getLogLines());
     }
     
     @Test
@@ -112,12 +112,12 @@ class PreferencesControllerTest {
     @Test
     void testUpdatePreferences() {
         controller.updatePreferences(prefs -> {
-            prefs.setLanguage("fr");
+            prefs.setLanguage("it");
             prefs.setCmdColumns(50);
         });
         
         UserPreferences prefs = controller.getPreferences();
-        assertEquals("fr", prefs.getLanguage());
+        assertEquals("it", prefs.getLanguage());
         assertEquals(50, prefs.getCmdColumns());
     }
     

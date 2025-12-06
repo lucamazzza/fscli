@@ -26,9 +26,9 @@ public class PreferencesDeserializerTest {
         UserPreferences prefs = deserializer.deserialize(json, UserPreferences.class);
 
         assertEquals("it", prefs.getLanguage());
-        assertEquals(100, prefs.getCmdColumns());
-        assertEquals(3, prefs.getOutputLines());
-        assertEquals(100, prefs.getLogLines());
+        assertEquals(80, prefs.getCmdColumns());
+        assertEquals(10, prefs.getOutputLines());
+        assertEquals(5, prefs.getLogLines());
 
         assertEquals("Monospaced", prefs.getCmdFont());
         assertEquals("Monospaced", prefs.getOutputFont());

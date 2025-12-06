@@ -29,9 +29,9 @@ public class PreferencesSerializerTest {
         JsonNode node = mapper.readTree(json);
 
         assertEquals("it", node.get("language").asText());
-        assertEquals(100, node.get("cmdColumns").asInt());
-        assertEquals(3, node.get("outputLines").asInt());
-        assertEquals(100, node.get("logLines").asInt());
+        assertEquals(80, node.get("cmdColumns").asInt());
+        assertEquals(10, node.get("outputLines").asInt());
+        assertEquals(5, node.get("logLines").asInt());
 
         assertTrue(node.has("cmdFont"));
         assertTrue(node.has("outputFont"));

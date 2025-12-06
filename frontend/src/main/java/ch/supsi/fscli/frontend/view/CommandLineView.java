@@ -52,14 +52,7 @@ public class CommandLineView implements View {
             if (event == null) return;
             if (event.error() == null) return;
             if (event.error() == AppError.CMD_EXECUTION_FAILED_FS_MISSING || event.error() == AppError.CMD_EXECUTION_FAILED_BAD_RESPONSE) return;
-            String output = event.currentDir() + "$ " + lastCommandExecuted;
-            if (event.output() != null && !event.output().isBlank()) {
-                output += "\n" + event.output();
-            }
-            if (event.outputError() != null && !event.outputError().isBlank()) {
-                output += "\n" + event.outputError();
-            }
-            outputView.appendText(output + "\n");
+            // Don't display anything here - executeCommand() already handles display
         };
         this.fileSystemListener = event -> {
             if (event == null) return;
@@ -113,9 +106,10 @@ public class CommandLineView implements View {
             return;
         }
         if (command == null || command.trim().isEmpty()) return;
+        lastCommandExecuted = command;
         FileSystemModel fileSystem = FileSystemModel.getInstance();
         String currentDir = fileSystem.getCurrentDirectory();
-        outputView.appendText(currentDir + " $ " + command + "\n");
+        outputView.appendText(currentDir + "$ " + command + "\n");
         if (fileSystem.isFileSystemReady() && command.trim().equals("help")) {
             for (String s : fileSystem.getAllCommandsHelp()) outputView.appendText(s + "\n");
             commandLine.clear();

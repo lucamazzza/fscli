@@ -41,6 +41,7 @@ public class BackendModule extends AbstractModule {
     }
     
     @Provides
+    @Singleton
     FileSystemController provideFileSystemController(
             FileSystemService service,
             CommandExecutionController commandExecutionController,

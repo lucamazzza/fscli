@@ -69,7 +69,7 @@ class BackendGlobalVariablesTest {
     
     @Test
     void testDefaultLogFont() {
-        assertEquals("SansSerif", BackendGlobalVariables.DEFAULT_LOG_FONT);
+        assertEquals("Monospaced", BackendGlobalVariables.DEFAULT_LOG_FONT);
     }
     
     @Test

@@ -47,7 +47,7 @@ public class FileSystemController {
      * @param service The file system service
      * @param commandExecutionController Controller for command execution
      * @param historyController Controller for history management
-     * @param fileSystem The filesystem implementation to use
+     * @param fileSystem The filesystem implementation (not used directly, service manages it)
      */
     @Inject
     public FileSystemController(
@@ -56,7 +56,10 @@ public class FileSystemController {
             HistoryController historyController,
             FileSystem fileSystem) {
         this.service = service;
-        this.service.setFileSystem(fileSystem);
+        // Only set filesystem if service doesn't have one yet
+        if (service.getFileSystem() == null) {
+            this.service.setFileSystem(fileSystem);
+        }
         this.commandExecutionController = commandExecutionController;
         this.historyController = historyController;
     }

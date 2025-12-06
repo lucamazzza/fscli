@@ -85,8 +85,7 @@ public final class FileSystemModel {
         if (file == null) return;
         if (!file.exists()) return;
         if (backendPersistenceController.loadFileSystem(file.toPath())) {
-            FileSystem fsBackend = backendPersistenceController.getFileSystem();
-            this.backendController = BackendInjector.getInjector().getInstance(FileSystemController.class);
+            this.backendController = BackendInjector.getInjector().getInstance(ch.supsi.fscli.backend.controller.FileSystemController.class);
             this.file = file;
             fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_SUCCESS));
             return;
@@ -128,7 +127,7 @@ public final class FileSystemModel {
 
         commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_SUCCESS, currentDir, response.getOutputAsString(), response.getErrorMessage()));
 
-        return CommandResponseDTO.success(response.getOutputAsString());
+        return CommandResponseDTO.success(response.getOutput());
     }
 
     public String getCurrentDirectory() {
