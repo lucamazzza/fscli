@@ -9,6 +9,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents a directory in the filesystem tree.
+ * Directories contain named children (files, directories, or links).
+ */
 public class DirectoryNode extends FileSystemNode {
     @JsonIgnore
     private final Map<String, FileSystemNode> children = new LinkedHashMap<>();

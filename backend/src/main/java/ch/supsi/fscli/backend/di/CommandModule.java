@@ -1,12 +1,22 @@
 package ch.supsi.fscli.backend.di;
 
-import ch.supsi.fscli.backend.core.command.*;
+import ch.supsi.fscli.backend.core.command.CdCommand;
+import ch.supsi.fscli.backend.core.command.Command;
+import ch.supsi.fscli.backend.core.command.CpCommand;
+import ch.supsi.fscli.backend.core.command.LnCommand;
+import ch.supsi.fscli.backend.core.command.LsCommand;
+import ch.supsi.fscli.backend.core.command.MkdirCommand;
+import ch.supsi.fscli.backend.core.command.MvCommand;
+import ch.supsi.fscli.backend.core.command.PwdCommand;
+import ch.supsi.fscli.backend.core.command.RmCommand;
+import ch.supsi.fscli.backend.core.command.RmdirCommand;
+import ch.supsi.fscli.backend.core.command.TouchCommand;
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
 
 /**
- * Guice module for Command registration.
- * Uses Multibinder to auto-discover and register all commands.
+ * Guice module for filesystem command registration.
+ * Uses Multibinder to register all available commands.
  */
 public class CommandModule extends AbstractModule {
     

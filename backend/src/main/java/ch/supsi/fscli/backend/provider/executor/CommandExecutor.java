@@ -9,12 +9,15 @@ import ch.supsi.fscli.backend.provider.parser.CommandParser;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Executes parsed commands on the filesystem.
+ * Handles command registration, wildcard expansion, and error handling.
+ */
 public class CommandExecutor {
     private final Map<String, Command> commands;
     private final CommandParser parser;

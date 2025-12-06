@@ -4,8 +4,11 @@ import ch.supsi.fscli.backend.core.exception.InvalidCommandException;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
 import java.util.ArrayList;
-import java.util.List;;
+import java.util.List;
 
+/**
+ * Tokenizes command strings with support for quotes and escaping.
+ */
 public class CommandLexer {
 
 

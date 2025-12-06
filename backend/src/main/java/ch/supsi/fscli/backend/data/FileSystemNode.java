@@ -8,6 +8,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.time.Instant;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Base class for all filesystem nodes (files, directories, links).
+ * Tracks metadata like creation time, modification time, and link count.
+ * Supports JSON serialization with Jackson.
+ */
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
         include = JsonTypeInfo.As.PROPERTY,

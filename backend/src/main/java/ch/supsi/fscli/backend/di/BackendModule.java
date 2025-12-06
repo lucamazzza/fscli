@@ -1,6 +1,10 @@
 package ch.supsi.fscli.backend.di;
 
-import ch.supsi.fscli.backend.controller.*;
+import ch.supsi.fscli.backend.controller.CommandExecutionController;
+import ch.supsi.fscli.backend.controller.FileSystemController;
+import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
+import ch.supsi.fscli.backend.controller.HistoryController;
+import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import ch.supsi.fscli.backend.provider.parser.CommandParser;
@@ -13,7 +17,8 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 
 /**
- * Guice module for backend services, controllers, and core components.
+ * Guice dependency injection module for backend components.
+ * Configures services, controllers, and core filesystem bindings.
  */
 public class BackendModule extends AbstractModule {
     

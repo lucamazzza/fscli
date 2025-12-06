@@ -6,6 +6,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 
+/**
+ * Generic JSON serializer using Jackson.
+ * Configured to handle Java 8 time types.
+ */
 public class Serializer<T> {
     private final ObjectMapper mapper;
 

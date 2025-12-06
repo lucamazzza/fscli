@@ -1,12 +1,15 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import lombok.Getter;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
+import lombok.Getter;
 
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.ResourceBundle;
-import java.util.Locale;
 
+/**
+ * Application metadata model.
+ * Loads version, build date, and developer information from properties.
+ */
 @Getter
 public class Application {
     private String name;

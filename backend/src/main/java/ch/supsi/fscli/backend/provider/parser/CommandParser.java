@@ -4,9 +4,11 @@ import ch.supsi.fscli.backend.core.exception.InvalidCommandException;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
+/**
+ * Parses command strings into structured command syntax.
+ * Uses CommandLexer for tokenization.
+ */
 public class CommandParser {
     private final CommandLexer lexer;
 

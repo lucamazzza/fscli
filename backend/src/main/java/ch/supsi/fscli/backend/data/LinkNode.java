@@ -4,6 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.Instant;
 
+/**
+ * Represents a symbolic link in the filesystem.
+ * Stores a target path that can be absolute or relative.
+ */
 public class LinkNode extends FileSystemNode {
     private String target;
 

@@ -6,6 +6,10 @@ import ch.supsi.fscli.frontend.listener.Listener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Event manager for the observer pattern.
+ * Manages listeners and notifies them of events.
+ */
 public final class EventManager<T extends Event> implements EventNotifier<T>, EventPublisher<T>{
     private final List<Listener<T>> listeners;
 

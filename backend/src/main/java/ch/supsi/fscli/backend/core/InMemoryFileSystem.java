@@ -2,18 +2,24 @@ package ch.supsi.fscli.backend.core;
 
 import ch.supsi.fscli.backend.data.LinkNode;
 import ch.supsi.fscli.backend.provider.resolver.PathResolver;
-import ch.supsi.fscli.backend.core.exception.*;
+import ch.supsi.fscli.backend.core.exception.AlreadyExistsException;
+import ch.supsi.fscli.backend.core.exception.FSException;
+import ch.supsi.fscli.backend.core.exception.InvalidPathException;
+import ch.supsi.fscli.backend.core.exception.NotADirectoryException;
+import ch.supsi.fscli.backend.core.exception.NotFoundException;
 import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.data.FileNode;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
+/**
+ * In-memory implementation of a Unix-like filesystem.
+ * Provides commands like mkdir, touch, rm, mv, cp, ln, cd, pwd, ls.
+ * Supports symbolic links, hard links, and wildcard expansion.
+ */
 public class InMemoryFileSystem implements FileSystem {
     private final DirectoryNode root;
     private DirectoryNode cwd;

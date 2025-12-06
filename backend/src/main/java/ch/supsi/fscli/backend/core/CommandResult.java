@@ -3,6 +3,10 @@ package ch.supsi.fscli.backend.core;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Result of a command execution.
+ * Contains success status, output lines, and error messages.
+ */
 public class CommandResult {
     private final boolean success;
     private final List<String> output;

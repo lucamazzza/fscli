@@ -3,11 +3,11 @@ package ch.supsi.fscli.backend.service;
 import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.InMemoryFileSystem;
-import ch.supsi.fscli.backend.core.command.*;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.controller.CommandResponse;
 import ch.supsi.fscli.backend.provider.parser.CommandParser;
+import ch.supsi.fscli.backend.core.command.Command;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
@@ -17,14 +17,8 @@ import java.util.Set;
 
 /**
  * Service layer for filesystem command execution.
- * This is the main interface between the frontend and backend.
- * <p>
- * Architecture: Frontend → Controller → Service → Provider → Core → Data
- * <p>
- * The frontend should:
- * 1. Create a FileSystemService instance
- * 2. Call executeCommand() with command strings from user input
- * 3. Handle CommandResponse to display output or errors
+ * Main interface between frontend and backend filesystem operations.
+ * Manages command history and delegates to CommandExecutor.
  */
 public class FileSystemService {
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages_backend");

@@ -6,6 +6,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * User preferences for the filesystem CLI application.
+ * Includes language, font settings, and display dimensions.
+ * Validates and clamps values to acceptable ranges.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserPreferences {
     private String language = BackendGlobalVariables.DEFAULT_LANGUAGE;
@@ -16,7 +21,6 @@ public class UserPreferences {
     private String outputFont = BackendGlobalVariables.DEFAULT_OUTPUT_FONT;
     private String logFont = BackendGlobalVariables.DEFAULT_LOG_FONT;
 
-    // flag che indica se durante il caricamento è stato fatto clamping/fallback
     private boolean clamped = false;
 
     public UserPreferences() {}
@@ -31,8 +35,6 @@ public class UserPreferences {
         this.logFont = other.logFont;
         this.clamped = other.clamped;
     }
-
-    // --- VALIDATOR METHODS --- (ora impostano clamped = true quando usano default)
 
     private int validateInt(Object input, int min, int max, int defaultValue) {
         if (input instanceof Number) {
@@ -58,8 +60,6 @@ public class UserPreferences {
         this.clamped = true;
         return defaultFont;
     }
-
-    // --- GETTERS / SETTERS ---
 
     public String getLanguage() { return language; }
     public void setLanguage(Object language) {
@@ -102,22 +102,17 @@ public class UserPreferences {
         this.logFont = validateFont(logFont, BackendGlobalVariables.DEFAULT_LOG_FONT);
     }
 
-    // --- Metodi per comunicare il clamping al resto dell'app ---
-
     /**
-     * True se durante il caricamento dal file sono stati usati dei valori di default
-     * (cioè qualche campo era invalido / fuori range / font non disponibile).
+     * Returns true if values were clamped to defaults during loading.
      */
     public boolean wasClamped() {
         return clamped;
     }
 
-    /** Resetta il flag (utile dopo aver notificato l'utente). */
     public void clearClamped() {
         this.clamped = false;
     }
 
-    // --- OPTIONAL: Carica da JSON-like Map ---
     public void loadFromMap(Map<String, Object> json) {
         if (json.containsKey("language")) setLanguage(json.get("language"));
         if (json.containsKey("cmdColumns")) setCmdColumns(json.get("cmdColumns"));

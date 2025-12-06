@@ -2,6 +2,10 @@ package ch.supsi.fscli.backend.util;
 
 import java.util.function.BiConsumer;
 
+/**
+ * Logger for user preferences operations.
+ * Supports external listeners for log events.
+ */
 public class PreferencesLogger {
     private static BiConsumer<String, String> externalListener;
 
@@ -10,7 +14,6 @@ public class PreferencesLogger {
     }
 
     public static void logInfo(String message) {
-        System.out.println("[INFO] " + message);
         if (externalListener != null) {
             externalListener.accept("INFO", message);
         }

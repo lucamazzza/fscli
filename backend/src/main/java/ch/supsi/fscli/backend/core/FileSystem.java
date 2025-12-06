@@ -6,6 +6,10 @@ import ch.supsi.fscli.backend.data.FileSystemNode;
 
 import java.util.List;
 
+/**
+ * Core interface defining filesystem operations.
+ * Provides Unix-like commands and utilities for path resolution and node manipulation.
+ */
 public interface FileSystem {
 
     /**
