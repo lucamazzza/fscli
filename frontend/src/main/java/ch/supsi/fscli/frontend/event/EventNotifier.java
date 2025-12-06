@@ -1,6 +1,8 @@
 package ch.supsi.fscli.frontend.event;
 
-@FunctionalInterface
+import ch.supsi.fscli.frontend.listener.Listener;
+
 public interface EventNotifier<T extends Event> {
-    void notify(T event);
+    void addListener(Listener<T> listener);
+    void removeListener(Listener<T> listener);
 }

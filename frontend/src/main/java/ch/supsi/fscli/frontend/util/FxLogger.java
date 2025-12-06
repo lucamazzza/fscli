@@ -1,5 +1,6 @@
 package ch.supsi.fscli.frontend.util;
 
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 import java.time.LocalTime;
@@ -25,7 +26,7 @@ public class FxLogger {
 
     public void log(String message) {
         if (logArea == null) {
-            System.err.println("[LOGVIEW NOT INITIALIZED] " + message);
+            System.err.println(FrontendMessageProvider.get("logViewNotInitialized") + message);
             return;
         }
 
@@ -36,7 +37,7 @@ public class FxLogger {
     }
 
     public void setLogAreaRowCount(int rows){
-        if(logArea == null){
+        if(logArea != null){
             Platform.runLater(() -> logArea.setPrefRowCount(rows));
         }
     }

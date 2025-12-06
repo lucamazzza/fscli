@@ -4,6 +4,7 @@ import ch.supsi.fscli.backend.core.FileSystem;
 import ch.supsi.fscli.backend.core.CommandResult;
 import ch.supsi.fscli.backend.core.InMemoryFileSystem;
 import ch.supsi.fscli.backend.core.command.*;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 import ch.supsi.fscli.backend.provider.executor.CommandExecutor;
 import ch.supsi.fscli.backend.controller.CommandResponse;
 import ch.supsi.fscli.backend.provider.parser.CommandParser;
@@ -11,6 +12,7 @@ import com.google.inject.Inject;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 /**
@@ -25,6 +27,8 @@ import java.util.Set;
  * 3. Handle CommandResponse to display output or errors
  */
 public class FileSystemService {
+    private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages_backend");
+
     private CommandExecutor executor;
     private final List<CommandHistoryEntry> history = new ArrayList<>();
     private static final int MAX_HISTORY_SIZE = 1000;
@@ -83,7 +87,7 @@ public class FileSystemService {
 
     private CommandResponse executeInternal(String commandString) {
         if (commandString == null || commandString.trim().isEmpty()) {
-            return new CommandResponse(false, null, "Empty command");
+            return new CommandResponse(false, null, BackendMessageProvider.get("commandEmpty"));
         }
         CommandResult result = executor.execute(commandString);
         return new CommandResponse(
@@ -110,8 +114,12 @@ public class FileSystemService {
      */
     public String getCommandHelp(String commandName) {
         Command command = executor.getCommand(commandName);
-        if (command == null) return commandName + ": command not found";
-        return String.format("Usage: %s", command.getUsage());
+        if (command == null) return commandName + ": " + BackendMessageProvider.get("unknownCommand");
+        String descKey = commandName + ".description";
+        String usageKey = commandName + ".usage";
+        String desc = MESSAGES.containsKey(descKey) ? BackendMessageProvider.get(descKey) : "";
+        String usage = MESSAGES.containsKey(usageKey) ? BackendMessageProvider.get(usageKey) : "";
+        return String.format("%s\nUsage: %s", desc, usage);
     }
     
     /**
@@ -181,8 +189,8 @@ public class FileSystemService {
     
     private void addToHistory(String command, CommandResponse response) {
         CommandHistoryEntry entry = new CommandHistoryEntry(
-                command, 
-                response.isSuccess(), 
+                command,
+                response.isSuccess(),
                 System.currentTimeMillis()
         );
         history.add(entry);
@@ -200,5 +208,9 @@ public class FileSystemService {
             return "/";
         }
         return fileSystem.pwd();
+    }
+
+    public String getMessage(String key) {
+        return MESSAGES.containsKey(key) ? BackendMessageProvider.get(key) : key;
     }
 }

@@ -7,6 +7,8 @@ import ch.supsi.fscli.backend.core.exception.FSException;
 import ch.supsi.fscli.backend.core.exception.InvalidCommandException;
 import ch.supsi.fscli.backend.provider.parser.CommandParser;
 import ch.supsi.fscli.backend.provider.parser.CommandSyntax;
+import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
+
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,42 +36,45 @@ public class CommandExecutor {
             
             Command command = commands.get(parsedCommand.getCommandName());
             if (command == null) {
-                return CommandResult.error("Unknown command: " + parsedCommand.getCommandName());
+                return CommandResult.error(
+                        BackendMessageProvider.get("unknownCommand") + ": " + parsedCommand.getCommandName());
             }
             
             // Expand wildcards in arguments based on command's policy
             CommandSyntax expandedCommand = command.shouldExpandWildcards()
                 ? expandWildcards(parsedCommand, command)
                 : parsedCommand;
-            
+
             return command.execute(fileSystem, expandedCommand);
             
         } catch (InvalidCommandException e) {
-            return CommandResult.error("Invalid command: " + e.getMessage());
+            return CommandResult.error(
+                    BackendMessageProvider.get("invalidCommand") + ": " + e.getMessage());
         } catch (FSException e) {
             return CommandResult.error(e.getMessage());
         } catch (Exception e) {
-            return CommandResult.error("Error executing command: " + e.getMessage());
+            return CommandResult.error(
+                    BackendMessageProvider.get("executionError") + ": " + e.getMessage());
         }
     }
-    
+
     public Map<String, Command> getAvailableCommands() {
         return new HashMap<>(commands);
     }
-    
+
     public Command getCommand(String name) {
         return commands.get(name);
     }
-    
+
     private CommandSyntax expandWildcards(CommandSyntax syntax, Command command) throws FSException {
         String commandName = syntax.getCommandName();
         List<String> originalArgs = syntax.getArguments();
         List<String> expandedArgs = new ArrayList<>();
-        
+
         // Separate flags from non-flag arguments
         List<String> flags = new ArrayList<>();
         List<String> nonFlagArgs = new ArrayList<>();
-        
+
         for (String arg : originalArgs) {
             if (arg.startsWith("-")) {
                 flags.add(arg);
@@ -77,7 +82,7 @@ public class CommandExecutor {
                 nonFlagArgs.add(arg);
             }
         }
-        
+
         // Expand non-flag arguments based on command's policy
         List<String> expandedNonFlagArgs = new ArrayList<>();
         for (int i = 0; i < nonFlagArgs.size(); i++) {
@@ -89,11 +94,11 @@ public class CommandExecutor {
                 expandedNonFlagArgs.add(arg);
             }
         }
-        
+
         // Reconstruct arguments with flags first, then expanded args
         expandedArgs.addAll(flags);
         expandedArgs.addAll(expandedNonFlagArgs);
-        
+
         return new CommandSyntax(commandName, expandedArgs);
     }
 }

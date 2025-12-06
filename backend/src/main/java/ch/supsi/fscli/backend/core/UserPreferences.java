@@ -1,9 +1,12 @@
 package ch.supsi.fscli.backend.core;
 
 import ch.supsi.fscli.backend.util.BackendGlobalVariables;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
+import java.util.Map;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserPreferences {
     private String language = BackendGlobalVariables.DEFAULT_LANGUAGE;
     private int cmdColumns = BackendGlobalVariables.DEFAULT_CMD_COLUMNS;
@@ -12,6 +15,9 @@ public class UserPreferences {
     private String cmdFont = BackendGlobalVariables.DEFAULT_CMD_FONT;
     private String outputFont = BackendGlobalVariables.DEFAULT_OUTPUT_FONT;
     private String logFont = BackendGlobalVariables.DEFAULT_LOG_FONT;
+
+    // flag che indica se durante il caricamento è stato fatto clamping/fallback
+    private boolean clamped = false;
 
     public UserPreferences() {}
 
@@ -23,59 +29,102 @@ public class UserPreferences {
         this.cmdFont = other.cmdFont;
         this.outputFont = other.outputFont;
         this.logFont = other.logFont;
+        this.clamped = other.clamped;
     }
 
-    private int clamp(int value, int min, int max) {
-        return Math.max(min, Math.min(max, value));
-    }
+    // --- VALIDATOR METHODS --- (ora impostano clamped = true quando usano default)
 
-    private String validateLanguage(String input) {
-        List<String> allowed = List.of("en", "it", "de", "fr");
-        if (!allowed.contains(input)) {
-            return BackendGlobalVariables.DEFAULT_LANGUAGE;
+    private int validateInt(Object input, int min, int max, int defaultValue) {
+        if (input instanceof Number) {
+            int value = ((Number) input).intValue();
+            if (value >= min && value <= max) return value;
         }
-        return input;
+        this.clamped = true;
+        return defaultValue;
     }
 
-    private String validateFont(String input, String defaultFont) {
-        if (!BackendGlobalVariables.getSystemFonts().contains(input)) {
-            return defaultFont;
+    private String validateString(Object input, List<String> allowed, String defaultValue) {
+        if (input instanceof String str) {
+            if (allowed.contains(str)) return str;
         }
-        return input;
+        this.clamped = true;
+        return defaultValue;
     }
+
+    private String validateFont(Object input, String defaultFont) {
+        if (input instanceof String str) {
+            if (BackendGlobalVariables.getSystemFonts().contains(str)) return str;
+        }
+        this.clamped = true;
+        return defaultFont;
+    }
+
+    // --- GETTERS / SETTERS ---
 
     public String getLanguage() { return language; }
-    public void setLanguage(String language) {
-        this.language = validateLanguage(language);
+    public void setLanguage(Object language) {
+        this.language = validateString(language, List.of("en", "it"), BackendGlobalVariables.DEFAULT_LANGUAGE);
     }
 
     public int getCmdColumns() { return cmdColumns; }
-    public void setCmdColumns(int cmdColumns) {
-        this.cmdColumns = clamp(cmdColumns, BackendGlobalVariables.MIN_COLUMNS, BackendGlobalVariables.MAX_COLUMNS);
+    public void setCmdColumns(Object cmdColumns) {
+        this.cmdColumns = validateInt(cmdColumns, BackendGlobalVariables.MIN_COLUMNS,
+                BackendGlobalVariables.MAX_COLUMNS,
+                BackendGlobalVariables.DEFAULT_CMD_COLUMNS);
     }
 
     public int getOutputLines() { return outputLines; }
-    public void setOutputLines(int outputLines) {
-        this.outputLines = clamp(outputLines, BackendGlobalVariables.MIN_LINES, BackendGlobalVariables.MAX_LINES);
+    public void setOutputLines(Object outputLines) {
+        this.outputLines = validateInt(outputLines, BackendGlobalVariables.MIN_LINES,
+                BackendGlobalVariables.MAX_LINES,
+                BackendGlobalVariables.DEFAULT_OUTPUT_LINES);
     }
 
     public int getLogLines() { return logLines; }
-    public void setLogLines(int logLines) {
-        this.logLines = clamp(logLines, BackendGlobalVariables.MIN_LINES, BackendGlobalVariables.MAX_LINES);
+    public void setLogLines(Object logLines) {
+        this.logLines = validateInt(logLines, BackendGlobalVariables.MIN_LINES,
+                BackendGlobalVariables.MAX_LINES,
+                BackendGlobalVariables.DEFAULT_LOG_LINES);
     }
 
     public String getCmdFont() { return cmdFont; }
-    public void setCmdFont(String cmdFont) {
+    public void setCmdFont(Object cmdFont) {
         this.cmdFont = validateFont(cmdFont, BackendGlobalVariables.DEFAULT_CMD_FONT);
     }
 
     public String getOutputFont() { return outputFont; }
-    public void setOutputFont(String outputFont) {
+    public void setOutputFont(Object outputFont) {
         this.outputFont = validateFont(outputFont, BackendGlobalVariables.DEFAULT_OUTPUT_FONT);
     }
 
     public String getLogFont() { return logFont; }
-    public void setLogFont(String logFont) {
+    public void setLogFont(Object logFont) {
         this.logFont = validateFont(logFont, BackendGlobalVariables.DEFAULT_LOG_FONT);
+    }
+
+    // --- Metodi per comunicare il clamping al resto dell'app ---
+
+    /**
+     * True se durante il caricamento dal file sono stati usati dei valori di default
+     * (cioè qualche campo era invalido / fuori range / font non disponibile).
+     */
+    public boolean wasClamped() {
+        return clamped;
+    }
+
+    /** Resetta il flag (utile dopo aver notificato l'utente). */
+    public void clearClamped() {
+        this.clamped = false;
+    }
+
+    // --- OPTIONAL: Carica da JSON-like Map ---
+    public void loadFromMap(Map<String, Object> json) {
+        if (json.containsKey("language")) setLanguage(json.get("language"));
+        if (json.containsKey("cmdColumns")) setCmdColumns(json.get("cmdColumns"));
+        if (json.containsKey("outputLines")) setOutputLines(json.get("outputLines"));
+        if (json.containsKey("logLines")) setLogLines(json.get("logLines"));
+        if (json.containsKey("cmdFont")) setCmdFont(json.get("cmdFont"));
+        if (json.containsKey("outputFont")) setOutputFont(json.get("outputFont"));
+        if (json.containsKey("logFont")) setLogFont(json.get("logFont"));
     }
 }
