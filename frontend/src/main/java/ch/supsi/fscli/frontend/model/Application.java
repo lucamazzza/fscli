@@ -19,7 +19,6 @@ public class Application {
 
     private static Application instance;
 
-
     public static Application getInstance() {
         if (instance == null) {
             instance = new Application();
@@ -30,7 +29,6 @@ public class Application {
     private Application() {
         Properties properties = new Properties();
         String resourceName = "application.properties";
-
         try (InputStream is = getClass().getClassLoader().getResourceAsStream(resourceName)) {
             if (is != null) {
                 properties.load(is);

@@ -13,7 +13,7 @@ import java.util.ResourceBundle;
 
 public class FileSystemController implements FileSystemEventHandler, CommandLineEventHandler {
     @Setter
-    private FileSystemModel fileSystemModel;
+    private FileSystemModel model;
 
     private static FileSystemController instance;
 
@@ -29,30 +29,30 @@ public class FileSystemController implements FileSystemEventHandler, CommandLine
 
     @Override
     public void newFileSystem(boolean force) {
-        this.fileSystemModel.createFileSystem(force);
+        this.model.createFileSystem(force);
     }
 
     @Override
     public void save() {
-        fileSystemModel.save();
+        model.save();
     }
 
     @Override
     public void saveAs(File file) {
         if (file == null) return;
-        fileSystemModel.saveAs(file);
+        model.saveAs(file);
     }
 
     @Override
     public void load(File file) {
         if (file == null) return;
-        fileSystemModel.load(file);
+        model.load(file);
     }
 
     @Override
     public void executeCommand(String command) {
-        if (fileSystemModel == null) return;
+        if (model == null) return;
         if (command == null || command.isBlank()) return;
-        fileSystemModel.executeCommand(command.trim());
+        model.executeCommand(command.trim());
     }
 }
