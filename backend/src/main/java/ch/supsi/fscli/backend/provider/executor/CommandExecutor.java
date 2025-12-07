@@ -86,7 +86,6 @@ public class CommandExecutor {
             }
         }
 
-        // Expand non-flag arguments based on command's policy
         List<String> expandedNonFlagArgs = new ArrayList<>();
         for (int i = 0; i < nonFlagArgs.size(); i++) {
             String arg = nonFlagArgs.get(i);
