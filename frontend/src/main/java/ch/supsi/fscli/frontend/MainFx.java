@@ -125,7 +125,7 @@ public class MainFx extends Application {
         fileSystemModel.setBackendPersistenceController(backendPersistenceController);
 
         FileSystemController fileSystemController = FileSystemController.getInstance();
-        fileSystemController.setFileSystemModel(fileSystemModel);
+        fileSystemController.setModel(fileSystemModel);
 
         this.menuBar.setFileSystemEventHandler(fileSystemController);
         this.commandLine.setCommandLineEventHandler(fileSystemController);
