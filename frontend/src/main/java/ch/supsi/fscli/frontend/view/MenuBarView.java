@@ -212,14 +212,124 @@ public class MenuBarView implements View {
         AboutController controller = AboutController.getInstance();
         String title = "Help";
         String text = """
-            This application allows you to create, open, and manage virtual file systems
-            in a user-friendly way.
-            Features:
-            - Create new file systems
-            - Open existing file systems from JSON files
-            - Save and save as functionality
-            - Customize preferences for command line and output views
-            For more information, visit our documentation or contact support.
+            ═══════════════════════════════════════════════════════════════
+            FILESYSTEM COMMAND LINE INTERFACE SIMULATOR - USER GUIDE
+            ═══════════════════════════════════════════════════════════════
+            
+            GETTING STARTED
+            ───────────────
+            1. Create a new filesystem: File > New
+            2. Enter commands in the command line interface
+            3. Type 'help' in the CLI to see available commands
+            4. Save your work: File > Save or Save As...
+            
+            MENU BAR
+            ────────
+            • File Menu:
+              - New: Create a new virtual filesystem
+              - Open: Load an existing filesystem from a JSON file
+              - Save: Save the current filesystem to its file
+              - Save As: Save the filesystem to a new location
+              - Exit: Close the application
+            
+            • Edit Menu:
+              - Preferences: Customize application settings including:
+                · Language selection
+                · Command line font and column width
+                · Output view font and line count
+                · Log view font and line count
+            
+            • Help Menu:
+              - Help: Display this help window
+              - About: View application information and version
+            
+            COMMAND LINE INTERFACE
+            ──────────────────────
+            Available Commands (type 'help' in CLI for detailed syntax):
+            
+            • pwd         - Print working directory
+            • cd <path>   - Change directory
+            • ls [path]   - List directory contents
+            • mkdir <dir> - Create a new directory
+            • rmdir <dir> - Remove an empty directory
+            • touch <file>- Create a new empty file
+            • rm <file>   - Remove a file
+            • cp <src> <dst> - Copy file or directory
+            • mv <src> <dst> - Move or rename file/directory
+            • ln <target> <link> - Create a symbolic link
+            
+            Command Execution:
+            - Type your command in the command field
+            - Press Enter or click the "enter" button
+            - View results in the output area below
+            - Commands only work after creating/loading a filesystem
+            
+            FILE OPERATIONS
+            ───────────────
+            • Creating a Filesystem:
+              Go to File > New. This initializes a fresh virtual filesystem.
+              Any unsaved changes will prompt a confirmation dialog.
+            
+            • Opening a Filesystem:
+              Go to File > Open and select a JSON filesystem file.
+              Supported format: JSON files (*.json)
+            
+            • Saving Your Work:
+              - Save: Quickly save to the current file location
+              - Save As: Choose a new filename and location
+              - Remember to save regularly to avoid data loss
+            
+            PREFERENCES
+            ───────────
+            Customize your experience via Edit > Preferences:
+            
+            • Language: Switch between English and Italian
+            • Command Columns: Adjust command input field width
+            • Command Font: Change command line text size
+            • Output Lines: Set number of visible output lines
+            • Output Font: Change output area text size
+            • Log Lines: Set number of visible log lines
+            • Log Font: Change log area text size
+            
+            Note: Restart required for some preferences to take effect.
+            
+            OUTPUT AREAS
+            ────────────
+            • Command Output View: Displays command execution results
+              and error messages
+            • Log Area: Shows system logs and application events
+            
+            TIPS & BEST PRACTICES
+            ──────────────────────
+            ✓ Always create or open a filesystem before running commands
+            ✓ Use 'pwd' to check your current directory location
+            ✓ Use 'ls' to see what files and directories exist
+            ✓ Save your work frequently using File > Save
+            ✓ Type 'help' in the CLI for command-specific syntax
+            ✓ Check the log area for detailed system information
+            
+            TROUBLESHOOTING
+            ───────────────
+            • "No filesystem loaded" error:
+              Create a new filesystem (File > New) or open an existing one
+            
+            • Command not executing:
+              Ensure filesystem is initialized and command syntax is correct
+            
+            • Cannot save file:
+              Use "Save As" to specify a new location
+            
+            • Preferences not applying:
+              Restart the application after changing preferences
+            
+            KEYBOARD SHORTCUTS
+            ──────────────────
+            • Enter: Execute the current command (when in command field)
+            
+            ═══════════════════════════════════════════════════════════════
+            For additional support or to report issues, please contact
+            your system administrator or refer to the project documentation.
+            ═══════════════════════════════════════════════════════════════
             """;
 
         Stage aboutStage = new Stage();
@@ -236,10 +346,11 @@ public class MenuBarView implements View {
         titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
 
         Text helpText = new Text(text); 
-        helpText.setWrappingWidth(450); // Wrap text within 310px
+        helpText.setWrappingWidth(500); // Wrap text within 700px
+        helpText.setStyle("-fx-font-family: 'Monospaced', 'Courier New', monospace; -fx-font-size: 11px;");
         ScrollPane scrollPane = new ScrollPane(helpText);
         scrollPane.setFitToWidth(true);
-        scrollPane.setPrefViewportHeight(200);
+        scrollPane.setPrefViewportHeight(500);
 
 
         Button closeButton = new Button("Close");
@@ -247,10 +358,10 @@ public class MenuBarView implements View {
 
         contentBox.getChildren().addAll(titleLabel, scrollPane, closeButton);
 
-        Scene aboutScene = new Scene(contentBox, 450, 350);
+        Scene aboutScene = new Scene(contentBox, 550, 600);
         aboutStage.setScene(aboutScene);
 
-        aboutStage.setResizable(false);
+        aboutStage.setResizable(true);
 
         aboutStage.showAndWait();
     }
