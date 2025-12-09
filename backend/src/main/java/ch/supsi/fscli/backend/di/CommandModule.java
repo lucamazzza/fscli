@@ -3,6 +3,7 @@ package ch.supsi.fscli.backend.di;
 import ch.supsi.fscli.backend.core.command.CdCommand;
 import ch.supsi.fscli.backend.core.command.Command;
 import ch.supsi.fscli.backend.core.command.CpCommand;
+import ch.supsi.fscli.backend.core.command.FortuneCommand;
 import ch.supsi.fscli.backend.core.command.LnCommand;
 import ch.supsi.fscli.backend.core.command.LsCommand;
 import ch.supsi.fscli.backend.core.command.MkdirCommand;
@@ -34,5 +35,6 @@ public class CommandModule extends AbstractModule {
         commandBinder.addBinding().to(RmCommand.class);
         commandBinder.addBinding().to(RmdirCommand.class);
         commandBinder.addBinding().to(TouchCommand.class);
+        commandBinder.addBinding().to(FortuneCommand.class);
     }
 }
