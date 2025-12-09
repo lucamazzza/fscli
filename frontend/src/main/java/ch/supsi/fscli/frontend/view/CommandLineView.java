@@ -16,6 +16,8 @@ import javafx.scene.input.KeyCode;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 public class CommandLineView implements View {
     private static final int COMMAND_LINE_PREF_COLUMN_COUNT = 72;
@@ -30,6 +32,8 @@ public class CommandLineView implements View {
     private final Listener<FileSystemEvent> fileSystemListener;
 
     private String lastCommandExecuted;
+    private int historyIndex = -1;
+    private String temporaryCommand = "";
 
     @Setter
     CommandLineEventHandler commandLineEventHandler;
@@ -83,6 +87,12 @@ public class CommandLineView implements View {
         this.commandLine.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
                 executeCommand();
+            } else if (event.getCode() == KeyCode.UP) {
+                event.consume();
+                navigateHistoryUp();
+            } else if (event.getCode() == KeyCode.DOWN) {
+                event.consume();
+                navigateHistoryDown();
             }
         });
     }
@@ -103,10 +113,12 @@ public class CommandLineView implements View {
         if (command != null && command.trim().equals("clear")) {
             outputView.clear();
             commandLine.clear();
+            resetHistoryNavigation();
             return;
         }
         if (command == null || command.trim().isEmpty()) return;
         lastCommandExecuted = command;
+        resetHistoryNavigation();
         FileSystemModel fileSystem = FileSystemModel.getInstance();
         String currentDir = fileSystem.getCurrentDirectory();
         outputView.appendText(currentDir + "$ " + command + "\n");
@@ -130,6 +142,46 @@ public class CommandLineView implements View {
         }
         commandLine.clear();
         outputView.setScrollTop(Double.MAX_VALUE);
+    }
+    
+    private void navigateHistoryUp() {
+        FileSystemModel fileSystem = FileSystemModel.getInstance();
+        if (!fileSystem.isFileSystemReady()) return;
+        
+        List<String> history = fileSystem.getCommandHistory();
+        if (history.isEmpty()) return;
+        
+        if (historyIndex == -1) {
+            temporaryCommand = commandLine.getText();
+            historyIndex = history.size() - 1;
+        } else if (historyIndex > 0) {
+            historyIndex--;
+        }
+        
+        commandLine.setText(history.get(historyIndex));
+        commandLine.positionCaret(commandLine.getText().length());
+    }
+    
+    private void navigateHistoryDown() {
+        FileSystemModel fileSystem = FileSystemModel.getInstance();
+        if (!fileSystem.isFileSystemReady()) return;
+        
+        List<String> history = fileSystem.getCommandHistory();
+        if (history.isEmpty() || historyIndex == -1) return;
+        
+        if (historyIndex < history.size() - 1) {
+            historyIndex++;
+            commandLine.setText(history.get(historyIndex));
+        } else {
+            historyIndex = -1;
+            commandLine.setText(temporaryCommand);
+        }
+        commandLine.positionCaret(commandLine.getText().length());
+    }
+    
+    private void resetHistoryNavigation() {
+        historyIndex = -1;
+        temporaryCommand = "";
     }
     
     public void clearOutput() {
