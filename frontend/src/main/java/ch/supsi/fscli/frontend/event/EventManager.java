@@ -3,8 +3,8 @@ package ch.supsi.fscli.frontend.event;
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.listener.Listener;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Event manager for the observer pattern.
@@ -14,13 +14,13 @@ public final class EventManager<T extends Event> implements EventNotifier<T>, Ev
     private final List<Listener<T>> listeners;
 
     public EventManager() {
-        listeners = new ArrayList<>();
+        listeners = new CopyOnWriteArrayList<>();
     }
 
     @Override
     public void addListener(Listener<T> listener) {
         if (listener != null && !listeners.contains(listener)) {
-            listeners.add(listener);
+            ((CopyOnWriteArrayList<Listener<T>>) listeners).addIfAbsent(listener);
         }
     }
 
@@ -36,11 +36,13 @@ public final class EventManager<T extends Event> implements EventNotifier<T>, Ev
         if (event == null) return;
         if (listeners.isEmpty()) return;
 
-        try {
-            listeners.forEach(listener -> listener.update(event));
-        } catch (Exception e) {
-            System.err.println(FrontendMessageProvider.get("error.listener"));
-            e.printStackTrace();
+        for (Listener<T> listener : listeners) {
+            try {
+                listener.update(event);
+            } catch (Exception e) {
+                System.err.println(FrontendMessageProvider.get("error.listener"));
+                e.printStackTrace();
+            }
         }
     }
 }

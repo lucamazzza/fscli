@@ -22,9 +22,7 @@ import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import ch.supsi.fscli.backend.di.BackendInjector;
 import ch.supsi.fscli.frontend.util.*;
-import ch.supsi.fscli.backend.util.PreferencesLogger;
 
-import java.io.File;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
