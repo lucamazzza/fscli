@@ -1,7 +1,7 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.controller.ValidatedField;
-import ch.supsi.fscli.frontend.util.FieldValidator;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
+import ch.supsi.fscli.frontend.controller.ValidatedField;
 import ch.supsi.fscli.frontend.util.FrontendGlobalVariables;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Insets;
@@ -11,31 +11,45 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Locale;
 
 public class PreferencesView {
 
-    public Stage stage;
-    public GridPane grid;
+    private static PreferencesView instance;
 
-    public ComboBox<String> languageBox;
-    public ComboBox<String> cmdFontBox;
-    public ComboBox<String> outputFontBox;
-    public ComboBox<String> logFontBox;
-    public ValidatedField cmdColumnsField;
-    public ValidatedField outputLinesField;
-    public ValidatedField logLinesField;
-    public Button saveBtn;
-    public Button cancelBtn;
-    public Button reloadBtn;
+    private Stage stage;
+    private GridPane grid;
+
+    private ComboBox<String> languageBox;
+    private ComboBox<String> cmdFontBox;
+    private ComboBox<String> outputFontBox;
+    private ComboBox<String> logFontBox;
+
+    private ValidatedField cmdColumnsField;
+    private ValidatedField outputLinesField;
+    private ValidatedField logLinesField;
+
+    private Button saveBtn;
+    private Button cancelBtn;
+    private Button reloadBtn;
 
 
-    public PreferencesView(Map<String, String> prefs) {
+    public static PreferencesView getInstance(Map<String, String> prefs) {
+        if (instance == null) {
+            instance = new PreferencesView(prefs);
+        } else {
+            instance.updateValues(prefs);
+        }
+        return instance;
+    }
+
+
+    private PreferencesView(Map<String, String> prefs) {
         initUI(prefs);
     }
 
+
     private void initUI(Map<String, String> prefs) {
+
         stage = new Stage();
         stage.setTitle(FrontendMessageProvider.get("preferences.title"));
 
@@ -91,9 +105,24 @@ public class PreferencesView {
         grid.addRow(row++, saveBtn, reloadBtn, cancelBtn);
 
         Scene scene = new Scene(grid);
-        scene.getStylesheets().add(getClass().getResource("/styles/preferences.css").toExternalForm());
+        scene.getStylesheets().add(
+                getClass().getResource("/styles/preferences.css").toExternalForm()
+        );
+
         stage.setScene(scene);
     }
+
+
+    public void updateValues(Map<String, String> prefs) {
+        setLanguage(prefs.get("language"));
+        setCmdColumns(prefs.get("cmdColumns"));
+        setOutputLines(prefs.get("outputLines"));
+        setLogLines(prefs.get("logLines"));
+        setCmdFont(prefs.get("cmdFont"));
+        setOutputFont(prefs.get("outputFont"));
+        setLogFont(prefs.get("logFont"));
+    }
+
 
     public void setLanguage(String language) { languageBox.setValue(language); }
     public String getLanguage() { return languageBox.getValue(); }
@@ -119,11 +148,13 @@ public class PreferencesView {
     public void setLogFont(String font) { logFontBox.setValue(font); }
     public String getLogFont() { return logFontBox.getValue(); }
 
+
     public void setOnSave(Runnable r) { saveBtn.setOnAction(e -> r.run()); }
     public void setOnCancel(Runnable r) { cancelBtn.setOnAction(e -> r.run()); }
     public void setOnReload(Runnable r) { reloadBtn.setOnAction(e -> r.run()); }
 
     public BooleanProperty saveBtnDisableProperty() { return saveBtn.disableProperty(); }
+
 
     public void show() { stage.show(); }
     public void close() { stage.close(); }

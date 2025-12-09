@@ -1,35 +1,30 @@
 package ch.supsi.fscli.frontend.model;
 
-import ch.supsi.fscli.backend.controller.PreferencesController;
-import ch.supsi.fscli.backend.core.UserPreferences;
-import ch.supsi.fscli.frontend.handler.PreferencesHandler;
-
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
-public class PreferencesModel implements PreferencesHandler {
+public class PreferencesModel {
 
-    private final PreferencesController controller;
+    private final Map<String, String> prefs;
 
-    public PreferencesModel(PreferencesController controller) { this.controller = controller; }
-
-    @Override
-    public void edit(Map<String, String> settings) {
-        settings.forEach((key, value) -> controller.updateOptionalPreference(key, Optional.of(value)));
+    public PreferencesModel(Map<String, String> initialPrefs) {
+        this.prefs = new HashMap<>(initialPrefs);
     }
 
-    @Override
-    public Map<String, String> load() {
-        UserPreferences p = controller.getPreferences();
-        return Map.of(
-                "language", p.getLanguage(),
-                "cmdColumns", String.valueOf(p.getCmdColumns()),
-                "outputLines", String.valueOf(p.getOutputLines()),
-                "logLines", String.valueOf(p.getLogLines()),
-                "cmdFont", p.getCmdFont(),
-                "outputFont", p.getOutputFont(),
-                "logFont", p.getLogFont()
-        );
+    public Map<String, String> getAll() {
+        return new HashMap<>(prefs);
     }
 
-    public void reload() { controller.reloadPreferences(); }}
+    public void update(Map<String, String> newPrefs) {
+        prefs.clear();
+        prefs.putAll(newPrefs);
+    }
+
+    public String get(String key) {
+        return prefs.get(key);
+    }
+
+    public void set(String key, String value) {
+        prefs.put(key, value);
+    }
+}
