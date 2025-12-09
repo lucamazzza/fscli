@@ -1,0 +1,125 @@
+package ch.supsi.fscli.backend.core;
+
+import ch.supsi.fscli.backend.util.BackendGlobalVariables;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * User preferences for the filesystem CLI application.
+ * Includes language, font settings, and display dimensions.
+ * Validates and clamps values to acceptable ranges.
+ */
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UserPreferences {
+    private String language = BackendGlobalVariables.DEFAULT_LANGUAGE;
+    private int cmdColumns = BackendGlobalVariables.DEFAULT_CMD_COLUMNS;
+    private int outputLines = BackendGlobalVariables.DEFAULT_OUTPUT_LINES;
+    private int logLines = BackendGlobalVariables.DEFAULT_LOG_LINES;
+    private String cmdFont = BackendGlobalVariables.DEFAULT_CMD_FONT;
+    private String outputFont = BackendGlobalVariables.DEFAULT_OUTPUT_FONT;
+    private String logFont = BackendGlobalVariables.DEFAULT_LOG_FONT;
+
+    private boolean clamped = false;
+
+    public UserPreferences() {}
+
+    public UserPreferences(UserPreferences other) {
+        this.language = other.language;
+        this.cmdColumns = other.cmdColumns;
+        this.outputLines = other.outputLines;
+        this.logLines = other.logLines;
+        this.cmdFont = other.cmdFont;
+        this.outputFont = other.outputFont;
+        this.logFont = other.logFont;
+        this.clamped = other.clamped;
+    }
+
+    private int validateInt(Object input, int min, int max, int defaultValue) {
+        if (input instanceof Number) {
+            int value = ((Number) input).intValue();
+            if (value >= min && value <= max) return value;
+        }
+        this.clamped = true;
+        return defaultValue;
+    }
+
+    private String validateString(Object input, List<String> allowed, String defaultValue) {
+        if (input instanceof String str) {
+            if (allowed.contains(str)) return str;
+        }
+        this.clamped = true;
+        return defaultValue;
+    }
+
+    private String validateFont(Object input, String defaultFont) {
+        if (input instanceof String str) {
+            if (BackendGlobalVariables.getSystemFonts().contains(str)) return str;
+        }
+        this.clamped = true;
+        return defaultFont;
+    }
+
+    public String getLanguage() { return language; }
+    public void setLanguage(Object language) {
+        this.language = validateString(language, List.of("en", "it"), BackendGlobalVariables.DEFAULT_LANGUAGE);
+    }
+
+    public int getCmdColumns() { return cmdColumns; }
+    public void setCmdColumns(Object cmdColumns) {
+        this.cmdColumns = validateInt(cmdColumns, BackendGlobalVariables.MIN_COLUMNS,
+                BackendGlobalVariables.MAX_COLUMNS,
+                BackendGlobalVariables.DEFAULT_CMD_COLUMNS);
+    }
+
+    public int getOutputLines() { return outputLines; }
+    public void setOutputLines(Object outputLines) {
+        this.outputLines = validateInt(outputLines, BackendGlobalVariables.MIN_LINES,
+                BackendGlobalVariables.MAX_LINES,
+                BackendGlobalVariables.DEFAULT_OUTPUT_LINES);
+    }
+
+    public int getLogLines() { return logLines; }
+    public void setLogLines(Object logLines) {
+        this.logLines = validateInt(logLines, BackendGlobalVariables.MIN_LINES,
+                BackendGlobalVariables.MAX_LINES,
+                BackendGlobalVariables.DEFAULT_LOG_LINES);
+    }
+
+    public String getCmdFont() { return cmdFont; }
+    public void setCmdFont(Object cmdFont) {
+        this.cmdFont = validateFont(cmdFont, BackendGlobalVariables.DEFAULT_CMD_FONT);
+    }
+
+    public String getOutputFont() { return outputFont; }
+    public void setOutputFont(Object outputFont) {
+        this.outputFont = validateFont(outputFont, BackendGlobalVariables.DEFAULT_OUTPUT_FONT);
+    }
+
+    public String getLogFont() { return logFont; }
+    public void setLogFont(Object logFont) {
+        this.logFont = validateFont(logFont, BackendGlobalVariables.DEFAULT_LOG_FONT);
+    }
+
+    /**
+     * Returns true if values were clamped to defaults during loading.
+     */
+    public boolean wasClamped() {
+        return clamped;
+    }
+
+    public void clearClamped() {
+        this.clamped = false;
+    }
+
+    public void loadFromMap(Map<String, Object> json) {
+        if (json.containsKey("language")) setLanguage(json.get("language"));
+        if (json.containsKey("cmdColumns")) setCmdColumns(json.get("cmdColumns"));
+        if (json.containsKey("outputLines")) setOutputLines(json.get("outputLines"));
+        if (json.containsKey("logLines")) setLogLines(json.get("logLines"));
+        if (json.containsKey("cmdFont")) setCmdFont(json.get("cmdFont"));
+        if (json.containsKey("outputFont")) setOutputFont(json.get("outputFont"));
+        if (json.containsKey("logFont")) setLogFont(json.get("logFont"));
+    }
+}

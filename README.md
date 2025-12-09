@@ -1,6 +1,4 @@
-# Gruppo_04
-
-
+# fsci - Gruppo 04
 
 ## Getting started
 
@@ -15,14 +13,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab-edu.supsi.ch/dti-isin/labingsw/labingsw02/2025-2026/fscli/Gruppo_04.git
+git remote add origin https://gitlab-edu.supsi.ch/dti-isin/labingsw/labingsw02/labs/fsci.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab-edu.supsi.ch/dti-isin/labingsw/labingsw02/2025-2026/fscli/Gruppo_04/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab-edu.supsi.ch/dti-isin/labingsw/labingsw02/labs/fsci/-/settings/integrations)
 
 ## Collaborate with your team
 
