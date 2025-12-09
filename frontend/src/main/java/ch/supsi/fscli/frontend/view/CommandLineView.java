@@ -134,19 +134,7 @@ public class CommandLineView implements View {
             commandLine.clear();
             return;
         }
-        CommandResponseDTO response = fileSystem.executeCommand(command);
-        if (response.isSuccess()) {
-            if (response.getOutput() != null && !response.getOutput().isEmpty()) {
-                for (String line : response.getOutput()) {
-                    outputView.appendText(line + "\n");
-                }
-            }
-        } else {
-            String errorMessage = response.getErrorMessage();
-            if (errorMessage != null && !errorMessage.isEmpty()) {
-                outputView.appendText("Error: " + errorMessage + "\n");
-            }
-        }
+        fileSystem.executeCommand(command);
         commandLine.clear();
         outputView.setScrollTop(Double.MAX_VALUE);
     }
