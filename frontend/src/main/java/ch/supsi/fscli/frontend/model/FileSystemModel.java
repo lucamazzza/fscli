@@ -22,7 +22,6 @@ import java.util.List;
 /**
  * Frontend model for FileSystem.
  * Delegates to backend controller (API boundary).
- * Flow: View → Frontend Controller → Frontend Model → Backend Controller → Service
  */
 public final class FileSystemModel {
     private FileSystemController backendController;
