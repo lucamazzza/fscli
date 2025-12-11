@@ -1,6 +1,8 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.controller.AboutController;
+import ch.supsi.fscli.frontend.event.AboutEvent;
+import ch.supsi.fscli.frontend.handler.AboutEventHandler;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
@@ -19,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Optional;
 
 @Getter
@@ -34,9 +37,12 @@ public class MenuBarView implements View {
 
     @Setter
     private FileSystemEventHandler fileSystemEventHandler;
+    @Setter
+    private AboutEventHandler aboutEventHandler;
 
     // LISTENERS
     private final Listener<FileSystemEvent> fileSystemListener;
+    private final Listener<AboutEvent> aboutListener;
 
     private static MenuBarView instance;
 
@@ -82,6 +88,11 @@ public class MenuBarView implements View {
                     savePrompt();
                 }
             }
+        };
+        aboutListener = event -> {
+            if (event == null) return;
+            if (event.appInfo() == null) return;
+            showAboutWindow(event.appInfo());
         };
     }
 
@@ -166,22 +177,21 @@ public class MenuBarView implements View {
             showHelpWindow(ownerStage);
         });
         aboutMenuItem.setOnAction(e -> {
-            Stage ownerStage = (Stage) aboutMenuItem.getParentPopup().getOwnerWindow();
-            showAboutWindow(ownerStage);
+            aboutEventHandler.showAppInfo();
         });
     }
 
-    private void showAboutWindow(Stage ownerStage) {
-        AboutController controller = AboutController.getInstance();
-        String applicationName = controller.getAppName();
-        String buildDate = controller.getBuildDate();
-        String version = controller.getVerion();
-        String developers = controller.getDevelopers();
+    private void showAboutWindow(Map<String, String> appInfo) {
+        String applicationName = appInfo.get("AppName");
+        String buildDate = appInfo.get("Build Date");
+        String version = appInfo.get("Version");
+        String developers = appInfo.get("Developers");
 
         Stage aboutStage = new Stage();
         aboutStage.setTitle(FrontendMessageProvider.get("about.title"));
 
         aboutStage.initModality(Modality.APPLICATION_MODAL);
+        Stage ownerStage = (Stage) newMenuItem.getParentPopup().getOwnerWindow();
         aboutStage.initOwner(ownerStage); // Set the owner window
 
         VBox contentBox = new VBox(15); // 15px spacing

@@ -3,11 +3,14 @@ package ch.supsi.fscli.frontend;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.PreferencesController;
 import ch.supsi.fscli.backend.core.UserPreferences;
+import ch.supsi.fscli.frontend.controller.AboutController;
 import ch.supsi.fscli.frontend.controller.FileSystemController;
+import ch.supsi.fscli.frontend.event.AboutEvent;
 import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.EventManager;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
+import ch.supsi.fscli.frontend.model.ApplicationModel;
 import ch.supsi.fscli.frontend.model.FileSystemModel;
 import ch.supsi.fscli.frontend.util.FxLogger;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
@@ -109,6 +112,7 @@ public class MainFx extends Application {
 
         EventManager<FileSystemEvent> fileSystemEventManager = new EventManager<>();
         EventManager<CommandLineEvent> commandLineEventManager = new EventManager<>();
+        EventManager<AboutEvent> aboutEventManager = new EventManager<>();
 
         fileSystemEventManager.addListener(this.menuBar.getFileSystemListener());
         fileSystemEventManager.addListener(this.logArea.getFileSystemListener());
@@ -117,6 +121,10 @@ public class MainFx extends Application {
         commandLineEventManager.addListener(this.commandLine.getCommandLineListener());
         commandLineEventManager.addListener(this.logArea.getCommandLineListener());
 
+        aboutEventManager.addListener(menuBar.getAboutListener());
+
+        ApplicationModel appModel = ApplicationModel.getInstance();
+        appModel.setAboutEventPublisher(aboutEventManager);
         FileSystemModel fileSystemModel = FileSystemModel.getInstance();
         fileSystemModel.setFileSystemEventManager(fileSystemEventManager);
         fileSystemModel.setCommandLineEventManager(commandLineEventManager);
@@ -124,8 +132,11 @@ public class MainFx extends Application {
 
         FileSystemController fileSystemController = FileSystemController.getInstance();
         fileSystemController.setModel(fileSystemModel);
+        AboutController aboutController = AboutController.getInstance();
+        aboutController.setModel(appModel);
 
         this.menuBar.setFileSystemEventHandler(fileSystemController);
+        this.menuBar.setAboutEventHandler(aboutController);
         this.commandLine.setCommandLineEventHandler(fileSystemController);
 
         this.menuBar.init();
