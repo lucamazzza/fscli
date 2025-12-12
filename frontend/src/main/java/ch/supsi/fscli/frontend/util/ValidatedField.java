@@ -1,6 +1,7 @@
 package ch.supsi.fscli.frontend.util;
 
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import javafx.beans.property.BooleanProperty;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
+import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;

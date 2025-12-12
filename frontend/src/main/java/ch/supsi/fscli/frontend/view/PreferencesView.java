@@ -1,7 +1,7 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
-import ch.supsi.fscli.frontend.controller.ValidatedField;
+import ch.supsi.fscli.frontend.util.ValidatedField;
 import ch.supsi.fscli.frontend.util.FrontendGlobalVariables;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Insets;
@@ -52,6 +52,7 @@ public class PreferencesView {
 
         stage = new Stage();
         stage.setTitle(FrontendMessageProvider.get("preferences.title"));
+        stage.setResizable(false);
 
         grid = new GridPane();
         grid.setPadding(new Insets(15));

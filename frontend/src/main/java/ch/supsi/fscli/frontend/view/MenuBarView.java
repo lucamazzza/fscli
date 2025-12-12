@@ -222,11 +222,11 @@ public class MenuBarView implements View {
         String title = FrontendMessageProvider.get("help.title");
         String text = FrontendMessageProvider.get("help.text");
 
-        Stage aboutStage = new Stage();
-        aboutStage.setTitle(title);
+        Stage helpStage = new Stage();
+        helpStage.setTitle(title);
 
-        aboutStage.initModality(Modality.APPLICATION_MODAL);
-        aboutStage.initOwner(ownerStage);
+        helpStage.initModality(Modality.APPLICATION_MODAL);
+        helpStage.initOwner(ownerStage);
 
         VBox contentBox = new VBox(15);
         contentBox.setAlignment(Pos.TOP_LEFT);
@@ -244,16 +244,16 @@ public class MenuBarView implements View {
 
 
         Button closeButton = new Button(FrontendMessageProvider.get("help.closeButton"));
-        closeButton.setOnAction(e -> aboutStage.close());
+        closeButton.setOnAction(e -> helpStage.close());
 
         contentBox.getChildren().addAll(titleLabel, scrollPane, closeButton);
 
         Scene aboutScene = new Scene(contentBox, 550, 600);
-        aboutStage.setScene(aboutScene);
+        helpStage.setScene(aboutScene);
 
-        aboutStage.setResizable(true);
+        helpStage.setResizable(false);
 
-        aboutStage.showAndWait();
+        helpStage.showAndWait();
     }
 
     private void menuBarInit() {
