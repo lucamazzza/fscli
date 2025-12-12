@@ -1,7 +1,7 @@
 package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
-import ch.supsi.fscli.frontend.controller.ValidatedField;
+import ch.supsi.fscli.frontend.util.ValidatedField;
 import ch.supsi.fscli.frontend.util.FrontendGlobalVariables;
 import javafx.beans.property.BooleanProperty;
 import javafx.geometry.Insets;
@@ -41,7 +41,6 @@ public class PreferencesView {
         }
         return instance;
     }
-
 
     private PreferencesView(Map<String, String> prefs) {
         initUI(prefs);
