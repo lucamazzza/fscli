@@ -42,7 +42,6 @@ public class PreferencesView {
         return instance;
     }
 
-
     private PreferencesView(Map<String, String> prefs) {
         initUI(prefs);
     }
