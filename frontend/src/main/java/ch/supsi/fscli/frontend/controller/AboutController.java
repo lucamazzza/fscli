@@ -16,9 +16,8 @@ public class AboutController implements AboutEventHandler {
         return instance;
     }
 
-    private AboutController() {
+    AboutController() {
     }
-
 
     @Override
     public void showAppInfo() {
