@@ -1,4 +1,4 @@
-package ch.supsi.fscli.frontend.controller;
+package ch.supsi.fscli.frontend.util;
 
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import javafx.beans.property.BooleanProperty;
 import javafx.scene.control.Label;
@@ -7,8 +7,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.control.TextFormatter;
 import javafx.util.StringConverter;
 
-import java.util.ResourceBundle;
-import java.util.Locale;
 import java.util.function.UnaryOperator;
 
 public class ValidatedField {
@@ -32,7 +30,7 @@ public class ValidatedField {
         UnaryOperator<TextFormatter.Change> filter = change ->
                 change.getControlNewText().matches("\\d*") ? change : null;
 
-        field.setTextFormatter(new TextFormatter<Integer>(new StringConverter<>() {
+        field.setTextFormatter(new TextFormatter<>(new StringConverter<>() {
             @Override
             public String toString(Integer object) { return object == null ? "" : object.toString(); }
             @Override
