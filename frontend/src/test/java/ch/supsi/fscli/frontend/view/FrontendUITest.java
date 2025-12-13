@@ -1,8 +1,6 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.backend.core.UserPreferences;
 import ch.supsi.fscli.backend.di.BackendInjector;
-import ch.supsi.fscli.backend.service.PreferencesService;
 import ch.supsi.fscli.frontend.MainFx;
 import ch.supsi.fscli.frontend.model.FileSystemModel;
 import ch.supsi.fscli.frontend.model.PreferencesModel;
@@ -10,7 +8,6 @@ import ch.supsi.fscli.frontend.util.AppError;
 import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import org.junit.jupiter.api.AfterEach;
@@ -21,12 +18,10 @@ import org.testfx.framework.junit5.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -67,7 +62,7 @@ public class FrontendUITest extends ApplicationTest {
     }
 
     @AfterEach
-    public void tearDown() throws Exception {
+    public void tearDown() {
         // 1. Clean up TestFX Stage (Main Window)
         // We wrap this in try-catch because if Platform.exit() was called,
         // the Toolkit is dead and this method throws an error. We simply ignore it.
