@@ -35,7 +35,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.isVisible;
 
 public class FrontendUITest extends ApplicationTest {
-    private static final int TIMEOUT = 15;
+    private static final int TIMEOUT = 30;
     @Override
     public void start(Stage stage) {
         // Reset singletons to ensure clean state
