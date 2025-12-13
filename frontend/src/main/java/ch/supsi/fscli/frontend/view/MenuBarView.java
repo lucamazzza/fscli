@@ -1,7 +1,9 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import ch.supsi.fscli.frontend.controller.AboutController;
-import ch.supsi.fscli.frontend.controller.PreferencesController;
+import ch.supsi.fscli.frontend.event.AboutEvent;
+import ch.supsi.fscli.frontend.handler.AboutEventHandler;
+import ch.supsi.fscli.frontend.handler.PreferencesHandler;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.listener.Listener;
@@ -19,6 +21,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.File;
+import java.util.Map;
 import java.util.Optional;
 
 @Getter
@@ -31,13 +34,20 @@ public class MenuBarView implements View {
     private final MenuItem saveMenuItem;
     private final MenuItem saveAsMenuItem;
     private final MenuItem newMenuItem;
+    private final MenuItem exitMenuItem;
 
     @Setter
     private FileSystemEventHandler fileSystemEventHandler;
+    @Setter
+    private AboutEventHandler aboutEventHandler;
+    @Setter
+    private PreferencesHandler preferencesHandler;
+    @Setter
+    private ch.supsi.fscli.frontend.event.EventManager<ch.supsi.fscli.frontend.event.PreferencesEvent> preferencesEventManager;
 
     // LISTENERS
     private final Listener<FileSystemEvent> fileSystemListener;
-
+    private final Listener<AboutEvent> aboutListener;
     private static MenuBarView instance;
 
     public static MenuBarView getInstance() {
@@ -55,6 +65,7 @@ public class MenuBarView implements View {
         this.saveMenuItem = new MenuItem(FrontendMessageProvider.get("menu.save"));
         this.saveAsMenuItem = new MenuItem(FrontendMessageProvider.get("menu.saveAs"));
         this.newMenuItem = new MenuItem(FrontendMessageProvider.get("menu.new"));
+        this.exitMenuItem = new MenuItem(FrontendMessageProvider.get("menu.exit"));
         fileSystemListener = event -> {
             if (event == null) return;
             if (event.error() == null) return;
@@ -82,6 +93,11 @@ public class MenuBarView implements View {
                     savePrompt();
                 }
             }
+        };
+        aboutListener = event -> {
+            if (event == null) return;
+            if (event.appInfo() == null) return;
+            showAboutWindow(event.appInfo());
         };
     }
 
@@ -121,7 +137,28 @@ public class MenuBarView implements View {
         });
         saveMenuItem.setOnAction(e -> fileSystemEventHandler.save());
         saveAsMenuItem.setOnAction(e -> savePrompt());
-        exitMenuItem.setOnAction(e -> Platform.exit());
+        exitMenuItem.setOnAction(e -> handleExit());
+    }
+
+    private void handleExit() {
+        if (fileSystemEventHandler != null && fileSystemEventHandler.hasUnsavedChanges()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(FrontendMessageProvider.get("alert.unsavedChanges"));
+            alert.setHeaderText(FrontendMessageProvider.get("alert.unsavedChanges"));
+            alert.setContentText(FrontendMessageProvider.get("alert.unsavedChangesMessage"));
+            alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.YES) {
+                if (!"true".equals(System.getProperty("testMode"))) {
+                    Platform.exit();
+                }
+            }
+        } else {
+            if (!"true".equals(System.getProperty("testMode"))) {
+                Platform.exit();
+            }
+        }
     }
 
     private void savePrompt() {
@@ -142,10 +179,17 @@ public class MenuBarView implements View {
         this.editMenu.getItems().add(preferencesMenuItem);
 
         preferencesMenuItem.setOnAction(e -> {
-            ch.supsi.fscli.backend.controller.PreferencesController backendController = 
-                ch.supsi.fscli.backend.di.BackendInjector.getInstance(ch.supsi.fscli.backend.controller.PreferencesController.class);
-            PreferencesController controller = new PreferencesController();
-            controller.show();
+            if (preferencesHandler != null) {
+                PreferencesView preferencesView = PreferencesView.getInstance();
+                
+                // Register listener if event manager is available and not already registered
+                if (preferencesEventManager != null) {
+                    preferencesEventManager.addListener(preferencesView.getPreferencesListener());
+                }
+                
+                preferencesView.setPreferencesHandler(preferencesHandler);
+                preferencesView.show();
+            }
         });
     }
 
@@ -166,22 +210,21 @@ public class MenuBarView implements View {
             showHelpWindow(ownerStage);
         });
         aboutMenuItem.setOnAction(e -> {
-            Stage ownerStage = (Stage) aboutMenuItem.getParentPopup().getOwnerWindow();
-            showAboutWindow(ownerStage);
+            aboutEventHandler.showAppInfo();
         });
     }
 
-    private void showAboutWindow(Stage ownerStage) {
-        AboutController controller = AboutController.getInstance();
-        String applicationName = controller.getAppName();
-        String buildDate = controller.getBuildDate();
-        String version = controller.getVerion();
-        String developers = controller.getDevelopers();
+    private void showAboutWindow(Map<String, String> appInfo) {
+        String applicationName = appInfo.get("AppName");
+        String buildDate = appInfo.get("Build Date");
+        String version = appInfo.get("Version");
+        String developers = appInfo.get("Developers");
 
         Stage aboutStage = new Stage();
         aboutStage.setTitle(FrontendMessageProvider.get("about.title"));
 
         aboutStage.initModality(Modality.APPLICATION_MODAL);
+        Stage ownerStage = (Stage) newMenuItem.getParentPopup().getOwnerWindow();
         aboutStage.initOwner(ownerStage); // Set the owner window
 
         VBox contentBox = new VBox(15); // 15px spacing
@@ -212,11 +255,11 @@ public class MenuBarView implements View {
         String title = FrontendMessageProvider.get("help.title");
         String text = FrontendMessageProvider.get("help.text");
 
-        Stage aboutStage = new Stage();
-        aboutStage.setTitle(title);
+        Stage helpStage = new Stage();
+        helpStage.setTitle(title);
 
-        aboutStage.initModality(Modality.APPLICATION_MODAL);
-        aboutStage.initOwner(ownerStage);
+        helpStage.initModality(Modality.APPLICATION_MODAL);
+        helpStage.initOwner(ownerStage);
 
         VBox contentBox = new VBox(15);
         contentBox.setAlignment(Pos.TOP_LEFT);
@@ -234,16 +277,16 @@ public class MenuBarView implements View {
 
 
         Button closeButton = new Button(FrontendMessageProvider.get("help.closeButton"));
-        closeButton.setOnAction(e -> aboutStage.close());
+        closeButton.setOnAction(e -> helpStage.close());
 
         contentBox.getChildren().addAll(titleLabel, scrollPane, closeButton);
 
         Scene aboutScene = new Scene(contentBox, 550, 600);
-        aboutStage.setScene(aboutScene);
+        helpStage.setScene(aboutScene);
 
-        aboutStage.setResizable(true);
+        helpStage.setResizable(false);
 
-        aboutStage.showAndWait();
+        helpStage.showAndWait();
     }
 
     private void menuBarInit() {

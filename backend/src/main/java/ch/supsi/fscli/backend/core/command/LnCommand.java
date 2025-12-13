@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 
 public class LnCommand extends AbstractCommand {
 
-
     public LnCommand() {
         super("ln",
                 BackendMessageProvider.get("ln.description"),

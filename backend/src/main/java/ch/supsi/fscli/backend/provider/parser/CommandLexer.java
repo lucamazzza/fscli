@@ -11,7 +11,6 @@ import java.util.List;
  */
 public class CommandLexer {
 
-
     public List<String> tokenize(String input) throws InvalidCommandException {
         if (input == null || input.trim().isEmpty()) {
             throw new InvalidCommandException(BackendMessageProvider.get("commandEmpty"));

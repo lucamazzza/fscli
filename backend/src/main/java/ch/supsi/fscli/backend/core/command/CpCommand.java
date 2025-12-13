@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 
 public class CpCommand extends AbstractCommand {
 
-
     public CpCommand() {
         super("cp",
                 BackendMessageProvider.get("cp.description"),

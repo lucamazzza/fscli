@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 
 public class PwdCommand extends AbstractCommand {
 
-
     public PwdCommand() {
         super("pwd",
                 BackendMessageProvider.get("pwd.description"),

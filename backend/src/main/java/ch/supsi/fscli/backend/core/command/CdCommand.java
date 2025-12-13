@@ -11,7 +11,6 @@ import java.util.ResourceBundle;
 
 public class CdCommand extends AbstractCommand {
 
-
     public CdCommand() {
         super("cd",
                 BackendMessageProvider.get("cd.description"),

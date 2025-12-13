@@ -25,8 +25,6 @@ public class InMemoryFileSystem implements FileSystem {
     private DirectoryNode cwd;
     private final PathResolver pathResolver;
 
-
-
     public InMemoryFileSystem() {
         this.root = new DirectoryNode();
         this.root.setParent(root);

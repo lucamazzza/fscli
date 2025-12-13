@@ -4,15 +4,12 @@ import ch.supsi.fscli.backend.data.FileSystemNode;
 import ch.supsi.fscli.backend.util.FilesystemLogger;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-
 public class FilesystemFileManager {
-
 
     private Path path;
     private final Serializer<FileSystemNode> serializer;

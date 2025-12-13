@@ -4,7 +4,6 @@ import ch.supsi.fscli.backend.controller.FileSystemController;
 import ch.supsi.fscli.backend.controller.FileSystemPersistenceController;
 import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.backend.core.FileSystem;
-import ch.supsi.fscli.backend.data.DirectoryNode;
 import ch.supsi.fscli.backend.data.serde.FilesystemFileManager;
 import ch.supsi.fscli.backend.di.BackendInjector;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
@@ -17,104 +16,109 @@ import lombok.Setter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Supplier;
 
-/**
- * Frontend model for FileSystem.
- * Delegates to backend controller (API boundary).
- */
-public final class FileSystemModel {
+public class FileSystemModel {
     private FileSystemController backendController;
     @Setter
     private FileSystemPersistenceController backendPersistenceController;
-
     @Setter
     private EventPublisher<FileSystemEvent> fileSystemEventManager;
     @Setter
     private EventPublisher<CommandLineEvent> commandLineEventManager;
 
-    private File file;
+    @Setter private File file;
+
+    private final Supplier<FileSystemController> controllerFactory;
 
     private static FileSystemModel instance;
 
     public static FileSystemModel getInstance() {
         if (instance == null) {
-            instance = new FileSystemModel();
+            instance = new FileSystemModel(() ->
+                    BackendInjector.getInjector().getInstance(FileSystemController.class)
+            );
         }
         return instance;
     }
 
-    private FileSystemModel() {
-        file = null;
-        backendController = null;
+    FileSystemModel(Supplier<FileSystemController> controllerFactory) {
+        this.controllerFactory = controllerFactory;
+        this.file = null;
+        this.backendController = null;
+    }
+
+    protected FilesystemFileManager createFileManager(Path path) {
+        return new FilesystemFileManager(path);
     }
 
     public void save() {
         if (!isPersistedFileValid()) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_FAILED_FILE_NOT_FOUND));
+            notifyFsEvent(AppError.SAVE_FAILED_FILE_NOT_FOUND);
             return;
         }
-        FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
+        FilesystemFileManager fileManager = createFileManager(file.toPath());
+
         try {
             fileManager.save(backendPersistenceController.getFileSystem().getRoot());
+            notifyFsEvent(AppError.SAVE_SUCCESS);
         } catch (IOException e) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_FAILED_GENERIC));
+            notifyFsEvent(AppError.SAVE_FAILED_GENERIC);
         }
-        fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_SUCCESS));
     }
 
     public void saveAs(File file) {
         if (file == null) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_AS_FAILED_INVALID_PATH));
+            notifyFsEvent(AppError.SAVE_AS_FAILED_INVALID_PATH);
             return;
         }
         try {
             FileSystem backendFS = backendPersistenceController.getFileSystem();
-            DirectoryNode root = backendFS.getRoot();
-            FilesystemFileManager fileManager = new FilesystemFileManager(file.toPath());
-            fileManager.save(root);
+            FilesystemFileManager fileManager = createFileManager(file.toPath());
+            fileManager.save(backendFS.getRoot());
             this.file = file;
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_AS_SUCCESS));
+            notifyFsEvent(AppError.SAVE_AS_SUCCESS);
         } catch (IOException e) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.SAVE_AS_FAILED_INVALID_PATH));
+            notifyFsEvent(AppError.SAVE_AS_FAILED_INVALID_PATH);
         }
     }
 
     public void load(File file) {
-        if (file == null) return;
-        if (!file.exists()) return;
+        if (file == null || !file.exists()) return;
         if (backendPersistenceController.loadFileSystem(file.toPath())) {
-            this.backendController = BackendInjector.getInjector().getInstance(ch.supsi.fscli.backend.controller.FileSystemController.class);
+            this.backendController = controllerFactory.get();
             this.file = file;
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_SUCCESS));
+            notifyFsEvent(AppError.LOAD_SUCCESS);
             return;
         }
-        fileSystemEventManager.notify(new FileSystemEvent(AppError.LOAD_FAILED_READ));
+        notifyFsEvent(AppError.LOAD_FAILED_READ);
     }
 
     public void createFileSystem(boolean force) {
-        if (fileSystemEventManager == null) return;
-        if (backendPersistenceController == null) return;
+        if (fileSystemEventManager == null || backendPersistenceController == null) return;
         if (file == null && isFileSystemReady() && !force) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_FAILED_UNSAVED_WORK));
+            notifyFsEvent(AppError.NEW_FAILED_UNSAVED_WORK);
             return;
         }
         backendPersistenceController.createNewFileSystem();
         FileSystem fileSystem = backendPersistenceController.getFileSystem();
         if (fileSystem == null) {
-            fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_FAILED_BS_MISSING));
+            notifyFsEvent(AppError.NEW_FAILED_BS_MISSING);
             return;
         }
-        this.backendController = BackendInjector.getInjector().getInstance(FileSystemController.class);
+        this.backendController = controllerFactory.get();
         this.file = null;
-        fileSystemEventManager.notify(new FileSystemEvent(AppError.NEW_SUCCESS));
+        notifyFsEvent(AppError.NEW_SUCCESS);
     }
 
     public CommandResponseDTO executeCommand(String command) {
         if (fileSystemEventManager == null) return CommandResponseDTO.error(BackendMessageProvider.get("filesystem.notLoaded"));
         if (!isFileSystemReady()) {
-            // Make this event better for logging in the future
-            commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_FAILED_FS_MISSING, null, null, null));
+            if (commandLineEventManager != null) {
+                commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_FAILED_FS_MISSING, null, null, null));
+            }
             return CommandResponseDTO.error(FrontendMessageProvider.get("fileEvent.FSNotReady"));
         }
         String currentDir = getCurrentDirectory();
@@ -123,9 +127,7 @@ public final class FileSystemModel {
             commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_FAILED_BAD_RESPONSE, null, null, null));
             return CommandResponseDTO.error(FrontendMessageProvider.get("fileEvent.FSNotReady"));
         }
-
         commandLineEventManager.notify(new CommandLineEvent(AppError.CMD_EXECUTION_SUCCESS, currentDir, response.getOutputAsString(), response.getErrorMessage()));
-
         return CommandResponseDTO.success(response.getOutput());
     }
 
@@ -141,18 +143,17 @@ public final class FileSystemModel {
         return file != null && file.exists();
     }
 
-    public String[] getAvailableCommands() {
-        return backendController.getAvailableCommands();
-    }
-
-    public String getCommandHelp(String commandName) {
-        return backendController.getCommandHelp(commandName);
+    private void notifyFsEvent(AppError error) {
+        if (fileSystemEventManager != null) {
+            fileSystemEventManager.notify(new FileSystemEvent(error));
+        }
     }
 
     public List<String> getAllCommandsHelp() { return backendController.getAllCommandsHelp(); }
 
-    public List<String> getCommandHistory() {
-        return backendController.getHistoryCommands();
+    public List<String> getCommandHistory() { return backendController.getHistoryCommands(); }
+
+    public boolean hasUnsavedChanges() {
+        return file == null && isFileSystemReady();
     }
 }
-

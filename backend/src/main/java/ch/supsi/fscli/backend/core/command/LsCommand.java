@@ -14,7 +14,6 @@ import java.util.ResourceBundle;
 
 public class LsCommand extends AbstractCommand {
 
-
     public LsCommand() {
         super("ls",
                 BackendMessageProvider.get("ls.description"),

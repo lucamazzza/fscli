@@ -24,7 +24,6 @@ public class CommandModule extends AbstractModule {
     @Override
     protected void configure() {
         Multibinder<Command> commandBinder = Multibinder.newSetBinder(binder(), Command.class);
-        
         commandBinder.addBinding().to(CdCommand.class);
         commandBinder.addBinding().to(CpCommand.class);
         commandBinder.addBinding().to(LnCommand.class);
