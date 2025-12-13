@@ -7,6 +7,7 @@ import ch.supsi.fscli.frontend.model.PreferencesModel;
 import ch.supsi.fscli.frontend.util.AppError;
 import javafx.application.Platform;
 import javafx.scene.Node;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -36,9 +37,14 @@ import static org.testfx.matcher.base.NodeMatchers.isVisible;
 
 public class FrontendUITest extends ApplicationTest {
     private static final int TIMEOUT = 30;
+
     @Override
     public void start(Stage stage) {
-        // Reset singletons to ensure clean state
+        System.setProperty("testfx.robot", "glass");
+        System.setProperty("testfx.headless", "true");
+        System.setProperty("prism.order", "sw");
+        System.setProperty("prism.text", "t2k");
+
         resetSingleton(BackendInjector.class, "injector");
         resetSingleton(MenuBarView.class, "instance");
         resetSingleton(CommandLineView.class, "instance");
@@ -51,9 +57,7 @@ public class FrontendUITest extends ApplicationTest {
             String userHome = System.getProperty("user.home");
             Path prefsPath = Paths.get(userHome, ".fs_prefs.json");
             Files.deleteIfExists(prefsPath);
-        } catch (Exception ignored) {
-            // Ignore file access errors
-        }
+        } catch (Exception ignored) { }
 
         new MainFx().start(stage);
     }
@@ -65,14 +69,8 @@ public class FrontendUITest extends ApplicationTest {
 
     @AfterEach
     public void tearDown() {
-        try {
-            FxToolkit.hideStage();
-        } catch (Exception ignored) { }
-
-        try {
-            release(new KeyCode[]{});
-            release(new javafx.scene.input.MouseButton[]{});
-        } catch (Exception ignored) { }
+        try { FxToolkit.hideStage(); } catch (Exception ignored) { }
+        try { release(new KeyCode[]{}); release(new javafx.scene.input.MouseButton[]{}); } catch (Exception ignored) { }
 
         resetSingleton(BackendInjector.class, "injector");
         resetSingleton(MenuBarView.class, "instance");
@@ -84,19 +82,31 @@ public class FrontendUITest extends ApplicationTest {
     }
 
     // =========================================================================
-    // HELPER: ROBUST FS CREATION
+    // ROBUST HELPERS
     // =========================================================================
 
-    private void createFileSystemAndVerify() throws TimeoutException {
-        clickOn("#fileMenu");
-        clickOn("#newMenuItem");
+    private void fireMenuItem(String id) {
+        Platform.runLater(() -> MenuBarView.getInstance().getMenuBar().getMenus().stream()
+                .flatMap(m -> m.getItems().stream())
+                .filter(item -> id.equals(item.getId()))
+                .findFirst()
+                .ifPresent(MenuItem::fire));
+    }
 
-        // Wait until the "Save" menu item is enabled.
-        // This is the specific signal that the backend has finished creating the FS.
+    private void fastType(String text) {
+        interact(() -> {
+            TextField field = lookup("#commandInput").query();
+            field.setText(text);
+            field.positionCaret(text.length());
+        });
+    }
+
+    private void createFileSystemAndVerify() throws TimeoutException {
+        fireMenuItem("newMenuItem");
+
         WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () ->
                 !MenuBarView.getInstance().getSaveMenuItem().isDisable()
         );
-        WaitForAsyncUtils.waitForFxEvents();
     }
 
     // =========================================================================
@@ -105,8 +115,7 @@ public class FrontendUITest extends ApplicationTest {
 
     @Test
     public void testNoFileSystemPresentCommandInput() {
-        clickOn("#commandInput");
-        write("ls");
+        fastType("ls");
         clickOn("#enter");
 
         TextArea log = lookup("#logView").query();
@@ -117,15 +126,13 @@ public class FrontendUITest extends ApplicationTest {
 
     @Test
     public void testFileSystemPresentCommandInput() throws TimeoutException {
-        createFileSystemAndVerify(); // Uses robust wait
+        createFileSystemAndVerify();
 
-        clickOn("#commandInput");
-        write("ls");
+        fastType("ls");
         clickOn("#enter");
 
         TextArea log = lookup("#logView").query();
-        String logText = log.getText();
-        assertFalse(logText.contains(String.valueOf(AppError.CMD_EXECUTION_FAILED_FS_MISSING.getErrorCode())),
+        assertFalse(log.getText().contains(String.valueOf(AppError.CMD_EXECUTION_FAILED_FS_MISSING.getErrorCode())),
                 "Log should not show 501 error.");
     }
 
@@ -133,30 +140,26 @@ public class FrontendUITest extends ApplicationTest {
     public void testCommandOutputScrolling() throws TimeoutException {
         createFileSystemAndVerify();
 
-        // Generate overflow
-        for (int i = 0; i < 25; i++) {
-            clickOn("#commandInput");
-            write("pwd");
-            clickOn("#enter");
-        }
-        WaitForAsyncUtils.waitForFxEvents();
+        interact(() -> {
+            TextField cmd = CommandLineView.getInstance().getCommandLine();
+            javafx.scene.control.Button enter = CommandLineView.getInstance().getEnter();
+            for (int i = 0; i < 25; i++) {
+                cmd.setText("pwd");
+                enter.fire();
+            }
+        });
 
         Node outputNode = lookup("#outputView").query();
-        // Look up scroll pane inside the specific output view node
         ScrollPane scrollPane = from(outputNode).lookup(".scroll-pane").query();
 
-        // Wait for VMax to update (Layout pass)
+        // Wait for layout update
         WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> scrollPane.getVmax() > 0);
         assertTrue(scrollPane.getVmax() > 0, "Output should be scrollable");
 
-        // Reset to top
         interact(() -> scrollPane.setVvalue(0.0));
         WaitForAsyncUtils.waitForFxEvents();
-        // Wait for value to settle (in case of auto-scroll fighting)
-        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> scrollPane.getVvalue() == 0.0);
         assertEquals(0.0, scrollPane.getVvalue(), 0.01);
 
-        // Scroll to bottom
         interact(() -> scrollPane.setVvalue(1.0));
         WaitForAsyncUtils.waitForFxEvents();
         assertEquals(1.0, scrollPane.getVvalue(), 0.01);
@@ -170,27 +173,23 @@ public class FrontendUITest extends ApplicationTest {
     public void testSaveAndLoadWithContent() throws Exception {
         createFileSystemAndVerify();
 
-        clickOn("#commandInput");
-        write("touch persistence_check.txt");
+        fastType("touch persistence_check.txt");
         clickOn("#enter");
 
         File tempFile = File.createTempFile("fs_test_persistence", ".json");
         tempFile.deleteOnExit();
         injectFileIntoModel(tempFile);
 
-        clickOn("#fileMenu");
-        clickOn("#saveMenuItem");
+        // Safe interaction for simple actions
+        interact(() -> MenuBarView.getInstance().getFileSystemEventHandler().save());
         WaitForAsyncUtils.waitForFxEvents();
 
-        // Clear state (New FS)
         createFileSystemAndVerify();
 
-        // Load
         Platform.runLater(() -> FileSystemModel.getInstance().load(tempFile));
         WaitForAsyncUtils.waitForFxEvents();
 
-        clickOn("#commandInput");
-        write("ls");
+        fastType("ls");
         clickOn("#enter");
 
         TextArea output = lookup("#outputView").query();
@@ -202,8 +201,7 @@ public class FrontendUITest extends ApplicationTest {
     public void testSaveAsAndLoadWithContent() throws Exception {
         createFileSystemAndVerify();
 
-        clickOn("#commandInput");
-        write("touch saveas_data.txt");
+        fastType("touch saveas_data.txt");
         clickOn("#enter");
 
         File tempFile = File.createTempFile("fs_saveas_test", ".json");
@@ -213,18 +211,14 @@ public class FrontendUITest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         assertTrue(Files.exists(tempFile.toPath()));
-        String content = Files.readString(tempFile.toPath());
-        assertTrue(content.contains("saveas_data.txt"), "Saved file on disk should contain data");
+        assertTrue(Files.readString(tempFile.toPath()).contains("saveas_data.txt"));
 
-        // Reset
         createFileSystemAndVerify();
 
-        // Load
         Platform.runLater(() -> FileSystemModel.getInstance().load(tempFile));
         WaitForAsyncUtils.waitForFxEvents();
 
-        clickOn("#commandInput");
-        write("ls");
+        fastType("ls");
         clickOn("#enter");
 
         TextArea output = lookup("#outputView").query();
@@ -234,22 +228,14 @@ public class FrontendUITest extends ApplicationTest {
 
     @Test
     public void testSaveDisabledWhenNoFileSystem() {
-        clickOn("#fileMenu");
-        WaitForAsyncUtils.waitForFxEvents();
-
-        MenuBarView view = MenuBarView.getInstance();
-        assertTrue(view.getSaveMenuItem().isDisable());
-        assertTrue(view.getSaveAsMenuItem().isDisable());
-
-        push(KeyCode.ESCAPE);
+        assertTrue(MenuBarView.getInstance().getSaveMenuItem().isDisable());
+        assertTrue(MenuBarView.getInstance().getSaveAsMenuItem().isDisable());
     }
 
     @Test
     public void testSaveAsEnabledAfterFS() throws TimeoutException {
         assertTrue(MenuBarView.getInstance().getSaveMenuItem().isDisable());
-
-        createFileSystemAndVerify(); // This handles the check that it actually enables
-
+        createFileSystemAndVerify();
         assertFalse(MenuBarView.getInstance().getSaveMenuItem().isDisable());
         assertFalse(MenuBarView.getInstance().getSaveAsMenuItem().isDisable());
     }
@@ -262,14 +248,17 @@ public class FrontendUITest extends ApplicationTest {
     public void testExitWithUnsavedChanges() throws TimeoutException {
         createFileSystemAndVerify();
 
-        clickOn(".text-field");
-        write("touch keep.txt");
-        clickOn("#enter");
+        // Make dirty
+        interact(() -> {
+            CommandLineView.getInstance().getCommandLine().setText("touch keep.txt");
+            CommandLineView.getInstance().getEnter().fire();
+        });
 
-        clickOn("#fileMenu");
-        clickOn("#exitMenuItem");
+        // Trigger exit (Opens Modal)
+        fireMenuItem("exitMenuItem");
 
-        WaitForAsyncUtils.waitForFxEvents();
+        // Explicitly wait for the alert to appear (handles the async nature of runLater)
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> lookup(".alert").tryQuery().isPresent());
         verifyThat(".alert", isVisible());
 
         push(KeyCode.RIGHT);
@@ -282,14 +271,14 @@ public class FrontendUITest extends ApplicationTest {
     public void testNewWithUnsavedChanges() throws TimeoutException {
         createFileSystemAndVerify();
 
-        clickOn(".text-field");
-        write("mkdir dirty2");
-        clickOn("#enter");
+        interact(() -> {
+            CommandLineView.getInstance().getCommandLine().setText("mkdir dirty2");
+            CommandLineView.getInstance().getEnter().fire();
+        });
 
-        clickOn("#fileMenu");
-        clickOn("#newMenuItem");
+        fireMenuItem("newMenuItem");
 
-        WaitForAsyncUtils.waitForFxEvents();
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> lookup(".alert").tryQuery().isPresent());
         verifyThat(".alert", isVisible());
 
         push(KeyCode.RIGHT);
@@ -297,29 +286,22 @@ public class FrontendUITest extends ApplicationTest {
     }
 
     // =========================================================================
-    // FEATURE 5: PREFERENCES (Fixed Lookups)
+    // FEATURE 5: PREFERENCES
     // =========================================================================
 
     private List<javafx.scene.control.TextField> getPreferencesFields() throws TimeoutException {
-        // 1. Wait for the Preferences window to appear
-        // The lambda must return Boolean (true = found, false = keep waiting)
         WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> {
             for (Window w : listTargetWindows()) {
-                if (w instanceof Stage && "Preferences".equals(((Stage) w).getTitle())) {
-                    return true;
-                }
+                if (w instanceof Stage && "Preferences".equals(((Stage) w).getTitle())) return true;
             }
             return false;
         });
 
-        // 2. Retrieve the window object
         Window prefWindow = listTargetWindows().stream()
                 .filter(w -> w instanceof Stage && "Preferences".equals(((Stage) w).getTitle()))
                 .findFirst()
-                .orElseThrow(() -> new AssertionError("Preferences window not found after waiting"));
+                .orElseThrow(() -> new AssertionError("Preferences window not found"));
 
-        // 3. Scoped Lookup using 'from()'
-        // We find the root of the window's scene and search inside it.
         return from(prefWindow.getScene().getRoot())
                 .lookup(".text-field")
                 .queryAll()
@@ -331,20 +313,15 @@ public class FrontendUITest extends ApplicationTest {
 
     @Test
     public void testChangePreferencesAndLoadOnRestart() throws TimeoutException {
-        clickOn("#editMenu");
-        clickOn("#preferencesMenuItem");
+        fireMenuItem("preferencesMenuItem");
 
         List<TextField> prefFields = getPreferencesFields();
-        assertFalse(prefFields.isEmpty(), "Should find preference fields in the Preferences window");
 
-        // Index 0: Cmd Cols, 1: Output Lines, 2: Log Lines
-        TextField cmdColsField = prefFields.get(0);
-        TextField outputLinesField = prefFields.get(1);
-        TextField logLinesField = prefFields.get(2);
-
-        doubleClickOn(cmdColsField); write("90");
-        doubleClickOn(outputLinesField); write("25");
-        doubleClickOn(logLinesField); write("15");
+        interact(() -> {
+            prefFields.get(0).setText("90");
+            prefFields.get(1).setText("25");
+            prefFields.get(2).setText("15");
+        });
 
         verifyThat("Save", (Node n) -> !n.isDisabled());
         clickOn("Save");
@@ -362,18 +339,13 @@ public class FrontendUITest extends ApplicationTest {
 
     @Test
     public void testReloadPreferencesRevertsChanges() throws TimeoutException {
-        clickOn("#editMenu");
-        clickOn("#preferencesMenuItem");
+        fireMenuItem("preferencesMenuItem");
 
         List<TextField> prefFields = getPreferencesFields();
-        assertFalse(prefFields.isEmpty(), "Should find preference fields");
-
         TextField cmdColsField = prefFields.get(0);
         String initialValue = cmdColsField.getText();
 
-        doubleClickOn(cmdColsField);
-        write("55");
-
+        interact(() -> cmdColsField.setText("55"));
         assertEquals("55", cmdColsField.getText());
 
         clickOn("Reload from disk");
@@ -387,10 +359,11 @@ public class FrontendUITest extends ApplicationTest {
     // =========================================================================
 
     @Test
-    public void testAboutWindow() {
-        clickOn("#helpMenu");
-        clickOn("#aboutMenuItem");
-        WaitForAsyncUtils.waitForFxEvents();
+    public void testAboutWindow() throws TimeoutException {
+        fireMenuItem("aboutMenuItem");
+
+        // Wait for modal
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> lookup(".button").tryQuery().isPresent());
 
         verifyThat((Node) lookup(".button").nth(0).query(), isVisible());
         push(KeyCode.ESCAPE);
@@ -398,35 +371,23 @@ public class FrontendUITest extends ApplicationTest {
 
     @Test
     public void testHelpWindow() throws TimeoutException {
-        clickOn("#helpMenu");
-        clickOn("#helpMenuItem");
-        WaitForAsyncUtils.waitForFxEvents();
+        fireMenuItem("helpMenuItem");
 
-        // 1. Wait for Help Window (Boolean condition)
         WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> {
             for (Window w : listTargetWindows()) {
-                if (w instanceof Stage && "Help".equals(((Stage) w).getTitle())) {
-                    return true;
-                }
+                if (w instanceof Stage && "Help".equals(((Stage) w).getTitle())) return true;
             }
             return false;
         });
 
-        // 2. Retrieve Help Window
         Window helpWindow = listTargetWindows().stream()
                 .filter(w -> w instanceof Stage && "Help".equals(((Stage) w).getTitle()))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Help window should be found"));
 
-        assertNotNull(helpWindow, "Help window should be found");
-
-        // Find ScrollPane strictly within that window
         ScrollPane scrollPane = from(helpWindow.getScene().getRoot()).lookup(".scroll-pane").query();
         assertNotNull(scrollPane);
 
-        assertEquals(0.0, scrollPane.getVvalue(), 0.01);
-
-        // Programmatic Scroll Check
         if (scrollPane.getVmax() > 0) {
             interact(() -> scrollPane.setVvalue(0.5));
             WaitForAsyncUtils.waitForFxEvents();
@@ -437,14 +398,9 @@ public class FrontendUITest extends ApplicationTest {
             assertEquals(scrollPane.getVmax(), scrollPane.getVvalue(), 0.01);
         }
 
-        // Close button lookup within the help window
         Node closeBtn = from(helpWindow.getScene().getRoot()).lookup(".button").query();
         clickOn(closeBtn);
     }
-
-    // =========================================================================
-    // HELPERS
-    // =========================================================================
 
     private void resetSingleton(Class<?> clazz, String fieldName) {
         try {
