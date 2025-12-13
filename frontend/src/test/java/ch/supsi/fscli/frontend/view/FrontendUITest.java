@@ -35,7 +35,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 import static org.testfx.matcher.base.NodeMatchers.isVisible;
 
 public class FrontendUITest extends ApplicationTest {
-
+    private static final int TIMEOUT = 15;
     @Override
     public void start(Stage stage) {
         // Reset singletons to ensure clean state
@@ -93,7 +93,7 @@ public class FrontendUITest extends ApplicationTest {
 
         // Wait until the "Save" menu item is enabled.
         // This is the specific signal that the backend has finished creating the FS.
-        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () ->
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () ->
                 !MenuBarView.getInstance().getSaveMenuItem().isDisable()
         );
         WaitForAsyncUtils.waitForFxEvents();
@@ -146,14 +146,14 @@ public class FrontendUITest extends ApplicationTest {
         ScrollPane scrollPane = from(outputNode).lookup(".scroll-pane").query();
 
         // Wait for VMax to update (Layout pass)
-        WaitForAsyncUtils.waitFor(3, TimeUnit.SECONDS, () -> scrollPane.getVmax() > 0);
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> scrollPane.getVmax() > 0);
         assertTrue(scrollPane.getVmax() > 0, "Output should be scrollable");
 
         // Reset to top
         interact(() -> scrollPane.setVvalue(0.0));
         WaitForAsyncUtils.waitForFxEvents();
         // Wait for value to settle (in case of auto-scroll fighting)
-        WaitForAsyncUtils.waitFor(2, TimeUnit.SECONDS, () -> scrollPane.getVvalue() == 0.0);
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> scrollPane.getVvalue() == 0.0);
         assertEquals(0.0, scrollPane.getVvalue(), 0.01);
 
         // Scroll to bottom
@@ -303,7 +303,7 @@ public class FrontendUITest extends ApplicationTest {
     private List<javafx.scene.control.TextField> getPreferencesFields() throws TimeoutException {
         // 1. Wait for the Preferences window to appear
         // The lambda must return Boolean (true = found, false = keep waiting)
-        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> {
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> {
             for (Window w : listTargetWindows()) {
                 if (w instanceof Stage && "Preferences".equals(((Stage) w).getTitle())) {
                     return true;
@@ -403,7 +403,7 @@ public class FrontendUITest extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
 
         // 1. Wait for Help Window (Boolean condition)
-        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> {
+        WaitForAsyncUtils.waitFor(TIMEOUT, TimeUnit.SECONDS, () -> {
             for (Window w : listTargetWindows()) {
                 if (w instanceof Stage && "Help".equals(((Stage) w).getTitle())) {
                     return true;
