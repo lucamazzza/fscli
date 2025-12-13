@@ -1,6 +1,5 @@
 package ch.supsi.fscli.frontend.view;
 
-import ch.supsi.fscli.backend.controller.dto.CommandResponseDTO;
 import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.CommandLineEventHandler;
@@ -91,6 +90,7 @@ public class CommandLineView implements View {
     }
 
     private void commandLineInit() {
+        this.commandLine.setId("commandInput");
         this.commandLine.setPrefColumnCount(COMMAND_LINE_PREF_COLUMN_COUNT);
         this.commandLine.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {

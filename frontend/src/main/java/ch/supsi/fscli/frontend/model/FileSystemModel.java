@@ -29,7 +29,7 @@ public class FileSystemModel {
     @Setter
     private EventPublisher<CommandLineEvent> commandLineEventManager;
 
-    private File file;
+    @Setter private File file;
 
     private final Supplier<FileSystemController> controllerFactory;
 

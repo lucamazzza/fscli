@@ -34,6 +34,7 @@ public class MenuBarView implements View {
     private final MenuItem saveMenuItem;
     private final MenuItem saveAsMenuItem;
     private final MenuItem newMenuItem;
+    private final MenuItem exitMenuItem;
 
     @Setter
     private FileSystemEventHandler fileSystemEventHandler;
@@ -65,6 +66,7 @@ public class MenuBarView implements View {
         this.saveMenuItem = new MenuItem(FrontendMessageProvider.get("menu.save"));
         this.saveAsMenuItem = new MenuItem(FrontendMessageProvider.get("menu.saveAs"));
         this.newMenuItem = new MenuItem(FrontendMessageProvider.get("menu.new"));
+        this.exitMenuItem = new MenuItem(FrontendMessageProvider.get("menu.exit"));
         fileSystemListener = event -> {
             if (event == null) return;
             if (event.error() == null) return;
@@ -112,7 +114,6 @@ public class MenuBarView implements View {
         this.saveAsMenuItem.setId("saveAsMenuItem");
         this.saveAsMenuItem.setDisable(true);
 
-        MenuItem exitMenuItem = new MenuItem(FrontendMessageProvider.get("menu.exit"));
         exitMenuItem.setId("exitMenuItem");
 
         this.fileMenu.setId("fileMenu");
