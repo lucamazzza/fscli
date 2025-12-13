@@ -2,8 +2,8 @@ package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.event.AboutEvent;
 import ch.supsi.fscli.frontend.handler.AboutEventHandler;
+import ch.supsi.fscli.frontend.handler.PreferencesHandler;
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
-import ch.supsi.fscli.frontend.controller.PreferencesController;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
 import ch.supsi.fscli.frontend.handler.FileSystemEventHandler;
 import ch.supsi.fscli.frontend.listener.Listener;
@@ -39,6 +39,10 @@ public class MenuBarView implements View {
     private FileSystemEventHandler fileSystemEventHandler;
     @Setter
     private AboutEventHandler aboutEventHandler;
+    @Setter
+    private PreferencesHandler preferencesHandler;
+    @Setter
+    private ch.supsi.fscli.frontend.event.EventManager<ch.supsi.fscli.frontend.event.PreferencesEvent> preferencesEventManager;
 
     // LISTENERS
     private final Listener<FileSystemEvent> fileSystemListener;
@@ -132,7 +136,24 @@ public class MenuBarView implements View {
         });
         saveMenuItem.setOnAction(e -> fileSystemEventHandler.save());
         saveAsMenuItem.setOnAction(e -> savePrompt());
-        exitMenuItem.setOnAction(e -> Platform.exit());
+        exitMenuItem.setOnAction(e -> handleExit());
+    }
+
+    private void handleExit() {
+        if (fileSystemEventHandler != null && fileSystemEventHandler.hasUnsavedChanges()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(FrontendMessageProvider.get("alert.unsavedChanges"));
+            alert.setHeaderText(FrontendMessageProvider.get("alert.unsavedChanges"));
+            alert.setContentText(FrontendMessageProvider.get("alert.unsavedChangesMessage"));
+            alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.YES) {
+                Platform.exit();
+            }
+        } else {
+            Platform.exit();
+        }
     }
 
     private void savePrompt() {
@@ -153,10 +174,17 @@ public class MenuBarView implements View {
         this.editMenu.getItems().add(preferencesMenuItem);
 
         preferencesMenuItem.setOnAction(e -> {
-            ch.supsi.fscli.backend.controller.PreferencesController backendController = 
-                ch.supsi.fscli.backend.di.BackendInjector.getInstance(ch.supsi.fscli.backend.controller.PreferencesController.class);
-            PreferencesController controller = new PreferencesController();
-            controller.show();
+            if (preferencesHandler != null) {
+                PreferencesView preferencesView = PreferencesView.getInstance();
+                
+                // Register listener if event manager is available and not already registered
+                if (preferencesEventManager != null) {
+                    preferencesEventManager.addListener(preferencesView.getPreferencesListener());
+                }
+                
+                preferencesView.setPreferencesHandler(preferencesHandler);
+                preferencesView.show();
+            }
         });
     }
 

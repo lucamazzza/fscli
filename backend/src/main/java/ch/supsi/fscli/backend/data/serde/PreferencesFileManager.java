@@ -5,14 +5,12 @@ import ch.supsi.fscli.backend.util.BackendGlobalVariables;
 import ch.supsi.fscli.backend.util.PreferencesLogger;
 import ch.supsi.fscli.backend.i18n.BackendMessageProvider;
 
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
 public class PreferencesFileManager {
-
 
     private final Path prefPath;
     private final Serializer<UserPreferences> serializer = new Serializer<>();

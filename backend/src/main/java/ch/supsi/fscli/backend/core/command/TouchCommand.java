@@ -12,7 +12,6 @@ import java.util.ResourceBundle;
 
 public class TouchCommand extends AbstractCommand {
 
-
     public TouchCommand() {
         super("touch",
                 BackendMessageProvider.get("touch.description"),

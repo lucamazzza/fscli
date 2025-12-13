@@ -9,6 +9,7 @@ import ch.supsi.fscli.frontend.event.AboutEvent;
 import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.EventManager;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
+import ch.supsi.fscli.frontend.event.PreferencesEvent;
 import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import ch.supsi.fscli.frontend.model.ApplicationModel;
 import ch.supsi.fscli.frontend.model.FileSystemModel;
@@ -20,6 +21,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
@@ -27,6 +29,7 @@ import ch.supsi.fscli.backend.di.BackendInjector;
 import ch.supsi.fscli.frontend.util.*;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,6 +116,7 @@ public class MainFx extends Application {
         EventManager<FileSystemEvent> fileSystemEventManager = new EventManager<>();
         EventManager<CommandLineEvent> commandLineEventManager = new EventManager<>();
         EventManager<AboutEvent> aboutEventManager = new EventManager<>();
+        EventManager<PreferencesEvent> preferencesEventManager = new EventManager<>();
 
         fileSystemEventManager.addListener(this.menuBar.getFileSystemListener());
         fileSystemEventManager.addListener(this.logArea.getFileSystemListener());
@@ -123,20 +127,32 @@ public class MainFx extends Application {
 
         aboutEventManager.addListener(menuBar.getAboutListener());
 
+        preferencesEventManager.addListener(this.logArea.getPreferencesListener());
+
         ApplicationModel appModel = ApplicationModel.getInstance();
         appModel.setAboutEventPublisher(aboutEventManager);
+        
         FileSystemModel fileSystemModel = FileSystemModel.getInstance();
         fileSystemModel.setFileSystemEventManager(fileSystemEventManager);
         fileSystemModel.setCommandLineEventManager(commandLineEventManager);
         fileSystemModel.setBackendPersistenceController(backendPersistenceController);
 
+        ch.supsi.fscli.frontend.model.PreferencesModel preferencesModel = ch.supsi.fscli.frontend.model.PreferencesModel.getInstance();
+        preferencesModel.setPreferencesEventPublisher(preferencesEventManager);
+
         FileSystemController fileSystemController = FileSystemController.getInstance();
         fileSystemController.setModel(fileSystemModel);
+        
         AboutController aboutController = AboutController.getInstance();
         aboutController.setModel(appModel);
 
+        ch.supsi.fscli.frontend.controller.PreferencesController preferencesController = ch.supsi.fscli.frontend.controller.PreferencesController.getInstance();
+        preferencesController.setModel(preferencesModel);
+
         this.menuBar.setFileSystemEventHandler(fileSystemController);
         this.menuBar.setAboutEventHandler(aboutController);
+        this.menuBar.setPreferencesHandler(preferencesController);
+        this.menuBar.setPreferencesEventManager(preferencesEventManager);
         this.commandLine.setCommandLineEventHandler(fileSystemController);
 
         this.menuBar.init();
@@ -201,9 +217,24 @@ public class MainFx extends Application {
                 80 + prefs.getOutputLines() * 20 + prefs.getLogLines() * 15
         );
 
+        FileSystemController fsController = FileSystemController.getInstance();
+        primaryStage.setOnCloseRequest(event -> {
+            if (fsController != null && fsController.hasUnsavedChanges()) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(FrontendMessageProvider.get("alert.unsavedChanges"));
+                alert.setHeaderText(FrontendMessageProvider.get("alert.unsavedChanges"));
+                alert.setContentText(FrontendMessageProvider.get("alert.unsavedChangesMessage"));
+                alert.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
+
+                Optional<ButtonType> result = alert.showAndWait();
+                if (result.isEmpty() || result.get() != ButtonType.YES) {
+                    event.consume(); // Cancel the close request
+                }
+            }
+        });
+
         primaryStage.show();
 
-        // Alert opzionale se preferenze erano state clamped
         if (prefs.wasClamped()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle(FrontendMessageProvider.get("preferences.warning.title"));

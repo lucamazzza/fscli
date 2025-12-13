@@ -12,7 +12,6 @@ import java.util.ResourceBundle;
 
 public class MkdirCommand extends AbstractCommand {
 
-
     public MkdirCommand() {
         super("mkdir",
                 BackendMessageProvider.get("mkdir.description"),

@@ -20,8 +20,7 @@ public class FileSystemController implements FileSystemEventHandler, CommandLine
         return instance;
     }
 
-    FileSystemController() {
-    }
+    FileSystemController() {}
 
     @Override
     public void newFileSystem(boolean force) {
@@ -50,5 +49,11 @@ public class FileSystemController implements FileSystemEventHandler, CommandLine
         if (model == null) return;
         if (command == null || command.isBlank()) return;
         model.executeCommand(command.trim());
+    }
+
+    @Override
+    public boolean hasUnsavedChanges() {
+        if (model == null) return false;
+        return model.hasUnsavedChanges();
     }
 }

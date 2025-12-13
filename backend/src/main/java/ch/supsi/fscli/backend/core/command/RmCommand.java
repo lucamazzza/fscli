@@ -12,7 +12,6 @@ import java.util.ResourceBundle;
 
 public class RmCommand extends AbstractCommand {
 
-
     public RmCommand() {
         super("rm",
                 BackendMessageProvider.get("rm.description"),

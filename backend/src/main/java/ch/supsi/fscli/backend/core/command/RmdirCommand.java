@@ -12,7 +12,6 @@ import java.util.ResourceBundle;
 
 public class RmdirCommand extends AbstractCommand {
 
-
     public RmdirCommand() {
         super("rmdir",
                 BackendMessageProvider.get("rmdir.description"),

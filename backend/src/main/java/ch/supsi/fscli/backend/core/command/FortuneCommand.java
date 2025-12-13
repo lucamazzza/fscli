@@ -28,7 +28,11 @@ public class FortuneCommand extends AbstractCommand {
         "È una vittoria da conigli? Si, ma è meglio di una sconfitta da leoni!",
         "You are not as smart as Linus Torvalds.",
         "NON lavorate mai con i Designer",
-        "I datascientist non producono software, martellano soluzioni"
+        "I datascientist non producono software, martellano soluzioni",
+        "Basta passare dalla via con meno resistenza, come diceva Ohm.",
+        "La moglie di Ohm come si chiamava? Donn?",
+        "È generalmente buona educazione aggiungere i thread alla lista",
+        "Agile non è nato ieri, è nato l'altro ieri"
     );
     
     private final Random random;

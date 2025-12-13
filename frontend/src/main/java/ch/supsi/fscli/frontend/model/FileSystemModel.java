@@ -144,7 +144,6 @@ public class FileSystemModel {
         return file != null && file.exists();
     }
 
-    // Helper to reduce code duplication
     private void notifyFsEvent(AppError error) {
         if (fileSystemEventManager != null) {
             fileSystemEventManager.notify(new FileSystemEvent(error));
@@ -154,4 +153,8 @@ public class FileSystemModel {
     public List<String> getAllCommandsHelp() { return backendController.getAllCommandsHelp(); }
 
     public List<String> getCommandHistory() { return backendController.getHistoryCommands(); }
+
+    public boolean hasUnsavedChanges() {
+        return file == null && isFileSystemReady();
+    }
 }

@@ -27,7 +27,12 @@ public enum AppError {
     // --- COMMAND EXECUTION OPERATIONS (500 Series) ---
     CMD_EXECUTION_SUCCESS(500, "Command executed successfully."),
     CMD_EXECUTION_FAILED_FS_MISSING(501, FrontendMessageProvider.get("command.Notsuccessful")),
-    CMD_EXECUTION_FAILED_BAD_RESPONSE(502, FrontendMessageProvider.get("command.NotsuccessfulBad"));
+    CMD_EXECUTION_FAILED_BAD_RESPONSE(502, FrontendMessageProvider.get("command.NotsuccessfulBad")),
+
+    // --- PREFERENCES OPERATIONS (600 Series) ---
+    PREFERENCES_LOADED(600, FrontendMessageProvider.get("preferences.loaded")),
+    PREFERENCES_SAVED(601, FrontendMessageProvider.get("preferences.saved")),
+    PREFERENCES_SAVE_FAILED(602, FrontendMessageProvider.get("preferences.saveFailed"));
 
     private final int errorCode;
     private final String defaultMessage;

@@ -2,11 +2,12 @@ package ch.supsi.fscli.frontend.view;
 
 import ch.supsi.fscli.frontend.event.CommandLineEvent;
 import ch.supsi.fscli.frontend.event.FileSystemEvent;
+import ch.supsi.fscli.frontend.event.PreferencesEvent;
 import ch.supsi.fscli.frontend.listener.Listener;
 import ch.supsi.fscli.frontend.util.AppError;
 import javafx.application.Platform;
 import javafx.scene.control.TextArea;
-import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;import javafx.scene.control.TextArea;
+import ch.supsi.fscli.frontend.i18n.FrontendMessageProvider;
 import lombok.Getter;
 
 import java.time.LocalTime;
@@ -20,6 +21,7 @@ public class LogAreaView implements View {
 
     private final Listener<FileSystemEvent> fileSystemListener;
     private final Listener<CommandLineEvent> commandLineListener;
+    private final Listener<PreferencesEvent> preferencesListener;
 
     private static LogAreaView instance;
 
@@ -42,11 +44,30 @@ public class LogAreaView implements View {
             if (event.error() == null) return;
             logError(event.error());
         };
+        this.preferencesListener = event -> {
+            if (event == null) return;
+            if (event.error() == null) return;
+            logError(event.error());
+        };
     }
 
     private void logError(AppError error) {
         switch (error) {
-            case NEW_SUCCESS, NEW_FAILED_BS_MISSING, SAVE_SUCCESS ,SAVE_FAILED_GENERIC, CMD_EXECUTION_FAILED_FS_MISSING -> log(error);
+            case NEW_SUCCESS,
+                 NEW_FAILED_BS_MISSING, 
+                 SAVE_SUCCESS,
+                 SAVE_FAILED_GENERIC, 
+                 SAVE_FAILED_FILE_NOT_FOUND,
+                 SAVE_AS_SUCCESS,
+                 SAVE_AS_FAILED_INVALID_PATH,
+                 LOAD_SUCCESS,
+                 LOAD_FAILED_READ,
+                 PREFERENCES_SAVED,
+                 PREFERENCES_LOADED,
+                 PREFERENCES_SAVE_FAILED,
+                 CMD_EXECUTION_FAILED_FS_MISSING,
+                 CMD_EXECUTION_FAILED_BAD_RESPONSE
+                -> log(error);
             case NEW_FAILED_UNSAVED_WORK -> {
                 return;
             }

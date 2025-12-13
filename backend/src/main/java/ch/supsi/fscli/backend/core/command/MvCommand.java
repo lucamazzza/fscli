@@ -12,7 +12,6 @@ import java.util.ResourceBundle;
 
 public class MvCommand extends AbstractCommand {
 
-
     public MvCommand() {
         super("mv",
                 BackendMessageProvider.get("mv.description"),

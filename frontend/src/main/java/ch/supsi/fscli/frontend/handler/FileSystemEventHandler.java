@@ -7,4 +7,5 @@ public interface FileSystemEventHandler extends EventHandler {
     void save();
     void saveAs(File file);
     void load(File file);
+    boolean hasUnsavedChanges();
 }

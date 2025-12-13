@@ -15,8 +15,6 @@ public class ValidatedField {
     private final TextField field;
     private final BooleanProperty invalid;
 
-    // ResourceBundle for localized messages
-
     public ValidatedField(int initialValue, int min, int max) {
         this.field = new TextField(String.valueOf(initialValue));
         this.invalid = new javafx.beans.property.SimpleBooleanProperty(false);
@@ -27,7 +25,6 @@ public class ValidatedField {
         container = new VBox(field, errorLabel);
         container.setSpacing(2);
 
-        // Blocca input non numerico
         UnaryOperator<TextFormatter.Change> filter = change ->
                 change.getControlNewText().matches("\\d*") ? change : null;
 
@@ -38,7 +35,6 @@ public class ValidatedField {
             public Integer fromString(String string) { return string.isEmpty() ? 0 : Integer.parseInt(string); }
         }, initialValue, filter));
 
-        // Listener per validazione
         field.textProperty().addListener((obs, oldVal, newVal) -> {
             int value = newVal.isEmpty() ? 0 : Integer.parseInt(newVal);
             if (value < min || value > max) {
